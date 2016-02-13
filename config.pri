@@ -54,7 +54,7 @@ contains (EV,core) {
     DEPENDPATH += $$LIB_DIR
 }
 
-contains (EV,jit) {
-    LIBS += -L$$LIB_DIR -lev_jit
+contains (EV,vm) {
+    LIBS += -L$$LIB_DIR -lev_vm
     DEPENDPATH += $$LIB_DIR
 }
