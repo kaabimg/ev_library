@@ -27,7 +27,7 @@ HEADERS += \
 
 ## libjit
 
-LIBJIT_INSTALL_DIR = /home/ghaith/development/installs/libjit/install
+LIBJIT_INSTALL_DIR = /home/ghaith/data/development/installs/libjit/install
 
 INCLUDEPATH += $$LIBJIT_INSTALL_DIR/include
 LIBS += -L$$LIBJIT_INSTALL_DIR/lib/ -ljitplus -ljit -ljitdynamic

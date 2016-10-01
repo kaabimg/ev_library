@@ -221,7 +221,7 @@ private:
 
 };
 
-enum scope_type_e {
+enum class scope_type_e {
     function,
     block
 };

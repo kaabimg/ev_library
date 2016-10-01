@@ -2,10 +2,10 @@
 
 CONFIG -= app_bundle
 CONFIG -= qt
+CONFIG += c++14
 
 LIBS += -pthread
 
-QMAKE_CXXFLAGS += -std=c++1y
 
 ROOT_DIR = $$PWD/..
 BUILD_DIR = $$ROOT_DIR/build
@@ -39,7 +39,7 @@ OBJECTS_DIR = $$DESTDIR/.obj$$TARGET
 
 ## boost
 
-BOOST_DIR = /home/ghaith/development/installs/boost/boost_1_60_0
+BOOST_DIR = /home/ghaith/data/development/installs/boost/boost_1_60_0
 
 INCLUDEPATH += $$BOOST_DIR
 
