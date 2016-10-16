@@ -1,7 +1,7 @@
 #ifndef EV_PARSER_H
 #define EV_PARSER_H
 
-#include <core/macros.h>
+#include <core/preprocessor.h>
 #include <memory>
 
 namespace ev { namespace vm {

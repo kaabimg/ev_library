@@ -1,7 +1,7 @@
 #ifndef EV_JIT_TYPES_H
 #define EV_JIT_TYPES_H
 
-#include <core/macros.h>
+#include <core/preprocessor.h>
 #include <core/logging.h>
 #include <jit/jit.h>
 
@@ -341,14 +341,14 @@ template <typename R,typename ...Arg>
 R function_t::call(Arg... args){
 
     if(meta_data().signature.return_type != get_builtin_type<R>()){
-        core::debug()<<"Error : return value type mismatch";
+        ev::debug()<<"Error : return value type mismatch";
         return R();
     }
 
     size_t args_count = sizeof...(args);
 
     if(args_count != this->args_count()){
-        core::debug()<<"Error : function"<<name()<<"accepts"<<this->args_count()<<"arguments";
+        ev::debug()<<"Error : function"<<name()<<"accepts"<<this->args_count()<<"arguments";
         return R();
     }
 
@@ -360,7 +360,7 @@ R function_t::call(Arg... args){
         return callable(args...);
     }
     else {
-        core::debug()<<"Error : function signature mismatch";
+        ev::debug()<<"Error : function signature mismatch";
         return R();
 
     }
@@ -371,7 +371,7 @@ template <typename R>
 R function_t::call(){
 
     if(meta_data().signature.return_type != get_builtin_type<R>()){
-        core::debug()<<"Error : return value type mismatch";
+        ev::debug()<<"Error : return value type mismatch";
         return R();
     }
 
@@ -379,7 +379,7 @@ R function_t::call(){
         return unsafe_call<R>();
     }
     else {
-        core::debug()<<"Error : functions"<<name()<<"accepts"<<args_count()<<"arguments";
+        ev::debug()<<"Error : functions"<<name()<<"accepts"<<args_count()<<"arguments";
         return R();
 
     }

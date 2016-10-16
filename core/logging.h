@@ -2,12 +2,12 @@
 #define EV_DEBUG_H
 
 #include <iostream>
-namespace ev { namespace core { namespace details {
+namespace ev { namespace detail {
 
-static const char * g_debug_prefix =    "[debug   ]";
-static const char * g_info_prefix =     "[info    ]";
-static const char * g_warning_prefix =  "[warning ]";
-static const char * g_error_prefix =    "[error   ]";
+static const char * g_debug_prefix =    "[   debug]";
+static const char * g_info_prefix =     "[    info]";
+static const char * g_warning_prefix =  "[ warning]";
+static const char * g_error_prefix =    "[   error]";
 static const char * g_critical_prefix = "[critical]";
 
 struct ev_print_object {
@@ -22,9 +22,9 @@ struct ev_print_object {
     ~ev_print_object(){std::cout << std::endl<<std::flush;}
 
     template <typename T>
-    ev_print_object & operator << (const T & d)
+    ev_print_object & operator << (T && d)
     {
-        std::cout << " " << d;
+        std::cout << " " << std::forward<T>(d);
 
         return *this;
     }
@@ -53,39 +53,37 @@ inline std::string create_indent(size_t level){
 }
 
 
-inline details::ev_print_object debug(){
-    return details::ev_print_object(details::g_debug_prefix);
+inline detail::ev_print_object debug(){
+    return detail::ev_print_object(detail::g_debug_prefix);
 }
 
-inline details::ev_print_object warning(){
-    return details::ev_print_object(details::g_warning_prefix);
+inline detail::ev_print_object warning(){
+    return detail::ev_print_object(detail::g_warning_prefix);
 }
-inline details::ev_print_object error(){
-    return details::ev_print_object(details::g_error_prefix);
-}
-
-inline details::ev_print_object critical(){
-    return details::ev_print_object(details::g_critical_prefix);
+inline detail::ev_print_object error(){
+    return detail::ev_print_object(detail::g_error_prefix);
 }
 
-inline details::ev_print_object info(){
-    return details::ev_print_object(details::g_info_prefix);
+inline detail::ev_print_object critical(){
+    return detail::ev_print_object(detail::g_critical_prefix);
+}
+
+inline detail::ev_print_object info(){
+    return detail::ev_print_object(detail::g_info_prefix);
 }
 
 
 template <typename H,typename ... T>
 inline void debug(const H & h,const T & ... t){
-    details::ev_print_object print_obj(details::g_debug_prefix);
-    details::print_helper(print_obj,h,t...);
+    detail::ev_print_object print_obj(detail::g_debug_prefix);
+    detail::print_helper(print_obj,h,t...);
 }
 
-
-
-}}
+} // ev
 
 
 
-#define EV_TRACE(level)  ev::core::debug()<< ev::core::details::create_indent(level) << __PRETTY_FUNCTION__
+#define EV_TRACE(level)  ev::debug()<< ev::detail::create_indent(level) << __PRETTY_FUNCTION__
 
 #endif // EV_DEBUG_H
 

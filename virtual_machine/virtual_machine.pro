@@ -10,8 +10,7 @@ SOURCES += main.cpp \
     compiler.cpp \
     jit_types.cpp \
     jit_debug.cpp \
-    virtual_machine.cpp \
-    vm_object.cpp
+    virtual_machine.cpp
 
 HEADERS += \
     ast.h \
@@ -19,8 +18,7 @@ HEADERS += \
     compiler.h \
     jit_types.h \
     jit_debug.h \
-    virtual_machine.h \
-    vm_object.h
+    virtual_machine.h
 
 
 

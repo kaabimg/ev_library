@@ -22,7 +22,6 @@ struct virtual_machine_t::data_t {
     parser_t parser;
     context_t context;
 
-    std::list<vm_object_t> objects;
 };
 
 }}
@@ -46,7 +45,7 @@ void virtual_machine_t::eval(const std::string& line)
     parser_result_t result = d->parser.parse(line);
 
     if(!result.success){
-        core::debug() << "Syntax error : "<<result.error_string;
+        ev::debug() << "Syntax error :"<<result.error_string;
         return;
     }
 
@@ -54,7 +53,7 @@ void virtual_machine_t::eval(const std::string& line)
 
 
     if(function && result.statement->type() == ast::statement_type_e::expression){
-        core::debug() << function.call<double>();
+        ev::debug() << function.call<double>();
     }
     else if(result.statement->type() == ast::statement_type_e::variable_declaration){
         const double * value =
@@ -62,7 +61,7 @@ void virtual_machine_t::eval(const std::string& line)
                     result.statement->as<ast::variable_declaration_t>().variable_name.value
                     );
         if(value){
-            core::debug()<<*value;
+            ev::debug()<<*value;
         }
 
     }
@@ -77,12 +76,12 @@ void* virtual_machine_t::create_function(
     parser_result_t result = d->parser.parse(str);
 
     if(!result.success){
-        core::debug() << "Syntax error : "<<result.error_string;
+        ev::debug() << "Syntax error : "<<result.error_string;
         return nullptr;
     }
 
     if(result.statement->type()!=ast::statement_type_e::function_declaration){
-        core::debug() << "Error : expected a function definition";
+        ev::debug() << "Error : expected a function definition";
     }
 
 

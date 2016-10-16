@@ -393,7 +393,7 @@ function_t compiler_t::compile(const ast::statement_t & statement, context_t& co
 
     }
     catch(const compiler::compile_error_t & error){
-        core::debug() << "Compile error :"<<error.what();
+        ev::debug() << "Compile error :"<<error.what();
         return function_t();
 
     }

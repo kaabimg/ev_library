@@ -11,9 +11,6 @@
 #include <functional>
 #include <typeinfo>
 
-#include <core/variant.h>
-
-#include "vm_object.h"
 
 int main()
 {

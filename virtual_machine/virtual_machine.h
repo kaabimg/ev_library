@@ -3,11 +3,10 @@
 
 
 #include <string>
-#include <core/macros.h>
+#include <core/preprocessor.h>
 #include <functional>
 #include "jit_types.h"
 
-#include "vm_object.h"
 
 namespace ev { namespace vm {
 

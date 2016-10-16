@@ -1,41 +1,33 @@
 #include <iostream>
 
-#include <core/variant_serialization.h>
 #include <core/logging.h>
+#include <core/shared_data.h>
 
-template <typename Type>
-void test_variant (const Type & val){
-    ev::core::variant_t v;
-    v = val;
-    ev::core::debug() <<"type :" << ev::core::variant_type_name(v)<<":"<<sizeof(v)<<sizeof(double);
-}
+#include <thread>
+
+#include <vector>
+
 
 int main()
 {
-    test_variant(ev::core::variant_t());
-    test_variant(3);
-    test_variant(3.4);
-    test_variant("hello");
 
-    ev::core::variant_map_t map ;
+    ev::synchronized_data_t<std::vector<int>> data;
 
+    auto task = [&]()mutable {
 
+        for (int i = 0; i < 100; ++i) {
+            synchronized (data){
+                data.push_back(i);
+            }
+        }
+    };
 
-    map["1"] = 2;
-    map["2"] = "hello";
+    std::thread t1 {task},t2 {task};
 
-    test_variant(map);
+    t1.join();
+    t2.join();
 
-
-
-    ev::core::variant_array_t array ;
-    array << 1 << 2.1 << "hello" << map << array ;
-
-
-    test_variant(array);
-
-
-
+    ev::debug() << "size"<<data->size();
 
     return 0;
 }
