@@ -20,7 +20,7 @@ struct virtual_machine_t::data_t {
 
     compiler_t compiler;
     parser_t parser;
-    context_t context;
+    jit_code_t code;
 
 };
 
@@ -49,21 +49,15 @@ void virtual_machine_t::eval(const std::string& line)
         return;
     }
 
-    function_t function = d->compiler.compile(*result.statement.get(),d->context);
+    function_t function = d->compiler.compile(*result.statement.get(),d->code);
+
+    if(function){
+        d->code.compile();
+    }
 
 
     if(function && result.statement->type() == ast::statement_type_e::expression){
-        ev::debug() << function.call<double>();
-    }
-    else if(result.statement->type() == ast::statement_type_e::variable_declaration){
-        const double * value =
-                d->context.global_scope().find_host_variable(
-                    result.statement->as<ast::variable_declaration_t>().variable_name.value
-                    );
-        if(value){
-            ev::debug()<<*value;
-        }
-
+//        ev::info() << ;
     }
 
 }
@@ -76,24 +70,29 @@ void* virtual_machine_t::create_function(
     parser_result_t result = d->parser.parse(str);
 
     if(!result.success){
-        ev::debug() << "Syntax error : "<<result.error_string;
-        return nullptr;
+        throw std::runtime_error ("Syntax error : "+result.error_string);
     }
 
     if(result.statement->type()!=ast::statement_type_e::function_declaration){
-        ev::debug() << "Error : expected a function definition";
+        throw std::runtime_error ("Expected a function definition");
     }
 
 
 
-    function_t function = d->compiler.compile(*result.statement.get(),d->context);
+    function_t function = d->compiler.compile(*result.statement.get(),d->code);
     if(!function){
-        return nullptr;
+        throw std::runtime_error ("Failed to compile expresion");
     }
 
-    if(function.matches(expected_signature)){
-        return function.to_closure();
+    if(function.matches(
+                expected_signature,
+                result.statement.get()->as<ast::function_declaration_t>().name.value))
+    {
+        d->code.compile();
+        return d->code.get_compiled_function(function.mangled_name());
     }
-    return nullptr;
+
+    throw std::runtime_error("Expexted signature not matching compiled function");
+
 
 }

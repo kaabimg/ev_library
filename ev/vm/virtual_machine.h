@@ -3,8 +3,10 @@
 
 
 #include <string>
-#include <core/preprocessor.h>
 #include <functional>
+
+#include <ev/core/preprocessor.h>
+
 #include "jit_types.h"
 
 
@@ -37,14 +39,8 @@ template<typename R,typename ... Arg>
 std::function<R(Arg...)> virtual_machine_t::build(const std::string & line){
 
     typedef R (*callable_t)(Arg...);
-
     void * func = create_function(line,create_function_signature<R,Arg...>());
-
-    if(func){
-        return (callable_t)func;
-    }
-    return [](Arg...)->R {return R();};
-
+    return (callable_t)func;
 }
 
 }}

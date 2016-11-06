@@ -1,8 +1,6 @@
 cmake_minimum_required( VERSION 2.6 )
 
 
-include(../config.cmake)
-
 
 set(HEADER_FILES utils.h
     thread_pool.h

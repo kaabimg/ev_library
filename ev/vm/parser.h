@@ -1,7 +1,7 @@
 #ifndef EV_PARSER_H
 #define EV_PARSER_H
 
-#include <core/preprocessor.h>
+#include <ev/core/preprocessor.h>
 #include <memory>
 
 namespace ev { namespace vm {
@@ -29,11 +29,6 @@ private:
     EV_PRIVATE(parser_t)
 };
 
-
-
-
-}
-
-}
+}}
 
 #endif // EV_PARSER_H

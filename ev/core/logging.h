@@ -1,5 +1,5 @@
-#ifndef EV_DEBUG_H
-#define EV_DEBUG_H
+#ifndef EV_LOGGING_H
+#define EV_LOGGING_H
 
 #include <iostream>
 namespace ev { namespace detail {
@@ -85,5 +85,5 @@ inline void debug(const H & h,const T & ... t){
 
 #define EV_TRACE(level)  ev::debug()<< ev::detail::create_indent(level) << __PRETTY_FUNCTION__
 
-#endif // EV_DEBUG_H
+#endif // EV_LOGGING_H
 

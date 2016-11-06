@@ -5,13 +5,14 @@
 
 namespace ev { namespace vm {
 
-struct context_t;
+struct jit_code_t;
 
 namespace ast { struct statement_t; }
 
 
 struct compiler_t {
-    function_t compile(const ast::statement_t & ,context_t&);
+    function_t compile(const ast::statement_t & , jit_code_t&);
+
 
 };
 

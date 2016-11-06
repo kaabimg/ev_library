@@ -3,7 +3,7 @@
 #include "virtual_machine.h"
 
 
-#include <core/logging.h>
+#include <ev/core/logging.h>
 
 
 #include <list>

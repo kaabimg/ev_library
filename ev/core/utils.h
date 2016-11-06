@@ -7,13 +7,15 @@ namespace ev {
 
 struct time_t
 {
-    void start()
+
+    void restart()
     {
         m_start = current_time_ms();
     }
     std::size_t elapsed_ms()const{
         return current_time_ms() - m_start;
     }
+
 
 protected:
     static std::size_t current_time_ms(){
@@ -23,7 +25,7 @@ protected:
     }
 
 private:
-    std::size_t m_start {0};
+    std::size_t m_start {current_time_ms() };
 };
 
 

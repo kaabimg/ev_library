@@ -5,7 +5,6 @@
 #include <queue>
 #include <memory>
 #include <thread>
-#include <mutex>
 #include <condition_variable>
 #include <future>
 #include <functional>
@@ -72,7 +71,6 @@ void thread_pool_t::work()
 void thread_pool_t::stop()
 {
     m_stop = true;
-
 }
 
 
