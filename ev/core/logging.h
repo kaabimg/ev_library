@@ -11,21 +11,18 @@ static const char * g_error_prefix =    "[   error]";
 static const char * g_critical_prefix = "[critical]";
 
 struct ev_print_object {
-
-    bool first = true;
-
-
-    ev_print_object(const char * prefix){
-        std::cout << prefix;
+    std::ostream & stream;
+    ev_print_object(std::ostream & out,const char * prefix):stream(out){
+        stream << prefix;
     }
-
-    ~ev_print_object(){std::cout << std::endl<<std::flush;}
+    ~ev_print_object(){
+        stream << std::endl;
+    }
 
     template <typename T>
     ev_print_object & operator << (T && d)
     {
-        std::cout << " " << std::forward<T>(d);
-
+        stream << " " << std::forward<T>(d);
         return *this;
     }
 };
@@ -53,23 +50,23 @@ inline std::string create_indent(size_t level){
 }
 
 
-inline detail::ev_print_object debug(){
-    return detail::ev_print_object(detail::g_debug_prefix);
+inline detail::ev_print_object debug(std::ostream& out = std::cout){
+    return detail::ev_print_object(out,detail::g_debug_prefix);
 }
 
-inline detail::ev_print_object warning(){
-    return detail::ev_print_object(detail::g_warning_prefix);
+inline detail::ev_print_object warning(std::ostream& out = std::cout){
+    return detail::ev_print_object(out,detail::g_warning_prefix);
 }
-inline detail::ev_print_object error(){
-    return detail::ev_print_object(detail::g_error_prefix);
-}
-
-inline detail::ev_print_object critical(){
-    return detail::ev_print_object(detail::g_critical_prefix);
+inline detail::ev_print_object error(std::ostream& out = std::cout){
+    return detail::ev_print_object(out,detail::g_error_prefix);
 }
 
-inline detail::ev_print_object info(){
-    return detail::ev_print_object(detail::g_info_prefix);
+inline detail::ev_print_object critical(std::ostream& out = std::cout){
+    return detail::ev_print_object(out,detail::g_critical_prefix);
+}
+
+inline detail::ev_print_object info(std::ostream& out = std::cout){
+    return detail::ev_print_object(out,detail::g_info_prefix);
 }
 
 

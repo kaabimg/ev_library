@@ -1,14 +1,12 @@
 #ifndef EV_SHARED_DATA_H
 #define EV_SHARED_DATA_H
 
-#include "preprocessor.h"
 
 #include <shared_mutex>
 
+#include "preprocessor.h"
 
 namespace ev {
-
-
 
 template <typename Mutex>
 struct lock_helper_t {
@@ -43,10 +41,14 @@ class shared_data_t {
 
 public:
 
+    using data_type = T;
+    using mutex_type = Mutex;
+
     template <typename TA,
               void (lock_function)(Mutex&),
               void (unlock_function)(Mutex&)>
-    class lock_t {
+    class lock_t
+    {
         shared_data_t* m_data;
 
     public:
@@ -88,16 +90,15 @@ public:
 
 
     using shared_lock_t = lock_t<
-            const T,
-            lock_helper_t<Mutex>::lock_shared,
-            lock_helper_t<Mutex>::unlock_shared
+        const T,
+        lock_helper_t<Mutex>::lock_shared,
+        lock_helper_t<Mutex>::unlock_shared
         >;
     using exclusive_lock_t = lock_t<
-            T,
-            lock_helper_t<Mutex>::lock,
-            lock_helper_t<Mutex>::unlock
+        T,
+        lock_helper_t<Mutex>::lock,
+        lock_helper_t<Mutex>::unlock
         >;
-
 
     /// shared_data_t
 
@@ -187,7 +188,7 @@ public:
 #define __ev_synchronized_2(var,expression) \
     if(bool __ev_synchronized_2_stop = false) {}\
     else for(auto _ev_sync_lock = (expression).operator->();!__ev_synchronized_2_stop;) \
-            for(auto & var = *_ev_sync_lock.operator->();!__ev_synchronized_2_stop;__ev_synchronized_2_stop=true)
+    for(auto & var = *_ev_sync_lock.operator->();!__ev_synchronized_2_stop;__ev_synchronized_2_stop=true)
 
 #ifndef synchronized
 #define synchronized ev_synchronized

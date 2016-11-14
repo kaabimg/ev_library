@@ -6,8 +6,7 @@
 #include <functional>
 
 #include <ev/core/preprocessor.h>
-
-#include "jit_types.h"
+#include "jit/utils.h"
 
 
 namespace ev { namespace vm {
@@ -19,13 +18,13 @@ struct virtual_machine_t {
     ~virtual_machine_t();
     void eval(const std::string&);
 
-    template<typename R,typename ... Arg>
-    std::function<R(Arg...)> build(const std::string &);
+    template<typename Sig>
+    std::function<Sig> build(const std::string &);
 
 
 
 protected:
-    void * create_function(const std::string & str, const function_signature_t& expected_signature);
+    void * create_function(const std::string & str, const jit::function_signature_t& expected_signature);
 
 
 private:
@@ -35,12 +34,11 @@ private:
 };
 
 
-template<typename R,typename ... Arg>
-std::function<R(Arg...)> virtual_machine_t::build(const std::string & line){
-
-    typedef R (*callable_t)(Arg...);
-    void * func = create_function(line,create_function_signature<R,Arg...>());
-    return (callable_t)func;
+template<typename Sig>
+std::function<Sig> virtual_machine_t::build(const std::string & line)
+{
+    void * func = create_function(line,jit::create_function_signature<Sig>());
+    return (typename jit::signature_builder_t<Sig>::FunctionType)func;
 }
 
 }}

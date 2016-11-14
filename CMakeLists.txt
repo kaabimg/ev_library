@@ -1,11 +1,6 @@
-cmake_minimum_required( VERSION 2.6 )
+cmake_minimum_required( VERSION 3.4 )
 
 project(ev_library)
-
-
-
-
-
 
 find_package(Threads)
 
@@ -22,8 +17,7 @@ SET(TEST_DIR   ${INSTALL_DIR}/test)
 
 include_directories(${PROJECT_SOURCE_DIR})
 
-
-
+set(LIBRARY_OUTPUT_PATH ${LIB_DIR})
 
 
 #### Libraries
@@ -44,6 +38,7 @@ SET(BOOST_ROOT ${BOOST_DIR})
 
 
 add_subdirectory( ev )
+add_subdirectory( bin )
 add_subdirectory( tests )
 
 

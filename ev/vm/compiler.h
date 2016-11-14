@@ -1,18 +1,20 @@
 #ifndef EV_COMPILER_H
 #define EV_COMPILER_H
 
-#include "jit_types.h"
+
 
 namespace ev { namespace vm {
 
-struct jit_code_t;
+namespace jit {
+struct context_t;
+struct function_t;
+}
 
 namespace ast { struct statement_t; }
 
 
 struct compiler_t {
-    function_t compile(const ast::statement_t & , jit_code_t&);
-
+    jit::function_t compile(const ast::statement_t & , jit::context_t &context);
 
 };
 

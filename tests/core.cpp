@@ -7,7 +7,7 @@
 #include <ev/core/shared_data.h>
 
 
-TEST_CASE("[scope_exit_tst]")
+TEST_CASE("scope_exit_tc")
 {
     int i = 0;
     {
@@ -58,7 +58,7 @@ TEST_CASE("[scope_exit_tst]")
 
 
 
-TEST_CASE("[shared_data_tst]")
+TEST_CASE("shared_data_tc")
 {
     ev::shared_data_t<std::vector<int>> sv;
 
@@ -92,7 +92,7 @@ TEST_CASE("[shared_data_tst]")
     REQUIRE(sv->empty());
 }
 
-TEST_CASE("[thread_pool_tst]")
+TEST_CASE("thread_pool_tc")
 {
     ev::shared_data_t<std::vector<int>> sv;
     ev::shared_data_t<double,std::mutex> sn(10.4);
