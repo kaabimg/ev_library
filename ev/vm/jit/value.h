@@ -1,5 +1,5 @@
-#ifndef EV_VM_JIT_VALUE_H
-#define EV_VM_JIT_VALUE_H
+#pragma once
+
 
 #include "data_fwd_declare.h"
 #include "object.h"
@@ -21,6 +21,7 @@ struct value_t : object_t<value_private_t>
     friend class context_t;
     friend class function_t;
     friend class block_t;
+    friend class module_t;
 };
 
 
@@ -33,4 +34,3 @@ struct named_value_t {
 }}}
 
 
-#endif//EV_VM_JIT_VALUE_H

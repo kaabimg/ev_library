@@ -1,5 +1,4 @@
-#ifndef EV_VM_OBJECT_H
-#define EV_VM_OBJECT_H
+#pragma once
 
 #include <boost/variant.hpp>
 
@@ -12,4 +11,3 @@ struct object_t {
 
 }}
 
-#endif //EV_VM_OBJECT_H

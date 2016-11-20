@@ -1,5 +1,5 @@
-#ifndef EV_PARSER_H
-#define EV_PARSER_H
+#pragma once
+
 
 #include <ev/core/preprocessor.h>
 #include <memory>
@@ -30,5 +30,3 @@ private:
 };
 
 }}
-
-#endif // EV_PARSER_H

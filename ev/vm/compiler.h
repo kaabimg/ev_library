@@ -1,7 +1,4 @@
-#ifndef EV_COMPILER_H
-#define EV_COMPILER_H
-
-
+#pragma once
 
 namespace ev { namespace vm {
 
@@ -20,4 +17,3 @@ struct compiler_t {
 
 }}
 
-#endif // EV_COMPILER_H

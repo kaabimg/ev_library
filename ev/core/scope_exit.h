@@ -1,5 +1,4 @@
-#ifndef EV_SCOPE_EXIT_H
-#define EV_SCOPE_EXIT_H
+#pragma once
 
 #include "preprocessor.h"
 #include <exception>
@@ -132,6 +131,3 @@ struct exception_proactor_builder_t {
 #define on_scope_exit_without_exception ev_on_scope_exit_without_exception
 #endif
 
-
-
-#endif // EV_SCOPE_EXIT_H

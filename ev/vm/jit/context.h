@@ -1,5 +1,4 @@
-#ifndef EV_VM_JIT_CONTEXT_H
-#define EV_VM_JIT_CONTEXT_H
+#pragma once
 
 #include <memory>
 
@@ -14,7 +13,6 @@ namespace ev { namespace vm { namespace jit {
 
 struct type_t
 {
-
     basic_type_kind_e kind()const{return m_kind;}
     operator type_data_t()const {return m_data;}
     operator bool ()const {return m_data;}
@@ -48,9 +46,6 @@ struct context_t : boost::noncopyable {
     module_t find_module(const std::string & name)const;
     module_t main_module()const;
 
-    value_t new_call(const function_t &, const std::vector<value_data_t> &args);
-
-    function_t find_function(const function_id_t & id,const std::string & module = "main")const;
 
     void compile();
 
@@ -61,7 +56,6 @@ private:
 
 
     context_private_t* d;
-
     friend class function_t;
     friend class value_t;
     friend class block_t;
@@ -83,4 +77,3 @@ value_t context_t::new_constant(T value)
 
 
 
-#endif//EV_VM_JIT_CONTEXT_H

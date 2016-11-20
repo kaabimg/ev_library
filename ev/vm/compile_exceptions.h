@@ -1,5 +1,5 @@
-#ifndef EV_COMPILE_EXCEPTIONS_H
-#define EV_COMPILE_EXCEPTIONS_H
+#pragma once
+
 
 #include <exception>
 
@@ -20,5 +20,3 @@ struct compile_error_t  {
 
 
 }}
-
-#endif

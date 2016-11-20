@@ -1,6 +1,6 @@
 
 #include <ev/vm/virtual_machine.h>
-
+#include <ev/core/logging.h>
 #include <iostream>
 
 int main()
@@ -19,7 +19,13 @@ int main()
         }
         else {
             statement = input;
-            vm.eval(statement);
+            try  {
+                vm.eval(statement);
+            }
+            catch(const std::exception & e){
+                ev::error()<<e.what();
+            }
+
             statement.clear();
         }
 

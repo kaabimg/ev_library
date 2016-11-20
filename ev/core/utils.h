@@ -1,5 +1,4 @@
-#ifndef EV_UTILS_H
-#define EV_UTILS_H
+#pragma once
 
 #include <chrono>
 
@@ -29,10 +28,4 @@ private:
 };
 
 
-
-
-
 }//ev
-
-
-#endif // EV_UTILS_H

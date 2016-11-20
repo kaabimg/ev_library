@@ -1,5 +1,4 @@
-#ifndef EV_SHARED_DATA_H
-#define EV_SHARED_DATA_H
+#pragma once
 
 
 #include <shared_mutex>
@@ -194,5 +193,3 @@ public:
 #define synchronized ev_synchronized
 #endif
 
-
-#endif // EV_SHARED_DATA_H

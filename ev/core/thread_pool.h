@@ -1,5 +1,4 @@
-#ifndef EV_THREAD_POOL_H
-#define EV_THREAD_POOL_H
+#pragma once
 
 #include <vector>
 #include <queue>
@@ -127,5 +126,3 @@ thread_pool_t::~thread_pool_t()
 
 } // ev
 
-
-#endif // EV_THREAD_POOL_H

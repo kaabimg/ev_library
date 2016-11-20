@@ -1,5 +1,5 @@
-#ifndef EV_BASIC_TYPES_H
-#define EV_BASIC_TYPES_H
+#pragma once
+
 
 namespace ev {
 
@@ -23,6 +23,3 @@ struct loop_scoped_variable_t {
 };
 
 }
-
-
-#endif // EV_BASIC_TYPES_H

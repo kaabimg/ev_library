@@ -1,13 +1,16 @@
-#ifndef EV_PREPROCESSOR_H
-#define EV_PREPROCESSOR_H
+#pragma once
 
 
 // data
 #define EV_PRIVATE(type_name) \
+private:\
     struct data_t;\
     data_t* d; \
     type_name(const type_name&) = delete;\
-    type_name& operator=(const type_name &)= delete;
+    type_name& operator=(const type_name &)= delete;\
+public:\
+    type_name(type_name&& another) {data_t* tmp = d; d = another.d ; another.d = tmp;}\
+    type_name& operator=(type_name&& another) {data_t* tmp = d; d = another.d ; another.d = tmp;return *this;}
 
 // loops and variables
 #define ev_forever while(true)
@@ -40,6 +43,4 @@
 #define __EV_ARG_COUNT(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, count, ...) count
 
 
-
-#endif // EV_PREPROCESSOR_H
 

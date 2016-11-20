@@ -43,10 +43,11 @@ struct level_counter {
 
 struct compile_error_t : std::exception {
 
-
     compile_error_t(){}
 
-    compile_error_t(const std::string & msg,const x3::position_tagged & location) noexcept
+    compile_error_t(
+            const std::string & msg,
+            const x3::position_tagged & location = x3::position_tagged()) noexcept
         : m_message(msg),m_location(location){}
     virtual const char* what() const noexcept {return m_message.c_str();}
     x3::position_tagged where()const noexcept {return m_location;}
@@ -195,7 +196,7 @@ struct jit_compiler_t : compiler_step_t {
 
             signature.name = func_call.name.value;
 
-            jit::function_t called_fun = context.find_function(signature);
+            jit::function_t called_fun = context.main_module().find_function(signature);
             if(!called_fun){
                 THROW("function "+func_call.name.value+" not found",func_call);
             }
@@ -207,7 +208,7 @@ struct jit_compiler_t : compiler_step_t {
                 args[i++] = build(expression);
             }
 
-            return context.new_call(called_fun,args);
+            return context.main_module().new_call(called_fun,args);
 
         }
         catch(...){
@@ -251,8 +252,9 @@ struct jit_compiler_t : compiler_step_t {
         context.main_module().pop_scope();
 
 
-        if(!function.finalize()){
-            ev::error() << "failed to compile function";
+        auto check =  function.finalize();
+        if(!check.first) {
+            throw compile_error_t(check.second);
         }
 
         return function;

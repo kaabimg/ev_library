@@ -1,6 +1,4 @@
-#ifndef EV_AST_H
-#define EV_AST_H
-
+#pragma once
 
 #include <string>
 #include <vector>
@@ -213,5 +211,4 @@ BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::field_t,name,value)
 BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::object_t,members)
 
 
-#endif // AST_H
 

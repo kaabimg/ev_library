@@ -1,5 +1,4 @@
-#ifndef EV_OBJECT_H
-#define EV_OBJECT_H
+#pragma once
 
 #include <vector>
 #include <algorithm>
@@ -93,8 +92,3 @@ auto make_member_property(auto && reader,auto && writer) {
 
 } // ev
 
-
-
-
-
-#endif // EV_OBJECT_H

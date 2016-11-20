@@ -1,5 +1,4 @@
-#ifndef EV_VM_JIT_UTILS_H
-#define EV_VM_JIT_UTILS_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -101,4 +100,3 @@ inline function_signature_t create_function_signature(){
 
 }}} // namespace ev::vm::jit
 
-#endif//EV_VM_JIT_UTILS_H

@@ -1,5 +1,4 @@
-#ifndef EV_VIRTUAL_MACHINE_H
-#define EV_VIRTUAL_MACHINE_H
+#pragma once
 
 
 #include <string>
@@ -43,8 +42,3 @@ std::function<Sig> virtual_machine_t::build(const std::string & line)
 
 }}
 
-
-
-
-
-#endif // EV_VIRTUAL_MACHINE_H
