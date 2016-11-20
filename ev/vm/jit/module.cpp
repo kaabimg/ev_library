@@ -29,7 +29,6 @@ function_t module_t::new_function(const function_creation_info_t& info)
                 false
                 );
 
-
     func.d->data = llvm::Function::Create(
                 ft,
                 llvm::Function::ExternalLinkage,
@@ -78,6 +77,7 @@ compilation_scope_t& module_t::current_scope()
 {
     return *(*d->scope_stack.rbegin());
 }
+
 
 value_t module_t::find_variable(const std::string &name) const
 {

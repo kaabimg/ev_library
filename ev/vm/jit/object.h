@@ -33,5 +33,12 @@ inline  T create_object(Arg && ... args){
 }
 
 
+struct value_t;
+struct compilation_scope_t
+{
+    virtual value_t find_variable(const std::string & name) const = 0;
+};
+
+
 }}}
 

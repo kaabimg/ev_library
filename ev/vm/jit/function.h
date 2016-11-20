@@ -9,15 +9,8 @@ namespace ev { namespace vm { namespace jit {
 
 struct block_t;
 struct type_t;
-
-struct compilation_scope_t
-{
-    virtual value_t find_variable(const std::string & name) const = 0;
-};
-
-
-
 struct function_private_t;
+
 struct function_t : object_t<function_private_t>, compilation_scope_t
 {
     const function_creation_info_t& info()const;

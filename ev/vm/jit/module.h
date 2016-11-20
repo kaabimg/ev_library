@@ -14,8 +14,8 @@ class compilation_scope_t;
 class function_creation_info_t;
 class value_t;
 
-struct module_t : object_t<module_private_t> {
-
+struct module_t : object_t<module_private_t>
+{
 
     std::string name()const;
 
@@ -27,6 +27,8 @@ struct module_t : object_t<module_private_t> {
     void push_scope(compilation_scope_t&);
     void pop_scope();
     compilation_scope_t& current_scope();
+
+
 
     value_t find_variable(const std::string & name) const ;
 
