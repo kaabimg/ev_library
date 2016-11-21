@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <boost/noncopyable.hpp>
+#include <ev/core/preprocessor.h>
 
 #include "data_fwd_declare.h"
 #include "utils.h"
@@ -32,7 +32,7 @@ class module_t;
 class compilation_scope_t;
 class function_id_t;
 
-struct context_t : boost::noncopyable {
+struct context_t  {
 
     context_t();
     ~context_t();
@@ -53,12 +53,11 @@ struct context_t : boost::noncopyable {
 protected:
     value_t new_constant(basic_type_kind_e kind,void * val);
 private:
-
-
     context_private_t* d;
     friend class function_t;
     friend class value_t;
     friend class block_t;
+    EV_DISABLE_COPY(context_t)
 
 };
 

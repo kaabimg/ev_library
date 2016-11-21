@@ -21,7 +21,7 @@
 
 #include <unordered_map>
 
-//#include "execution_engine.h"
+#include "execution_engine.h"
 #include "data_fwd_declare.h"
 #include "value.h"
 #include "function.h"
@@ -39,8 +39,7 @@ struct context_private_t
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder{context};
     std::unordered_map<std::string,module_t> modules;
-
-//    execution_engine_t execution_engine;
+    execution_engine_t execution_engine;
 };
 
 

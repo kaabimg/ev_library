@@ -32,12 +32,14 @@ struct identifier_t : x3::position_tagged
 
 struct variable_t : identifier_t {
     variable_t(const std::string & name = "") : identifier_t(name) {}
-
 };
 
 
 enum class operand_type_e {
-    number,
+    i32,
+    i64,
+    f32,
+    f64,
     variable,
     unary_expression,
     expression,
@@ -48,7 +50,10 @@ enum class operand_type_e {
 
 
 struct operand_t : x3::variant<
-        double ,
+        std::int32_t,
+        std::int64_t,
+        float,
+        double,
         variable_t,
         x3::forward_ast<unary_t>,
         x3::forward_ast<expression_t>,
@@ -111,7 +116,7 @@ struct expression_t : x3::position_tagged
 
 
 
-struct function_call_t  : x3::position_tagged{
+struct function_call_t  : x3::position_tagged {
     identifier_t name;
     std::vector<expression_t> arguments;
 };

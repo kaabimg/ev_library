@@ -2,6 +2,7 @@
 
 
 #include "llvm/ADT/STLExtras.h"
+
 #include "llvm/ExecutionEngine/ExecutionEngine.h"
 #include "llvm/ExecutionEngine/RuntimeDyld.h"
 #include "llvm/ExecutionEngine/SectionMemoryManager.h"
@@ -11,11 +12,18 @@
 #include "llvm/ExecutionEngine/Orc/IRTransformLayer.h"
 #include "llvm/ExecutionEngine/Orc/LambdaResolver.h"
 #include "llvm/ExecutionEngine/Orc/ObjectLinkingLayer.h"
+
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/Mangler.h"
+
 #include "llvm/Support/DynamicLibrary.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/TargetSelect.h"
+
 #include "llvm/Target/TargetMachine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
+
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -28,17 +36,10 @@ using namespace llvm::orc;
 
 
 struct execution_engine_t {
-
     using obj_linking_layer_t = ObjectLinkingLayer<>;
     using ir_compile_layer_t = IRCompileLayer<obj_linking_layer_t>;
     using module_handle_t =  ir_compile_layer_t::ModuleSetHandleT ;
     using optimize_function_t =  std::function<Module*(Module*)>  ;
-
-
-
-
-
-public:
 
     execution_engine_t()
         : m_target_machine(EngineBuilder().selectTarget()),
@@ -51,20 +52,19 @@ public:
 
     TargetMachine &  target_machine  () { return *m_target_machine; }
 
-    module_handle_t add_module(Module* module) {
-        // Build our symbol resolver:
-        // Lambda 1: Look back into the JIT itself to find symbols that are part of
-        //           the same "logical dylib".
-        // Lambda 2: Search for external symbols in the host process.
+    module_handle_t add_module(Module* module)
+    {
         auto resolver = createLambdaResolver(
-                    [&](const std::string &name) {
+        // Look back into the JIT itself to find symbols that are part of
+        // the same "logical dylib".
+        [&](const std::string &name) {
             if (JITSymbol sym = m_optimize_layer.findSymbol(name, false))
             {
-                //TODO
-                //return sym.toRuntimeDyldSymbol();
+                return sym.toRuntimeDyldSymbol();
             }
             return RuntimeDyld::SymbolInfo(nullptr);
         },
+        //Search for external symbols in the host process.
         [](const std::string& name) {
             if (auto sym_addr =
                     RTDyldMemoryManager::getSymbolAddressInProcess(name))
@@ -100,10 +100,10 @@ private:
         auto function_pass_manager = std::make_unique<legacy::FunctionPassManager>(module);
 
         // Add some optimizations.
-//        function_pass_manager->add(createInstructionCombiningPass());
-//        function_pass_manager->add(createReassociatePass());
-//        function_pass_manager->add(createGVNPass());
-//        function_pass_manager->add(createCFGSimplificationPass());
+        function_pass_manager->add(createInstructionCombiningPass());
+        function_pass_manager->add(createReassociatePass());
+        function_pass_manager->add(createGVNPass());
+        function_pass_manager->add(createCFGSimplificationPass());
         function_pass_manager->doInitialization();
 
         // Run the optimizations over all functions in the module being added to
@@ -113,15 +113,21 @@ private:
 
         return module;
     }
-
-
+protected:
+    static bool init() {
+        static const bool i = InitializeNativeTarget();
+        return i;
+    }
 private:
+
+    bool m_init = init();
     std::unique_ptr<TargetMachine> m_target_machine;
     const DataLayout m_data_layout;
     obj_linking_layer_t m_object_layer;
     ir_compile_layer_t m_compile_layer;
     IRTransformLayer<ir_compile_layer_t, optimize_function_t> m_optimize_layer;
 };
+
 
 
 }}}

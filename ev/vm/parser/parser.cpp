@@ -40,7 +40,12 @@ x3::symbols<ast::operator_type_e> add_operator,multiply_operator,unary_operator;
 const x3::rule <struct id_type , std::string>  id = "id";
 const x3::rule <struct identifier_type , ast::identifier_t>  identifier = "identifier";
 const x3::rule <struct variable_type, ast::variable_t >  variable = "variable";
-const x3::rule <struct number_type ,double>  number = "number";
+const x3::rule <struct i32_type ,std::int32_t>  i32 = "i32";
+const x3::rule <struct i64_type ,std::int64_t>  i64 = "i64";
+const x3::rule <struct f32_type ,float>  f32 = "f32";
+const x3::rule <struct f64_type ,double> f64 = "f64";
+
+
 
 
 
@@ -91,7 +96,14 @@ const auto id_def =
 
 const auto identifier_def = id;
 const auto variable_def = id;
-const auto number_def = x3::double_;
+const auto i32_def = x3::int32;
+const auto i64_def = x3::int64;
+const auto f32_def = x3::float_;
+const auto f64_def = x3::double_;
+
+
+
+
 
 
 auto const additive_expression_def =
@@ -118,7 +130,7 @@ auto const function_call_def =
         ;
 
 auto const primary_expression_def =
-        number
+        i32 | i64 | f32 | f64
         | function_call
         | variable
         | ('(' >> expression >> ')')
@@ -171,7 +183,7 @@ auto const statement_def =
 BOOST_SPIRIT_DEFINE(
         id,
         identifier,
-        number,
+        i32,i64,f32,f64,
         expression,
         unary_expression,
         additive_expression,

@@ -1,8 +1,8 @@
 #include "virtual_machine.h"
 
-#include "ast.h"
-#include "parser.h"
-#include "compiler.h"
+#include "parser/ast.h"
+#include "parser/parser.h"
+#include "compiler/compiler.h"
 #include "jit/context.h"
 #include "jit/function.h"
 
@@ -17,11 +17,11 @@ using namespace ev::vm;
 namespace ev { namespace vm {
 
 
-struct virtual_machine_t::data_t {
-
-    compiler_t compiler;
+struct virtual_machine_t::data_t
+{
     parser_t parser;
     jit::context_t context;
+    compiler_t compiler {context};
 
 };
 
@@ -49,7 +49,7 @@ void virtual_machine_t::eval(const std::string& line)
         return;
     }
 
-    jit::function_t function = d->compiler.compile(*result.statement.get(),d->context);
+    jit::function_t function = d->compiler.compile(*result.statement.get());
 
     if(function){
         d->context.compile();
@@ -79,7 +79,7 @@ void* virtual_machine_t::create_function(
         throw std::runtime_error ("Expected a function definition");
     }
 
-    jit::function_t function = d->compiler.compile(*result.statement.get(),d->context);
+    jit::function_t function = d->compiler.compile(*result.statement.get());
     if(!function){
         throw std::runtime_error ("Failed to compile expresion");
     }

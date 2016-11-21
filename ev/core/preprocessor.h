@@ -2,6 +2,16 @@
 
 
 // data
+
+#define EV_DISABLE_COPY(type_name)\
+private:\
+    type_name(const type_name&) = delete;\
+    type_name& operator=(const type_name &)= delete;\
+    type_name(type_name&& another) = delete;\
+    type_name& operator=(type_name&& another) = delete;
+
+
+
 #define EV_PRIVATE(type_name) \
 private:\
     struct data_t;\

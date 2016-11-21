@@ -25,11 +25,8 @@ struct virtual_machine_t {
 protected:
     void * create_function(const std::string & str, const jit::function_signature_t& expected_signature);
 
-
 private:
     EV_PRIVATE(virtual_machine_t)
-
-
 };
 
 
