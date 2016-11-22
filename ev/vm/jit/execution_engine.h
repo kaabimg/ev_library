@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 
+
 namespace ev { namespace vm { namespace jit {
 
 using namespace llvm;
@@ -47,16 +48,19 @@ struct execution_engine_t {
           m_compile_layer(m_object_layer, SimpleCompiler(*m_target_machine)),
           m_optimize_layer(m_compile_layer,optimize_module)
     {
+        if(!m_init){
+            throw std::runtime_error("Failed to init the JIT engine");
+        }
         llvm::sys::DynamicLibrary::LoadLibraryPermanently(nullptr);
+
     }
 
     TargetMachine &  target_machine  () { return *m_target_machine; }
 
-    module_handle_t add_module(Module* module)
+    module_handle_t add(std::vector<Module*> && modules)
     {
         auto resolver = createLambdaResolver(
-        // Look back into the JIT itself to find symbols that are part of
-        // the same "logical dylib".
+        // Look back into the JIT itself to find symbols that are part of the same "logical dylib".
         [&](const std::string &name) {
             if (JITSymbol sym = m_optimize_layer.findSymbol(name, false))
             {
@@ -72,8 +76,6 @@ struct execution_engine_t {
             return RuntimeDyld::SymbolInfo(nullptr);
         });
 
-        // Build a singlton module set to hold our module.
-        std::vector<Module*> modules = {module};
 
         // Add the set to the JIT with the resolver we created above and a newly
         // created SectionMemoryManager.
@@ -82,15 +84,24 @@ struct execution_engine_t {
                                              std::move(resolver));
     }
 
-    JITSymbol find_symbol(const std::string& name) {
-        std::string mangled_name;
-        raw_string_ostream mangled_name_stream(mangled_name);
-        Mangler::getNameWithPrefix(mangled_name_stream, name, m_data_layout);
-        return m_optimize_layer.findSymbol(mangled_name_stream.str(), true);
+
+
+
+    void remove(module_handle_t handle) {
+        m_optimize_layer.removeModuleSet(handle);
     }
 
-    void remove_module(module_handle_t handle) {
-        m_optimize_layer.removeModuleSet(handle);
+
+    std::string mangle(const std::string & symbol)const{
+        std::string mangled_name;
+        raw_string_ostream mangled_name_stream(mangled_name);
+        Mangler::getNameWithPrefix(mangled_name_stream, symbol, m_data_layout);
+        return mangled_name;
+    }
+
+
+    JITSymbol find_symbol(const std::string& name) {
+        return m_optimize_layer.findSymbol(mangle(name), true);
     }
 
 private:
@@ -115,7 +126,11 @@ private:
     }
 protected:
     static bool init() {
-        static const bool i = InitializeNativeTarget();
+        static const bool i = // the init functions return false if success
+                !InitializeNativeTarget() &&
+                !InitializeNativeTargetAsmPrinter() &&
+                !InitializeNativeTargetAsmParser();
+
         return i;
     }
 private:

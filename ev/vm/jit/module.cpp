@@ -56,6 +56,11 @@ function_t module_t::find_function(const function_id_t & info) const
     return function_t();
 }
 
+const std::vector<function_t> &module_t::functions() const
+{
+    return d->functions;
+}
+
 
 value_t module_t::new_call(const function_t & f, const std::vector<value_data_t> & args)
 {

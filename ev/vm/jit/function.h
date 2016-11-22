@@ -13,6 +13,7 @@ struct function_private_t;
 
 struct function_t : object_t<function_private_t>, compilation_scope_t
 {
+    std::string name_in_module()const;
     const function_creation_info_t& info()const;
     block_t new_block(const std::string & name);
     std::pair<bool,std::string> finalize();

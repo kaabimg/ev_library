@@ -14,7 +14,6 @@ struct object_t {
     inline bool is_valid()const{return d.get() != nullptr;}
     inline operator bool ()const {return is_valid();}
 
-
 protected:
 
     object_t(){}

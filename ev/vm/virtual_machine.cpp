@@ -5,7 +5,7 @@
 #include "compiler/compiler.h"
 #include "jit/context.h"
 #include "jit/function.h"
-
+#include "vm_exceptions.h"
 
 #include <iostream>
 #include <memory>
@@ -45,7 +45,7 @@ void virtual_machine_t::eval(const std::string& line)
     parser_result_t result = d->parser.parse(line);
 
     if(!result.success){
-        throw std::runtime_error("Syntax error :"+result.error_string);
+        throw syntax_error_t("Syntax error :"+result.error_string);
         return;
     }
 
@@ -72,27 +72,25 @@ void* virtual_machine_t::create_function(
     parser_result_t result = d->parser.parse(str);
 
     if(!result.success){
-        throw std::runtime_error ("Syntax error : "+result.error_string);
+        throw syntax_error_t ("Syntax error : "+result.error_string);
     }
 
-    if(result.statement->type()!=ast::statement_type_e::function_declaration){
-        throw std::runtime_error ("Expected a function definition");
+    if(result.statement->type() != ast::statement_type_e::function_declaration){
+        throw syntax_error_t ("Expected a function definition");
     }
 
     jit::function_t function = d->compiler.compile(*result.statement.get());
     if(!function){
-        throw std::runtime_error ("Failed to compile expresion");
+        throw compile_error_t("Failed to compile expresion");
     }
 
     if(reinterpret_cast<const jit::function_signature_t&>(function.info()) == expected_signature)
     {
         d->context.compile();
+        //TODO
         return nullptr;
     }
 
-
-
-    throw std::runtime_error("Expexted signature not matching compiled function");
-
+    throw compile_error_t("Expexted signature not matching compiled function");
 
 }

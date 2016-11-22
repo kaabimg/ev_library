@@ -42,6 +42,11 @@ value_t block_t::find_variable(const std::string &name) const
 }
 
 
+std::string function_t::logical_name() const
+{
+    return d->data->getName();
+}
+
 const function_creation_info_t& function_t::info() const
 {
     return d->creation_info;

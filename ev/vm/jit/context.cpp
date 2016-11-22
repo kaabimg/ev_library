@@ -19,10 +19,27 @@ context_t::~context_t()
 
 void context_t::compile()
 {
+    std::vector<llvm::Module*> modules {d->modules.size()};
+    int i = 0;
     for(auto & module : d->modules){
+        modules[i++] = &module.second.d->module;
+    }
+    d->added_modules_handle = d->execution_engine.add(std::move(modules));
+
+    for(auto & module : d->modules){
+//        ev::debug() << "module"<<module.second.name();
         module.second.d->module.dump();
+
+        ev::debug() << "functions:";
+
+        for(const function_t & f : module.second.functions()){
+            ev::debug() << f.logical_name() << "=>" << d->execution_engine.mangle(f.logical_name());
+            ev::debug() << (bool)d->execution_engine.find_symbol(f.info().name);
+        }
     }
 }
+
+
 
 type_t context_t::get_type(basic_type_kind_e kind)
 {

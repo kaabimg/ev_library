@@ -5,6 +5,7 @@
 #include <functional>
 
 #include <ev/core/preprocessor.h>
+
 #include "jit/utils.h"
 
 
@@ -19,8 +20,6 @@ struct virtual_machine_t {
 
     template<typename Sig>
     std::function<Sig> build(const std::string &);
-
-
 
 protected:
     void * create_function(const std::string & str, const jit::function_signature_t& expected_signature);

@@ -40,6 +40,7 @@ struct context_private_t
     llvm::IRBuilder<> builder{context};
     std::unordered_map<std::string,module_t> modules;
     execution_engine_t execution_engine;
+    execution_engine_t::module_handle_t added_modules_handle;
 };
 
 
