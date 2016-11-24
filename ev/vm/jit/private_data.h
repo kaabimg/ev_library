@@ -41,6 +41,7 @@ struct context_private_t
     std::unordered_map<std::string,module_t> modules;
     execution_engine_t execution_engine;
     execution_engine_t::module_handle_t added_modules_handle;
+    bool has_compiled_modules = false;
 };
 
 
@@ -62,6 +63,7 @@ struct function_private_t
     module_private_t* module = nullptr;
     function_data_t data =  nullptr;
     function_creation_info_t creation_info;
+    uintptr_t function_ptr = 0;
 };
 
 struct block_private_t

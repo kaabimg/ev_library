@@ -19,6 +19,13 @@ context_t::~context_t()
 
 void context_t::compile()
 {
+
+    if(d->has_compiled_modules){
+        d->execution_engine.remove(d->added_modules_handle);
+    }
+    else {
+        d->has_compiled_modules = true;
+    }
     std::vector<llvm::Module*> modules {d->modules.size()};
     int i = 0;
     for(auto & module : d->modules){
@@ -27,14 +34,8 @@ void context_t::compile()
     d->added_modules_handle = d->execution_engine.add(std::move(modules));
 
     for(auto & module : d->modules){
-//        ev::debug() << "module"<<module.second.name();
-        module.second.d->module.dump();
-
-        ev::debug() << "functions:";
-
-        for(const function_t & f : module.second.functions()){
-            ev::debug() << f.logical_name() << "=>" << d->execution_engine.mangle(f.logical_name());
-            ev::debug() << (bool)d->execution_engine.find_symbol(f.info().name);
+        for(function_t & f : module.second.functions()){
+            f.d->function_ptr = d->execution_engine.find_symbol(f.logical_name()).getAddress();
         }
     }
 }
@@ -45,7 +46,7 @@ type_t context_t::get_type(basic_type_kind_e kind)
 {
     type_t type;
     switch (kind) {
-    case basic_type_kind_e::none:
+    case basic_type_kind_e::void_t:
         type.m_data = llvm::Type::getVoidTy(d->context);
         break;
     case basic_type_kind_e::boolean:

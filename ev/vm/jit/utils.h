@@ -9,7 +9,8 @@ namespace ev { namespace vm { namespace jit {
 
 
 enum class basic_type_kind_e {
-    none,
+    unknown,
+    void_t,
     boolean,
     i32,i64,
     f32,f64
@@ -18,7 +19,7 @@ enum class basic_type_kind_e {
 
 template <typename T>
 constexpr basic_type_kind_e get_basic_type_kind(){
-    assert(false && "Unhandled type");
+    return basic_type_kind_e::unknown;
 }
 
 #define EV_DECLARE_BASIC_TYPE(type,kind) \
@@ -27,6 +28,7 @@ inline constexpr basic_type_kind_e get_basic_type_kind<type>(){ \
     return basic_type_kind_e::kind; \
 }
 
+EV_DECLARE_BASIC_TYPE(void         ,void_t)
 EV_DECLARE_BASIC_TYPE(bool         ,boolean)
 EV_DECLARE_BASIC_TYPE(std::int32_t ,i32)
 EV_DECLARE_BASIC_TYPE(std::int64_t ,i64)
@@ -34,11 +36,17 @@ EV_DECLARE_BASIC_TYPE(float        ,f32)
 EV_DECLARE_BASIC_TYPE(double       ,f64)
 
 
+
+
+
 struct function_signature_t {
-    basic_type_kind_e return_type = basic_type_kind_e::none;
+    basic_type_kind_e return_type = basic_type_kind_e::void_t;
     std::vector<basic_type_kind_e> args_type;
     bool operator==(const function_signature_t & another)const;
     bool operator!=(const function_signature_t & another)const;
+
+    std::string to_string()const;
+    static const char* to_string(basic_type_kind_e k);
 };
 
 struct function_id_t : function_signature_t {

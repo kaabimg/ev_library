@@ -49,7 +49,7 @@ function_t module_t::find_function(const function_id_t & info) const
 {
     auto iter = std::find_if(
                 d->functions.begin(),d->functions.end(),
-                [&](auto & f){return info == f.info();}
+                [&](auto & f){return info == f.creation_info();}
     );
 
     if(iter != d->functions.end()) return *iter;
@@ -57,6 +57,11 @@ function_t module_t::find_function(const function_id_t & info) const
 }
 
 const std::vector<function_t> &module_t::functions() const
+{
+    return d->functions;
+}
+
+std::vector<function_t> &module_t::functions()
 {
     return d->functions;
 }

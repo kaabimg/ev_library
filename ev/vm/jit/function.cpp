@@ -47,7 +47,7 @@ std::string function_t::logical_name() const
     return d->data->getName();
 }
 
-const function_creation_info_t& function_t::info() const
+const function_creation_info_t& function_t::creation_info() const
 {
     return d->creation_info;
 }
@@ -101,5 +101,10 @@ bool function_t::has_parameter(const std::string & name) const
     );
 
     return iter != d->data->arg_end();
+}
+
+uintptr_t function_t::compiled_function() const
+{
+    return d->function_ptr;
 }
 

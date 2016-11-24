@@ -5,6 +5,7 @@
 #include "compiler/compiler.h"
 #include "jit/context.h"
 #include "jit/function.h"
+#include "jit/private_data.h"
 #include "vm_exceptions.h"
 
 #include <iostream>
@@ -51,13 +52,8 @@ void virtual_machine_t::eval(const std::string& line)
 
     jit::function_t function = d->compiler.compile(*result.statement.get());
 
-    if(function){
-        d->context.compile();
-    }
-
-    //TODO
+    d->context.compile();
     return;
-
 
     if(function && result.statement->type() == ast::statement_type_e::expression){
 //        ev::info() << ;
@@ -80,17 +76,18 @@ void* virtual_machine_t::create_function(
     }
 
     jit::function_t function = d->compiler.compile(*result.statement.get());
-    if(!function){
-        throw compile_error_t("Failed to compile expresion");
-    }
 
-    if(reinterpret_cast<const jit::function_signature_t&>(function.info()) == expected_signature)
+    if(expected_signature == function.creation_info() )
     {
         d->context.compile();
-        //TODO
-        return nullptr;
+        return function.d.get();
     }
 
-    throw compile_error_t("Expexted signature not matching compiled function");
+
+    std::string error_str = "Expexted signature not matching compiled function\n";
+    error_str.append("Expected signature : ").append(expected_signature.to_string()).append("\n");
+    error_str.append("Actual   signature : ").append(function.creation_info().to_string());
+
+    throw compile_error_t(error_str);
 
 }

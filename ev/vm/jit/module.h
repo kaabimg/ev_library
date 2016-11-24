@@ -22,6 +22,8 @@ struct module_t : object_t<module_private_t>
     function_t new_function(const function_creation_info_t &);
     function_t find_function(const function_id_t &)const;
     const std::vector<function_t>& functions()const;
+    std::vector<function_t>& functions();
+
 
     value_t new_call(const function_t &, const std::vector<value_data_t> &args);
 

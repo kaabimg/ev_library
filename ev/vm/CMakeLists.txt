@@ -14,6 +14,7 @@ set (SOURCES parser/parser.cpp
              jit/context.cpp
              jit/value.cpp
              virtual_machine.cpp
+             runtime_function.cpp
 )
 
 
@@ -32,7 +33,9 @@ set (HEADERS  parser/ast.h
               vm_exceptions.h
               vm_object.h
               virtual_machine.h
+              runtime_function.h
 )
+
 
 include_directories("/usr/include/llvm-3.9/")
 include_directories("/usr/lib/llvm-3.9/include/")

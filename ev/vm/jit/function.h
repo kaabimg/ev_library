@@ -5,7 +5,13 @@
 #include "object.h"
 
 
-namespace ev { namespace vm { namespace jit {
+namespace ev { namespace vm {
+
+template <typename Sig>
+struct runtime_function_t;
+struct virtual_machine_t;
+
+namespace jit {
 
 struct block_t;
 struct type_t;
@@ -14,7 +20,7 @@ struct function_private_t;
 struct function_t : object_t<function_private_t>, compilation_scope_t
 {
     std::string logical_name()const;
-    const function_creation_info_t& info()const;
+    const function_creation_info_t& creation_info()const;
     block_t new_block(const std::string & name);
     std::pair<bool,std::string> finalize();
 
@@ -23,10 +29,17 @@ struct function_t : object_t<function_private_t>, compilation_scope_t
     value_t find_variable(const std::string & name) const override;
     bool has_parameter(const std::string& )const;
 
+    uintptr_t compiled_function()const;
+
 
 protected:
     friend class module_t;
+    friend class context_t;
+    friend class ev::vm::virtual_machine_t;
+
 };
+
+
 
 
 struct block_private_t;
