@@ -45,20 +45,15 @@ void virtual_machine_t::eval(const std::string& line)
 
     parser_result_t result = d->parser.parse(line);
 
-    if(!result.success){
-        throw syntax_error_t("Syntax error :"+result.error_string);
-        return;
-    }
 
     jit::function_t function = d->compiler.compile(*result.statement.get());
 
     d->context.compile();
-    return;
 
     if(function && result.statement->type() == ast::statement_type_e::expression){
-//        ev::info() << ;
+        runtime_function_t<double()> f {function.d.get()};
+        std::cout << f() << std::endl;
     }
-
 }
 
 void* virtual_machine_t::create_function(
@@ -66,10 +61,6 @@ void* virtual_machine_t::create_function(
         const jit::function_signature_t & expected_signature)
 {
     parser_result_t result = d->parser.parse(str);
-
-    if(!result.success){
-        throw syntax_error_t ("Syntax error : "+result.error_string);
-    }
 
     if(result.statement->type() != ast::statement_type_e::function_declaration){
         throw syntax_error_t ("Expected a function definition");

@@ -19,8 +19,7 @@ struct unary_t;
 struct expression_t;
 struct identifier_t;
 struct function_call_t;
-struct array_t;
-struct object_t;
+
 
 
 
@@ -36,30 +35,48 @@ struct variable_t : identifier_t {
 
 
 enum class operand_type_e {
-    i32,
-    i64,
-    f32,
-    f64,
+    number,
     variable,
     unary_expression,
     expression,
     function_call,
-    array,
-    object
+};
+
+enum class number_type_e {
+    i32,
+    i64,
+    r32,
+    r64
+};
+
+struct number_t : x3::position_tagged {
+
+    boost::variant<
+        int32_t,
+        int64_t,
+        float,
+        double> value;
+
+
+    template <typename T>
+    T  get()const{
+        return boost::get<T>(value);
+    }
+
+
+    number_type_e type()const{
+        return static_cast<number_type_e>(value.which());
+    }
+
 };
 
 
 struct operand_t : x3::variant<
-        std::int32_t,
-        std::int64_t,
-        float,
-        double,
+        number_t,
         variable_t,
         x3::forward_ast<unary_t>,
         x3::forward_ast<expression_t>,
-        x3::forward_ast<function_call_t>,
-        x3::forward_ast<array_t>,
-        x3::forward_ast<object_t>
+        x3::forward_ast<function_call_t>
         >
 {
     using base_type::base_type;
@@ -77,9 +94,6 @@ struct operand_t : x3::variant<
         return boost::get<T>(get());
     }
 };
-
-
-
 
 
 enum class operator_type_e
@@ -122,57 +136,40 @@ struct function_call_t  : x3::position_tagged {
 };
 
 
-struct anonymous_function_declaration_t : x3::position_tagged{
-    std::vector<identifier_t> arguments;
-    expression_t expression;
-};
-
-
-struct array_t : x3::position_tagged{
-    std::vector<expression_t> values;
-};
-
-
-struct field_t : x3::position_tagged {
-    identifier_t name;
-    expression_t value;
-};
-
-struct object_t : x3::position_tagged {
-    std::vector<field_t> members;
-};
-
-struct function_declaration_t : x3::position_tagged{
-    identifier_t name;
-    std::vector<identifier_t> arguments;
-    expression_t expression;
-
-};
-
-struct assignement_t : x3::position_tagged {
+struct variable_declaration_t : x3::position_tagged {
+    identifier_t type_name;
     identifier_t variable_name;
+};
+
+struct anonymous_function_declaration_t : x3::position_tagged{
+    std::vector<variable_declaration_t> arguments;
+    identifier_t return_type;
+    expression_t expression;
+};
+
+struct function_declaration_t : x3::position_tagged {
+    identifier_t name;
+    std::vector<variable_declaration_t> arguments;
+    identifier_t return_type;
     expression_t expression;
 
 };
 
-struct variable_declaration_t : assignement_t {};
-
-
+struct struct_t {
+    identifier_t name;
+    std::vector<variable_declaration_t> fields;
+};
 
 
 enum class statement_type_e {
-    variable_declaration,
     function_declaration,
     anonymous_function_declaration,
-    assignement,
     expression
 };
 
 struct statement_t : x3::variant <
-        variable_declaration_t,
         function_declaration_t,
         anonymous_function_declaration_t,
-        assignement_t,
         expression_t
         >
 {
@@ -201,19 +198,16 @@ struct statement_t : x3::variant <
 
 #include <boost/fusion/include/adapt_struct.hpp>
 
+BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::number_t,value)
 BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::identifier_t,value)
 BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::variable_t,value)
 BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::unary_t,op,operand)
 BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::operation_t,op,operand)
 BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::expression_t,first,rest)
 BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::function_call_t,name,arguments)
-BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::anonymous_function_declaration_t,arguments,expression)
-BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::function_declaration_t,name,arguments,expression)
-BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::assignement_t,variable_name,expression)
-BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::variable_declaration_t,variable_name,expression)
-BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::array_t,values)
-BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::field_t,name,value)
-BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::object_t,members)
+BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::anonymous_function_declaration_t,arguments,return_type,expression)
+BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::function_declaration_t,name,arguments,return_type,expression)
+BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::variable_declaration_t,type_name,variable_name)
 
 
 

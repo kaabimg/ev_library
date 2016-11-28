@@ -26,6 +26,7 @@
 #include "value.h"
 #include "function.h"
 #include "module.h"
+#include "type.h"
 
 
 
@@ -51,6 +52,9 @@ struct module_private_t
     llvm::Module module;
     std::vector<function_t> functions;
     std::vector<compilation_scope_t*> scope_stack;
+    std::unordered_map<std::string,struct_t> structs;
+    std::unordered_map<struct_data_t,struct_info_t> structs_data;
+
 
     module_private_t(const std::string & name,context_private_t* c)
         :context(c),module(name,c->context){}
@@ -80,6 +84,12 @@ struct value_private_t {
     context_private_t* context = nullptr;
     value_data_t data = nullptr;
 
+};
+
+
+struct struct_private_t {    
+    struct_data_t data = nullptr;
+    module_private_t* module = nullptr;
 };
 
 

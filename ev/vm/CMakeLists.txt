@@ -13,6 +13,7 @@ set (SOURCES parser/parser.cpp
              jit/utils.cpp
              jit/context.cpp
              jit/value.cpp
+             jit/type.cpp
              virtual_machine.cpp
              runtime_function.cpp
 )
@@ -30,6 +31,7 @@ set (HEADERS  parser/ast.h
               jit/private_data.h
               jit/object.h
               jit/execution_engine.h
+              jit/type.h
               vm_exceptions.h
               vm_object.h
               virtual_machine.h

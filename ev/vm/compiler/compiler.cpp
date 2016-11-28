@@ -10,6 +10,7 @@
 #include "../jit/context.h"
 #include "../jit/function.h"
 #include "../jit/module.h"
+#include "../jit/type.h"
 
 #include "../vm_exceptions.h"
 
@@ -62,6 +63,19 @@ jit::value_t compiler_t::build(double v){
     return m_context.new_constant<double>(v);
 }
 
+jit::value_t compiler_t::build(const ast::number_t &n)
+{
+    switch (n.type()) {
+    case ast::number_type_e::i32: return build(n.get<int32_t>());
+    case ast::number_type_e::i64: return build(n.get<int64_t>());
+    case ast::number_type_e::r32: return build(n.get<float>());
+    case ast::number_type_e::r64: return build(n.get<double>());
+    default:
+        throw compile_error_t("Unknown number type",n);
+        break;
+    }
+}
+
 
 jit::value_t compiler_t::build(const ast::expression_t & expression)
 {
@@ -101,14 +115,8 @@ jit::value_t compiler_t::build(const ast::expression_t & expression)
 jit::value_t compiler_t::build(const ast::operand_t & operand)
 {
     switch (operand.type()) {
-    case ast::operand_type_e::i32:
-        return build(operand.as<std::int32_t>());
-    case ast::operand_type_e::i64:
-        return build(operand.as<std::int64_t>());
-    case ast::operand_type_e::f32:
-        return build(operand.as<float>());
-    case ast::operand_type_e::f64:
-        return build(operand.as<double>());
+    case ast::operand_type_e::number:
+        return build(operand.as<ast::number_t>());
     case ast::operand_type_e::variable:{
         jit::value_t var = m_context.main_module().find_variable(
                     operand.as<ast::variable_t>().value
@@ -152,50 +160,75 @@ jit::value_t compiler_t::build(const ast::unary_t & expression)
 
 jit::value_t compiler_t::build(const ast::function_call_t & func_call)
 {
-    jit::function_id_t signature;
-    signature.return_type = jit::get_basic_type_kind<double>();
-    signature.args_type = std::vector<jit::basic_type_kind_e>(
-                func_call.arguments.size(),
-                jit::get_basic_type_kind<double>()
-                );
 
-    signature.name = func_call.name.value;
+//    jit::module_t current_module = m_context.main_module();
 
-    jit::function_t called_fun = m_context.main_module().find_function(signature);
-    if(!called_fun){
-        throw compile_error_t("function "+func_call.name.value+" not found",func_call);
-    }
+//    jit::function_id_t signature;
+////    signature.return_type =
+//    signature.args_type = std::vector<jit::type_kind_e>(
+//                func_call.arguments.size(),
+//                jit::get_type_kind<double>()
+//                );
 
-    std::vector<jit::value_data_t> args (func_call.arguments.size());
+//    signature.name = func_call.name.value;
 
-    size_t i = 0;
-    for(const ast::expression_t& expression : func_call.arguments){
-        args[i++] = build(expression);
-    }
+//    jit::function_t called_fun = m_context.main_module().find_function(signature);
+//    if(!called_fun){
+//        throw compile_error_t("function "+func_call.name.value+" not found",func_call);
+//    }
 
-    return m_context.main_module().new_call(called_fun,args);
+//    std::vector<jit::value_data_t> args (func_call.arguments.size());
+
+//    size_t i = 0;
+//    for(const ast::expression_t& expression : func_call.arguments){
+//        args[i++] = build(expression);
+//    }
+
+//    return m_context.main_module().new_call(called_fun,args);
+
+    return jit::value_t();
 
 }
 
 
+
 jit::function_t compiler_t::build(const ast::function_declaration_t & function_dec)
 {
+    jit::module_t current_module = m_context.main_module();//TODO
+
     jit::function_creation_info_t info;
     info.name = function_dec.name.value;
-    info.return_type = jit::get_basic_type_kind<double>();
-    info.args_type.resize(function_dec.arguments.size());
-    std::fill(info.args_type.begin(),info.args_type.end(),
-              info.return_type);
+    info.return_type = function_dec.return_type.value;
+    info.arg_types.resize(function_dec.arguments.size());
 
-
-
-    info.args_names.resize(function_dec.arguments.size());
-    int i = 0;
-    for (auto & name : function_dec.arguments){
-        info.args_names[i++] = name.value;
+    int i=0;
+    for(const ast::variable_declaration_t & arg : function_dec.arguments){
+        info.arg_types[i++] = arg.type_name.value;
     }
 
+    info.arg_names.resize(function_dec.arguments.size());
+
+    i = 0;
+    for (auto & arg : function_dec.arguments){
+        info.arg_names[i++] = arg.variable_name.value;
+    }
+
+
+    if(m_context.main_module().find_function(info)){
+        throw compile_error_t(
+                    "Function "+
+                    function_dec.name.value+
+                    " : "+
+                    info.to_string()+
+                    " already exists");
+    }
+
+
     jit::function_t function = m_context.main_module().new_function(info);
+
+    on_scope_exit_with_exception {
+        m_context.main_module().remove_function(function);
+    };
 
     m_context.main_module().push_scope(function);
 
@@ -203,28 +236,58 @@ jit::function_t compiler_t::build(const ast::function_declaration_t & function_d
 
     m_context.main_module().push_scope(main_block);
 
+    on_scope_exit {
+        m_context.main_module().pop_scope();
+        m_context.main_module().pop_scope();
+    };
+
     main_block.set_as_insert_point();
     main_block.set_return(build(function_dec.expression));
-
-
-    m_context.main_module().pop_scope();
-    m_context.main_module().pop_scope();
-
 
     auto check =  function.finalize();
     if(!check.first) {
         throw compile_error_t(check.second);
     }
-
     return function;
-
 }
 
 jit::function_t compiler_t::create_top_level_expression_function(const ast::expression_t & expression)
 {
-    //TODO
+
+    jit::value_t value = build(expression);
+
+
+    int i = 0;
     jit::function_creation_info_t info;
+    static const char * name_prefix = "__expression_";
+    info.name = name_prefix + std::to_string(i);
+    info.return_type =     value.type().to_string();
+
+    while(m_context.main_module().find_function(info)){
+        ++i;
+        info.name = name_prefix + std::to_string(i);
+    }
+
     jit::function_t function = m_context.main_module().new_function(info);
+
+
+    m_context.main_module().push_scope(function);
+
+    jit::block_t main_block = function.new_block("entry");
+
+    m_context.main_module().push_scope(main_block);
+
+
+    main_block.set_as_insert_point();
+    main_block.set_return(value);
+
+    m_context.main_module().pop_scope();
+    m_context.main_module().pop_scope();
+
+    auto check =  function.finalize();
+    if(!check.first) {
+        throw compile_error_t(check.second);
+    }
     return function;
 }
 

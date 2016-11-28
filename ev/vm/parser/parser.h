@@ -13,9 +13,7 @@ struct statement_t;
 }
 
 struct parser_result_t {
-    bool success = false;
     std::shared_ptr<ast::statement_t> statement;
-    std::string error_string;
 };
 
 struct parser_t {

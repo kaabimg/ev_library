@@ -31,6 +31,8 @@ struct function_t : object_t<function_private_t>, compilation_scope_t
 
     uintptr_t compiled_function()const;
 
+    bool operator== (const function_t & another)const;
+
 
 protected:
     friend class module_t;
@@ -47,7 +49,7 @@ struct block_t : object_t<block_private_t>, compilation_scope_t
 {
     value_t find_variable(const std::string & name) const override;
     void set_as_insert_point();
-    void set_return(value_t);
+    void set_return(const value_t &);
 
     value_t new_variable(const type_t& type,const std::string&);
     bool has_variable(const std::string& )const;

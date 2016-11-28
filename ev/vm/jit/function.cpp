@@ -10,9 +10,9 @@ void block_t::set_as_insert_point()
     d->function->module->context->builder.SetInsertPoint(d->data);
 }
 
-void block_t::set_return(value_t val)
+void block_t::set_return(const value_t &val)
 {
-    d->function->module->context->builder.CreateRet(val);
+    d->function->module->context->builder.CreateRet(val.data());
 }
 
 value_t block_t::new_variable(const type_t &type, const std::string& name)
@@ -106,5 +106,11 @@ bool function_t::has_parameter(const std::string & name) const
 uintptr_t function_t::compiled_function() const
 {
     return d->function_ptr;
+}
+
+bool function_t::operator==(const function_t &another) const
+{
+    return d->creation_info == another->creation_info &&
+            d->module == another->module;
 }
 

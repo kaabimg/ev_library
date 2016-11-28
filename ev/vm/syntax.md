@@ -1,36 +1,23 @@
 
+# BasicTypes
 
-
-# Types
-* bool
-* Integers : i32, i64, ui32, ui64
-* Floats   : f32, f64
-
-
-# Expressions
+* boolean
+* Integers
+  * i32
+  * i64
+  * ui32
+  * ui64
+* Floats
+  * r32
+  * r64
 
 # Functions
+## Declaration
 
-function <id> ( <type_name> <arg1> , ...) -> <return_type> = <expression>  ;
+function <id> ( <type_name> <arg1> , ...) : <return_type> = <expression>  ;
 
-function  <func_id> ( <type_name> <arg1> , ...) -> <return_type> :
-    if condition :
+function  <func_id> ( <type_name> <arg1> , ...) : <return_type> { ... }
 
-    else if condition :
-
-    else
-
-    endif
-
-    for <var_id> in sequence :
-
-    end_for
-
-    var x = <value>;
-    var x : <type> [= <value>];
-
-end_function
-
-# Builtin functions
+## Builtin functions
 
 

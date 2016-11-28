@@ -14,10 +14,21 @@ struct object_t {
     inline bool is_valid()const{return d.get() != nullptr;}
     inline operator bool ()const {return is_valid();}
 
+    operator PrivateData()const{return d.get();}
+    PrivateData data()const{return d.get();}
+
 protected:
 
     object_t(){}
     std::shared_ptr<PrivateData> d { nullptr };
+
+    PrivateData * operator ->(){
+        return d.get();
+    }
+
+    const PrivateData * operator ->()const {
+        return d.get();
+    }
 
     template <typename T,typename ... Arg>
     friend T create_object(Arg && ... args);

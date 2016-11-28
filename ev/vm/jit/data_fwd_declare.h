@@ -7,6 +7,7 @@ class Value;
 class Function;
 class BasicBlock;
 class Type;
+class StructType;
 
 }
 
@@ -17,8 +18,9 @@ namespace ev { namespace vm { namespace jit {
 
 using value_data_t = llvm::Value*;
 using function_data_t = llvm::Function*;
-using type_data_t = llvm::Type*;
 using block_data_t = llvm::BasicBlock*;
+using type_data_t = llvm::Type*;
+using struct_data_t = llvm::StructType*;
 
 
 }}}

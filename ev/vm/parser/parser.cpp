@@ -8,6 +8,7 @@
 
 #include <boost/spirit/home/x3.hpp>
 
+#include "../vm_exceptions.h"
 
 using namespace ev::vm;
 
@@ -40,13 +41,7 @@ x3::symbols<ast::operator_type_e> add_operator,multiply_operator,unary_operator;
 const x3::rule <struct id_type , std::string>  id = "id";
 const x3::rule <struct identifier_type , ast::identifier_t>  identifier = "identifier";
 const x3::rule <struct variable_type, ast::variable_t >  variable = "variable";
-const x3::rule <struct i32_type ,std::int32_t>  i32 = "i32";
-const x3::rule <struct i64_type ,std::int64_t>  i64 = "i64";
-const x3::rule <struct f32_type ,float>  f32 = "f32";
-const x3::rule <struct f64_type ,double> f64 = "f64";
-
-
-
+const x3::rule <struct number_type ,ast::number_t> number = "number";
 
 
 const x3::rule <struct additive_expression_type, ast::expression_t >
@@ -78,14 +73,10 @@ const x3::rule <struct anonymous_function_declaration_type ,ast::anonymous_funct
 const x3::rule <struct variable_declaration_type ,ast::variable_declaration_t>
         variable_declaration = "variable_declaration";
 
-const x3::rule <struct assignement_type ,ast::assignement_t>
-        assignement = "assignement";
 
-const x3::rule <struct array_type ,ast::array_t>
-        array = "array";
 
-const x3::rule <struct object_type ,ast::object_t>
-        object = "object";
+const x3::rule <struct struct_type ,ast::struct_t>
+        structure = "structure";
 
 
 //struct statement_type;
@@ -96,11 +87,12 @@ const auto id_def =
 
 const auto identifier_def = id;
 const auto variable_def = id;
-const auto i32_def = x3::int32;
-const auto i64_def = x3::int64;
-const auto f32_def = x3::float_;
-const auto f64_def = x3::double_;
 
+const auto number_def =
+        x3::int32 |
+        x3::int64 |
+        x3::float_|
+        x3::double_ ;
 
 
 
@@ -127,39 +119,36 @@ auto const unary_expression_def =
 
 auto const function_call_def =
         identifier >> '(' > (expression % ',') >> ')'
-        ;
+                      ;
 
 auto const primary_expression_def =
-        i32 | i64 | f32 | f64
+          number
         | function_call
         | variable
         | ('(' >> expression >> ')')
-        | array
-        | object
-
-
-
         ;
 
 auto const expression_def = additive_expression;
 
 
 auto const function_declaration_def =
-           identifier
-        >> '(' >> identifier % ',' >> ')'
+        identifier
+        >> '(' >> variable_declaration % ',' >> ')'
+        >> ':' >> identifier
         >> '=' >> expression
-        ;
+           ;
 
 auto const anonymous_function_declaration_def =
-          '(' >> identifier % ',' >> ')'
-        >> '=' >> expression
-        ;
+        '(' >> variable_declaration % ',' >> ')'
+            >> ':' >> identifier
+            >> '=' >> expression
+               ;
 
 auto const assignement_def =
-           identifier  >> '=' >> expression  ;
+        identifier  >> '=' >> expression  ;
 
 auto const variable_declaration_def =
-        "var" >>  identifier  >> '=' >> expression ;
+        identifier >>  identifier ;
 
 auto const array_def =
         "[" >>  - (expression % ',') >> "]";
@@ -170,12 +159,13 @@ auto const object_def =
 
 
 
+auto const struct_def =
+        "struct" >> identifier >> "{"  >>  variable_declaration % ';' >> "}";
+
 
 auto const statement_def =
-          variable_declaration
-        | function_declaration
+          function_declaration
         | anonymous_function_declaration
-        | assignement
         | expression;
 
 
@@ -183,7 +173,7 @@ auto const statement_def =
 BOOST_SPIRIT_DEFINE(
         id,
         identifier,
-        i32,i64,f32,f64,
+        number,
         expression,
         unary_expression,
         additive_expression,
@@ -194,27 +184,30 @@ BOOST_SPIRIT_DEFINE(
         function_declaration,
         anonymous_function_declaration,
         variable_declaration,
-        assignement,
-        statement,
-        array,
-        object
+        statement
         );
+
+#include <sstream>
 
 struct statement_type
 {
     template <typename Iterator, typename Exception, typename Context>
-    x3::error_handler_result
-    on_error(Iterator&, Iterator const& last, Exception const& x, Context const& /*context*/)
+    x3::error_handler_result  on_error(
+            Iterator&,
+            Iterator const& last,
+            Exception const& x,
+            Context const& /*context*/)
     {
-        std::cout
-                << "Error! Expecting: "
-                << x.which()
-                << " here: \""
-                << std::string(x.where(), last)
-                << "\""
-                << std::endl
-                   ;
-        return x3::error_handler_result::fail;
+        std::stringstream ss;
+        ss << "Error! Expecting: "
+           << x.which()
+           << " here: \""
+           << std::string(x.where(), last)
+           << "\""  ;
+
+        throw syntax_error_t(ss.str());
+
+        //return x3::error_handler_result::fail;
     }
 };
 
@@ -275,28 +268,18 @@ parser_result_t parser_t::parse(const std::string& line)
 {
     parser_result_t result;
 
-
     std::string::const_iterator begin = line.begin();
     std::string::const_iterator end = line.end();
 
     boost::spirit::x3::ascii::space_type space;
 
-
-
     ast::statement_t statement;
 
-    try {
-        x3::phrase_parse(begin,end,d->main_rule,space,statement);
-        if( begin == end){
-            result.success = true;
-            result.statement = std::make_shared<ast::statement_t>(std::move(statement));
-        }
-
+    x3::phrase_parse(begin,end,d->main_rule,space,statement);
+    if( begin == end){
+        result.statement = std::make_shared<ast::statement_t>(std::move(statement));
+        return result;
     }
-    catch(...){
-        result.success = false;
+    throw syntax_error_t("Unknown syntax error");
 
-    }
-
-    return result;
 }

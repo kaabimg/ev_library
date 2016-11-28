@@ -4,6 +4,7 @@
 #include "function.h"
 #include "utils.h"
 #include "private_data.h"
+#include "type.h"
 
 
 using namespace ev::vm::jit;
@@ -18,13 +19,15 @@ function_t module_t::new_function(const function_creation_info_t& info)
     function_t func = create_object<function_t>();
     func.d->creation_info = info;
     func.d->module = d.get();
-    std::vector<type_data_t> args_type(info.args_type.size());
+    std::vector<type_data_t> args_type(info.arg_types.size());
 
     int i = 0;
-    for(auto type_id : info.args_type) args_type[i++] = d->context->interface->get_type(type_id);
+    for(auto & type_name : info.arg_types) {
+        args_type[i++] = find_type(type_name);
+    }
 
     llvm::FunctionType* ft = llvm::FunctionType::get(
-                d->context->interface->get_type(info.return_type),
+                find_type(info.return_type),
                 args_type,
                 false
                 );
@@ -37,12 +40,23 @@ function_t module_t::new_function(const function_creation_info_t& info)
                 );
     i = 0;
     for (auto & arg : func.d->data->args()) {
-        arg.setName(info.args_names[i++]);
+        arg.setName(info.arg_names[i++]);
     }
 
     d->functions.push_back(func);
 
     return func;
+}
+
+void module_t::remove_function(function_t & f)
+{
+    f.d->data->removeFromParent();
+
+    auto iter = std::find(
+                d->functions.begin(),
+                d->functions.end(),
+                f);
+    d->functions.erase(iter);
 }
 
 function_t module_t::find_function(const function_id_t & info) const
@@ -56,14 +70,41 @@ function_t module_t::find_function(const function_id_t & info) const
     return function_t();
 }
 
-const std::vector<function_t> &module_t::functions() const
+const std::vector<function_t>& module_t::functions() const
 {
     return d->functions;
 }
 
-std::vector<function_t> &module_t::functions()
+std::vector<function_t>& module_t::functions()
 {
     return d->functions;
+}
+
+
+struct_t module_t::new_struct(struct_info_t && info)
+{
+    std::vector<type_data_t> types {info.field_types.size()};
+
+    int i = 0;
+    for(auto & type : info.field_types) types[i++] = type;
+
+    llvm::StructType* type = llvm::StructType::create(types);
+    type->setName(info.name);
+
+    struct_t stct = create_object<struct_t>();
+
+    stct->data = type;
+    stct->module = d.get();
+    d->structs_data[type] = std::move(info);
+    return stct;
+
+}
+
+struct_t module_t::find_struct(const std::string &name)const
+{
+    auto s_iter = d->structs.find(name);
+    if(s_iter != d->structs.end()) return s_iter->second;
+    return struct_t();
 }
 
 
@@ -87,6 +128,26 @@ compilation_scope_t& module_t::current_scope()
 {
     return *(*d->scope_stack.rbegin());
 }
+
+type_kind_e module_t::type_kind(const std::string &name) const
+{
+    auto iter = builtin_type_ids.find(name);
+    if(iter != builtin_type_ids.end()) return iter->second;
+
+    auto s_iter = d->structs.find(name);
+    if(s_iter != d->structs.end()) return type_kind_e::structure;
+    return type_kind_e::unknown;
+}
+
+type_t module_t::find_type(const std::string &name) const
+{
+    type_kind_e kind = type_kind(name);
+    if(kind == type_kind_e::unknown) return type_t();
+    if(kind == type_kind_e::structure) return find_struct(name).to_type();
+    return d->context->interface->get_basic_type(kind);
+}
+
+
 
 
 value_t module_t::find_variable(const std::string &name) const
