@@ -32,18 +32,11 @@ void context_t::compile()
         modules[i++] = &module.second.d->module;
     }
 
-    for(auto & module : d->modules){
-        ev::debug()<<"-------------------------------------";
-        module.second->module.dump();
-
-    }
-
-
     d->added_modules_handle = d->execution_engine.add(std::move(modules));
 
     for(auto & module : d->modules){
-        //ev::debug()<<"-------------------------------------";
-        //module.second->module.dump();
+        ev::debug()<<"-------------------------------------";
+        module.second->module.dump();
 
         for(function_t & f : module.second.functions()){
             f->function_ptr = d->execution_engine.find_symbol(f.logical_name()).getAddress();

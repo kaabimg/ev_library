@@ -2,8 +2,6 @@
 
 #include <string>
 #include <vector>
-#include <memory>
-#include <unordered_map>
 
 #include <boost/spirit/home/x3/support/ast/variant.hpp>
 #include <boost/spirit/home/x3/support/ast/position_tagged.hpp>

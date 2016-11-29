@@ -15,18 +15,18 @@ enum class type_kind_e : uint8_t {
 
 static const std::unordered_map<std::string,type_kind_e> builtin_type_ids = {
     {"bool",type_kind_e::boolean},
-    {"i32",    type_kind_e::i32},
-    {"i64",    type_kind_e::i64},
-    {"r32",    type_kind_e::r32},
-    {"r64",    type_kind_e::r64}
+    {"int32",    type_kind_e::i32},
+    {"int64",    type_kind_e::i64},
+    {"real32",    type_kind_e::r32},
+    {"real64",    type_kind_e::r64}
 };
 
 static const std::unordered_map<type_kind_e,std::string> builtin_type_names = {
     {type_kind_e::boolean ,"bool"},
-    {type_kind_e::i32     ,"i32"},
-    {type_kind_e::i64     ,"i64"},
-    {type_kind_e::r32     ,"r32"},
-    {type_kind_e::r64     ,"r64"}
+    {type_kind_e::i32     ,"int32"},
+    {type_kind_e::i64     ,"int64"},
+    {type_kind_e::r32     ,"real32"},
+    {type_kind_e::r64     ,"real64"}
 };
 
 

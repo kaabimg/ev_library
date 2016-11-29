@@ -284,9 +284,8 @@ jit::function_t compiler_t::create_top_level_expression_function(const ast::expr
     m_context.main_module().pop_scope();
 
     std::string error_str;
-    bool check =  function.finalize(&error_str);
-    if(check) {
-        m_context.main_module().dump();
+    bool ok = function.finalize(&error_str);
+    if(!ok) {
         throw compile_error_t(error_str);
     }
     return function;
