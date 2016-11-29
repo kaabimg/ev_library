@@ -162,9 +162,9 @@ jit::value_t compiler_t::build(const ast::unary_t & expression)
     }
 }
 
+
 jit::value_t compiler_t::build(const ast::function_call_t & func_call)
 {
-
     jit::module_t current_module = m_context.main_module();
 
     std::vector<jit::value_data_t> args (func_call.arguments.size());
@@ -177,12 +177,12 @@ jit::value_t compiler_t::build(const ast::function_call_t & func_call)
 
     size_t i = 0;
     for(const ast::expression_t& expression : func_call.arguments){
-        args[i++] = build(expression).cast_to(func.arg_type_at(i)).data();
+        args[i] = build(expression).cast_to(func.arg_type_at(i)).data();
+        ++i;
     }
 
     return m_context.main_module().new_call(func,std::move(args));
 }
-
 
 
 jit::function_t compiler_t::build(const ast::function_declaration_t & function_dec)

@@ -64,8 +64,11 @@ value_t value_t::operator/(const value_t &another)
     if(values.first.type().is_integer()){
         return create_object<value_t>(
                         d->context,
-                        d->context->builder.CreateSDiv(values.first->data,values.second->data)
-                        );
+                        d->context->builder.CreateSDiv(
+                            values.first->data,
+                            values.second->data
+                        )
+                    );
     }
     else return create_object<value_t>(
                 d->context,
@@ -76,9 +79,17 @@ value_t value_t::operator/(const value_t &another)
 value_t value_t::operator*(const value_t &another)
 {
     std::pair<value_t, value_t> values = cast_types(*this,another);
+
+    if(values.first.type().is_integer()) {
+        return create_object<value_t>(
+                    d->context,
+                    d->context->builder.CreateMul(values.first->data,values.second->data)
+                    );
+    }
+
     return create_object<value_t>(
                 d->context,
-                d->context->builder.CreateMul(values.first->data,values.second->data)
+                d->context->builder.CreateFMul(values.first->data,values.second->data)
                 );
 }
 
