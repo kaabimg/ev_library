@@ -52,6 +52,26 @@ const function_creation_info_t& function_t::creation_info() const
     return d->creation_info;
 }
 
+type_t function_t::return_type() const
+{
+    return type_t {d->data->getReturnType()};
+}
+
+size_t function_t::arg_count() const
+{
+    return d->creation_info.arg_names.size();
+
+}
+
+type_t function_t::arg_type_at(size_t i) const
+{
+    auto arg_iterator =  d->data->arg_begin();
+    while(i--){
+        ++arg_iterator;
+    }
+    return type_t(arg_iterator->getType());
+}
+
 block_t function_t::new_block(const std::string &name)
 {
     block_t block = create_object<block_t>();

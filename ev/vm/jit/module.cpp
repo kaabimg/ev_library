@@ -2,11 +2,12 @@
 
 #include "context.h"
 #include "function.h"
-#include "utils.h"
+#include "function_signature.h"
 #include "private_data.h"
 #include "type.h"
 
 
+using namespace ev::vm;
 using namespace ev::vm::jit;
 
 std::string module_t::name() const
@@ -70,6 +71,21 @@ function_t module_t::find_function(const function_id_t & info) const
     return function_t();
 }
 
+function_t module_t::find_function(const std::string &name, unsigned arg_count) const
+{
+    auto iter = std::find_if(
+                d->functions.begin(),d->functions.end(),
+                [&](const function_t & f)
+                {
+                    return (name == f.creation_info().name) &&
+                           (f.creation_info().arg_names.size() == arg_count);
+                }
+    );
+
+    if(iter != d->functions.end()) return *iter;
+    return function_t();
+}
+
 const std::vector<function_t>& module_t::functions() const
 {
     return d->functions;
@@ -108,9 +124,9 @@ struct_t module_t::find_struct(const std::string &name)const
 }
 
 
-value_t module_t::new_call(const function_t & f, const std::vector<value_data_t> & args)
+value_t module_t::new_call(const function_t & f, std::vector<value_data_t> &&args)
 {
-    return create_object<value_t>(d->context,d->context->builder.CreateCall(f,args));
+    return create_object<value_t>(d->context,d->context->builder.CreateCall(f,std::move(args)));
 }
 
 

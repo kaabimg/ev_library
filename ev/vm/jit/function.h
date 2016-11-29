@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils.h"
+#include "function_signature.h"
 #include "value.h"
 #include "object.h"
 
@@ -21,6 +21,10 @@ struct function_t : object_t<function_private_t>, compilation_scope_t
 {
     std::string logical_name()const;
     const function_creation_info_t& creation_info()const;
+    type_t return_type()const;
+    size_t arg_count()const;
+    type_t arg_type_at(size_t )const;
+
     block_t new_block(const std::string & name);
     std::pair<bool,std::string> finalize();
 

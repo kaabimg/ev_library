@@ -10,7 +10,7 @@ set (SOURCES parser/parser.cpp
              compiler/compiler.cpp
              jit/module.cpp
              jit/function.cpp
-             jit/utils.cpp
+             jit/function_signature.cpp
              jit/context.cpp
              jit/value.cpp
              jit/type.cpp
@@ -24,7 +24,7 @@ set (HEADERS  parser/ast.h
               compiler/compiler.h
               jit/module.h
               jit/function.h
-              jit/utils.h
+              jit/function_signature.h
               jit/context.h
               jit/data_fwd_declare.h
               jit/value.h
@@ -33,6 +33,7 @@ set (HEADERS  parser/ast.h
               jit/execution_engine.h
               jit/type.h
               vm_exceptions.h
+              vm_types.h
               vm_object.h
               virtual_machine.h
               runtime_function.h
