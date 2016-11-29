@@ -42,12 +42,8 @@ void virtual_machine_t::eval(const std::string& line)
     if(line.size() && *line.begin() == '#'){
         return ;
     }
-
     parser_result_t result = d->parser.parse(line);
-
-
     jit::function_t function = d->compiler.compile(*result.statement.get());
-
     d->context.compile();
 
     if(function && result.statement->type() == ast::statement_type_e::expression){

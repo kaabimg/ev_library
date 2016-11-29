@@ -20,6 +20,7 @@ set (SOURCES parser/parser.cpp
 
 
 set (HEADERS  parser/ast.h
+             parser/ast_adapted.h
               parser/parser.h
               compiler/compiler.h
               jit/module.h

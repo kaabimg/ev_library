@@ -1,21 +1,20 @@
-#include "parser.h"
-#include "ast.h"
 
 //#define BOOST_SPIRIT_X3_DEBUG
 
+
+#include "parser.h"
+#include "ast_adapted.h"
+#include "../vm_exceptions.h"
 
 #include <iostream>
 
 #include <boost/spirit/home/x3.hpp>
 
-#include "../vm_exceptions.h"
 
 using namespace ev::vm;
 
 
 namespace x3 = boost::spirit::x3;
-
-
 
 
 namespace ev { namespace vm {
@@ -80,7 +79,7 @@ const x3::rule <struct struct_type ,ast::struct_t>
 
 
 //struct statement_type;
-const x3::rule <struct statement_type,ast::statement_t >  statement = "statement";
+const x3::rule <struct error_handler_t,ast::statement_t >  statement = "statement";
 
 const auto id_def =
         raw[lexeme[(alpha | '_') >> *(alnum | '_')]];
@@ -88,12 +87,12 @@ const auto id_def =
 const auto identifier_def = id;
 const auto variable_def = id;
 
-const auto number_def =
-        x3::int32 |
-        x3::int64 |
-        x3::float_|
-        x3::double_ ;
 
+const auto number_def =
+          x3::real_parser<float , x3::strict_real_policies<float>>  {}
+        | x3::real_parser<double, x3::strict_real_policies<double>> {}
+        | x3::int32
+        | x3::int64;
 
 
 
@@ -118,8 +117,7 @@ auto const unary_expression_def =
 
 
 auto const function_call_def =
-        identifier >> '(' > (expression % ',') >> ')'
-                      ;
+        identifier >> '(' > (expression % ',') >> ')'  ;
 
 auto const primary_expression_def =
           number
@@ -189,7 +187,7 @@ BOOST_SPIRIT_DEFINE(
 
 #include <sstream>
 
-struct statement_type
+struct error_handler_t
 {
     template <typename Iterator, typename Exception, typename Context>
     x3::error_handler_result  on_error(
@@ -249,7 +247,7 @@ inline const auto & main_rule (){
 
 struct parser_t::data_t {
 
-    const x3::rule <rules::statement_type,ast::statement_t> & main_rule = rules::main_rule();
+    const x3::rule <rules::error_handler_t,ast::statement_t> & main_rule = rules::main_rule();
 };
 
 
@@ -275,11 +273,14 @@ parser_result_t parser_t::parse(const std::string& line)
 
     ast::statement_t statement;
 
-    x3::phrase_parse(begin,end,d->main_rule,space,statement);
+    x3::phrase_parse(begin,end,
+                     d->main_rule,
+                     space,
+                     statement);
     if( begin == end){
         result.statement = std::make_shared<ast::statement_t>(std::move(statement));
         return result;
     }
-    throw syntax_error_t("Unknown syntax error");
+    throw syntax_error_t("Syntax error");
 
 }

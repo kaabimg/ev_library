@@ -242,26 +242,23 @@ jit::function_t compiler_t::build(const ast::function_declaration_t & function_d
 
     main_block.set_return(return_value);
 
-    auto check =  function.finalize();
-    if(!check.first) {
-        throw compile_error_t(check.second);
+    std::string error_str;
+    bool ok =  function.finalize(&error_str);
+    if(!ok) {
+        throw compile_error_t(error_str);
     }
     return function;
 }
 
 jit::function_t compiler_t::create_top_level_expression_function(const ast::expression_t & expression)
 {
-
-    jit::value_t value = build(expression);
-
-
     int i = 0;
     jit::function_creation_info_t info;
     static const char * name_prefix = "__expression_";
     info.name = name_prefix + std::to_string(i);
-    info.return_type =  value.type().to_string();
+    info.return_type =  builtin_type_names.find(type_kind_e::r64)->second;
 
-    while(m_context.main_module().find_function(info)){
+    while(m_context.main_module().find_function(info.name,0)){
         ++i;
         info.name = name_prefix + std::to_string(i);
     }
@@ -274,16 +271,23 @@ jit::function_t compiler_t::create_top_level_expression_function(const ast::expr
 
     m_context.main_module().push_scope(main_block);
 
-
     main_block.set_as_insert_point();
+
+    jit::value_t value = build(expression).cast_to(
+                m_context.get_builtin_type(type_kind_e::r64)
+                );
+
+
     main_block.set_return(value);
 
     m_context.main_module().pop_scope();
     m_context.main_module().pop_scope();
 
-    auto check =  function.finalize();
-    if(!check.first) {
-        throw compile_error_t(check.second);
+    std::string error_str;
+    bool check =  function.finalize(&error_str);
+    if(check) {
+        m_context.main_module().dump();
+        throw compile_error_t(error_str);
     }
     return function;
 }

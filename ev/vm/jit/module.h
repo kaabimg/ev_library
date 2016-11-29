@@ -23,6 +23,7 @@ class struct_info_t;
 struct module_t : object_t<module_private_t>
 {
 
+    void dump();
     std::string name()const;
 
     function_t new_function(const function_creation_info_t &);

@@ -85,12 +85,19 @@ block_t function_t::new_block(const std::string &name)
     return block;
 }
 
-std::pair<bool, std::string> function_t::finalize()
+bool function_t::finalize(std::string* error_str)
 {
-    std::pair<bool, std::string> result ;
-    llvm::raw_string_ostream error_stream(result.second);
-    result.first = !llvm::verifyFunction(*d->data,&error_stream );
-    return result;
+    if(error_str){
+        llvm::raw_string_ostream error_stream(*error_str);
+        if(llvm::verifyFunction(*d->data,&error_stream )){
+            error_stream.flush();
+            return false;
+        }
+        return true;
+    }
+    else {
+        return !llvm::verifyFunction(*d->data);
+    }
 }
 
 function_t::operator function_data_t() const

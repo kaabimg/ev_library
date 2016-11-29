@@ -31,11 +31,19 @@ void context_t::compile()
     for(auto & module : d->modules){
         modules[i++] = &module.second.d->module;
     }
-    d->added_modules_handle = d->execution_engine.add(std::move(modules));
 
     for(auto & module : d->modules){
         ev::debug()<<"-------------------------------------";
         module.second->module.dump();
+
+    }
+
+
+    d->added_modules_handle = d->execution_engine.add(std::move(modules));
+
+    for(auto & module : d->modules){
+        //ev::debug()<<"-------------------------------------";
+        //module.second->module.dump();
 
         for(function_t & f : module.second.functions()){
             f->function_ptr = d->execution_engine.find_symbol(f.logical_name()).getAddress();
@@ -45,15 +53,12 @@ void context_t::compile()
 
 
 
-type_t context_t::get_basic_type(type_kind_e kind)
+type_t context_t::get_builtin_type(type_kind_e kind)
 {
     type_t type;
     switch (kind) {
-    case type_kind_e::void_t:
-        type.m_data = llvm::Type::getVoidTy(d->context);
-        break;
     case type_kind_e::boolean:
-        type.m_data = llvm::Type::getInt8Ty(d->context);
+        type.m_data = llvm::Type::getInt1Ty(d->context);
         break;
     case type_kind_e::i32:
         type.m_data = llvm::Type::getInt32Ty(d->context);

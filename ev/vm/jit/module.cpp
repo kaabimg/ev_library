@@ -10,6 +10,11 @@
 using namespace ev::vm;
 using namespace ev::vm::jit;
 
+void module_t::dump()
+{
+    d->module.dump();
+}
+
 std::string module_t::name() const
 {
     return d->module.getName().str();
@@ -160,7 +165,7 @@ type_t module_t::find_type(const std::string &name) const
     type_kind_e kind = type_kind(name);
     if(kind == type_kind_e::unknown) return type_t();
     if(kind == type_kind_e::structure) return find_struct(name).to_type();
-    return d->context->interface->get_basic_type(kind);
+    return d->context->interface->get_builtin_type(kind);
 }
 
 

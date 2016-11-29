@@ -26,7 +26,7 @@ struct function_t : object_t<function_private_t>, compilation_scope_t
     type_t arg_type_at(size_t )const;
 
     block_t new_block(const std::string & name);
-    std::pair<bool,std::string> finalize();
+    bool finalize(std::string* error_str = nullptr);
 
     operator function_data_t()const;
 

@@ -22,7 +22,6 @@ std::string type_t::to_string() const
 type_kind_e type_t::kind() const
 {
     switch (m_data->getTypeID()) {
-    case Type::VoidTyID:      return type_kind_e::void_t;
     case Type::FloatTyID:     return type_kind_e::r32;
     case Type::DoubleTyID:    return type_kind_e::r64;
     case Type::IntegerTyID:   return int_kind();
