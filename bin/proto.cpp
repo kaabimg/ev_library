@@ -1,13 +1,7 @@
 
-
-double f(double x) {
-    int fac = 2;
-    return x * fac;
-}
-
-
 int main(){
-    int arg = 3;
-    int i = f(arg);
-    return i;
+    unsigned long i = 4l;
+    signed j =3;
+    return i/j;
+
 }

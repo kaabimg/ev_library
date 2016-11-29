@@ -88,6 +88,10 @@ jit::value_t compiler_t::build(const ast::expression_t & expression)
     for(const ast::operation_t & operation : expression.rest){
         jit::value_t rhs = build(operation.operand);
 
+        if(!lhs.is_number() || !rhs.is_number()){
+            throw compile_error_t("Not a number",expression);
+        }
+
         switch (operation.op) {
         case ast::operator_type_e::plus:
             lhs = lhs + rhs;
@@ -161,33 +165,22 @@ jit::value_t compiler_t::build(const ast::unary_t & expression)
 jit::value_t compiler_t::build(const ast::function_call_t & func_call)
 {
 
-//    jit::module_t current_module = m_context.main_module();
+    jit::module_t current_module = m_context.main_module();
 
-//    jit::function_id_t signature;
-////    signature.return_type =
-//    signature.args_type = std::vector<jit::type_kind_e>(
-//                func_call.arguments.size(),
-//                jit::get_type_kind<double>()
-//                );
+    std::vector<jit::value_data_t> args (func_call.arguments.size());
 
-//    signature.name = func_call.name.value;
+    jit::function_t func = current_module.find_function(func_call.name.value,args.size());
 
-//    jit::function_t called_fun = m_context.main_module().find_function(signature);
-//    if(!called_fun){
-//        throw compile_error_t("function "+func_call.name.value+" not found",func_call);
-//    }
+    if(!func){
+        throw compile_error_t("function "+func_call.name.value+" not found",func_call);
+    }
 
-//    std::vector<jit::value_data_t> args (func_call.arguments.size());
+    size_t i = 0;
+    for(const ast::expression_t& expression : func_call.arguments){
+        args[i++] = build(expression).cast_to(func.arg_type_at(i)).data();
+    }
 
-//    size_t i = 0;
-//    for(const ast::expression_t& expression : func_call.arguments){
-//        args[i++] = build(expression);
-//    }
-
-//    return m_context.main_module().new_call(called_fun,args);
-
-    return jit::value_t();
-
+    return m_context.main_module().new_call(func,std::move(args));
 }
 
 
@@ -242,7 +235,12 @@ jit::function_t compiler_t::build(const ast::function_declaration_t & function_d
     };
 
     main_block.set_as_insert_point();
-    main_block.set_return(build(function_dec.expression));
+    jit::value_t return_value = build(function_dec.expression);
+    if(return_value.type().kind() != function.return_type().kind()){
+        return_value = return_value.cast_to(function.return_type());
+    }
+
+    main_block.set_return(return_value);
 
     auto check =  function.finalize();
     if(!check.first) {
@@ -261,7 +259,7 @@ jit::function_t compiler_t::create_top_level_expression_function(const ast::expr
     jit::function_creation_info_t info;
     static const char * name_prefix = "__expression_";
     info.name = name_prefix + std::to_string(i);
-    info.return_type =     value.type().to_string();
+    info.return_type =  value.type().to_string();
 
     while(m_context.main_module().find_function(info)){
         ++i;
@@ -269,7 +267,6 @@ jit::function_t compiler_t::create_top_level_expression_function(const ast::expr
     }
 
     jit::function_t function = m_context.main_module().new_function(info);
-
 
     m_context.main_module().push_scope(function);
 

@@ -2,6 +2,7 @@
 #include "private_data.h"
 #include "context.h"
 
+using namespace ev::vm;
 using namespace ev::vm::jit;
 
 type_t value_t::type() const
@@ -59,7 +60,14 @@ value_t value_t::operator-()
 value_t value_t::operator/(const value_t &another)
 {
     std::pair<value_t, value_t> values = cast_types(*this,another);
-    return create_object<value_t>(
+
+    if(values.first.type().is_integer()){
+        return create_object<value_t>(
+                        d->context,
+                        d->context->builder.CreateSDiv(values.first->data,values.second->data)
+                        );
+    }
+    else return create_object<value_t>(
                 d->context,
                 d->context->builder.CreateFDiv(values.first->data,values.second->data)
                 );
@@ -74,26 +82,61 @@ value_t value_t::operator*(const value_t &another)
                 );
 }
 
+
+using cast_key_t =  std::pair<type_kind_e,type_kind_e>;
+
+namespace std {
+
+  template <>
+  struct hash<cast_key_t>
+  {
+    std::size_t operator()(const cast_key_t& k) const
+    {
+        return (size_t(k.first) << 32) | size_t(k.second);
+    }
+  };
+
+}
+
 value_t value_t::cast_to(const type_t & dest_type) const
 {
+
+    static const std::unordered_map<cast_key_t,Instruction::CastOps> cast_instructions =
+    {
+        // int -> int
+        {{type_kind_e::i32,type_kind_e::i64},Instruction::SExt},
+        {{type_kind_e::i64,type_kind_e::i32},Instruction::Trunc},
+
+        // int -> fp
+        {{type_kind_e::i32,type_kind_e::r32},Instruction::SIToFP},
+        {{type_kind_e::i64,type_kind_e::r32},Instruction::SIToFP},
+        {{type_kind_e::i32,type_kind_e::r64},Instruction::SIToFP},
+        {{type_kind_e::i64,type_kind_e::r64},Instruction::SIToFP},
+
+        // fp -> int
+        {{type_kind_e::r32,type_kind_e::i32},Instruction::FPToSI},
+        {{type_kind_e::r64,type_kind_e::i32},Instruction::FPToSI},
+        {{type_kind_e::r32,type_kind_e::i64},Instruction::FPToSI},
+        {{type_kind_e::r64,type_kind_e::i64},Instruction::FPToSI},
+        // fp -> fp
+        {{type_kind_e::r32,type_kind_e::r64},Instruction::FPExt},
+        {{type_kind_e::r64,type_kind_e::r32},Instruction::FPTrunc},
+
+    };
+
+
     type_t my_type = type();
     if(my_type.kind() == dest_type.kind()) return *this;
 
-    if(my_type.kind() < dest_type.kind()){ //
-        if( my_type.is_integer() && dest_type.is_integer()) { // int -> int
-
-        }
-        else if(my_type.is_integer() && dest_type.is_floating_point()){ // int -> float
-
-        }
+    auto iter = cast_instructions.find({my_type.kind(),dest_type.kind()});
+    if(iter != cast_instructions.end()) {
+        return create_object<value_t>(
+                    d->context,
+                    d->context->builder.CreateCast(iter->second,d->data,dest_type.data())
+                    );
     }
-    else {
-        if(){ // int -> int
-
-        }
-        else if() {// float -> int
-        }
-    }
+    //TODO error
+    return *this;
 }
 
 std::pair<value_t, value_t> value_t::cast_types(const value_t &v1, const value_t &v2)
@@ -102,43 +145,9 @@ std::pair<value_t, value_t> value_t::cast_types(const value_t &v1, const value_t
 
     if( t1.kind() == t2.kind()) return {v1,v2};
     if(t1.kind() < t2.kind()) {
-        if(t2.is_floating_point()) {
-            return {
-                create_object<value_t>(
-                            d->context,
-                            d->context->builder.CreateCast(Instruction::SIToFP,v1.data(),t2.data())
-                            ),
-                v2
-            };
-        }
-        else {
-            return {
-                create_object<value_t>(
-                            d->context,
-                            d->context->builder.CreateCast(Instruction::SExt,v1.data(),t2.data())
-                            ),
-                v2
-            };
-        }
+       return {v1.cast_to(t2),v2};
     }
     else  {
-        if(t1.is_floating_point()) {
-            return {
-                v1,
-                create_object<value_t>(
-                            d->context,
-                            d->context->builder.CreateCast(Instruction::SIToFP,v2.data(),t1.data())
-                            )
-            };
-        }
-        else {
-            return {
-                v1,
-                create_object<value_t>(
-                            d->context,
-                            d->context->builder.CreateCast(Instruction::SExt,v2.data(),t1.data())
-                            )
-            };
-        }
+        return {v1,v2.cast_to(t1)};
     }
 }

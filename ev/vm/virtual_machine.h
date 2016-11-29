@@ -7,7 +7,7 @@
 #include <ev/core/preprocessor.h>
 
 #include "runtime_function.h"
-#include "jit/utils.h"
+#include "jit/function_signature.h"
 
 
 namespace ev { namespace vm {

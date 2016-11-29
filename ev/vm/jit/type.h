@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils.h"
+#include "function_signature.h"
 #include "data_fwd_declare.h"
 #include "object.h"
 
@@ -19,11 +19,11 @@ struct type_t
     operator type_data_t()const {return m_data;}
     operator bool ()const {return m_data;}
 
-
+// utils
     bool is_number()const;
     bool is_integer()const;
     bool is_floating_point()const;
-
+    bool is_struct()const;
 
 protected:
     type_kind_e int_kind()const;

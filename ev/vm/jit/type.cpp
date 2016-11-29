@@ -1,13 +1,22 @@
 #include "type.h"
 #include "private_data.h"
 
+using namespace ev::vm;
 using namespace ev::vm::jit;
-
-
 
 std::string type_t::to_string() const
 {
+    if(is_struct()){
+        struct_data_t s_data = (struct_data_t)m_data;
+        return s_data->getName();
+    }
+    else {
+        auto iter = builtin_type_names.find(kind());
+        if(iter != builtin_type_names.end()) return iter->second;
+    }
 
+    assert(false && "Error in std::string type_t::to_string : unkwnown type");
+    return "unknwon";
 }
 
 type_kind_e type_t::kind() const
@@ -19,7 +28,6 @@ type_kind_e type_t::kind() const
     case Type::IntegerTyID:   return int_kind();
     case Type::StructTyID:    return type_kind_e::structure;
     default:                  return type_kind_e::unknown;
-        break;
     }
 }
 
@@ -49,6 +57,11 @@ bool type_t::is_floating_point() const
     default:
         return false;
     }
+}
+
+bool type_t::is_struct() const
+{
+    return m_data->getTypeID() == Type::StructTyID;
 }
 
 type_kind_e type_t::int_kind() const
@@ -92,6 +105,7 @@ int struct_t::field_index(const std::string &name) const
         ++i;
     }
     if(i != field_names().size()) return i;
+    assert(false && "Error in int struct_t::field_index : unknown struct field");
     return -1;
 
 }
