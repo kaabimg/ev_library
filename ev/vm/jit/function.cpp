@@ -1,6 +1,6 @@
 
-#include "function.h"
-#include "private_data.h"
+#include "function.hpp"
+#include "private_data.hpp"
 
 using namespace ev::vm::jit;
 

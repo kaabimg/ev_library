@@ -1,10 +1,11 @@
 #pragma once
 
+#include "../vm_types.hpp"
+
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <assert.h>
-#include "../vm_types.h"
 
 namespace ev { namespace vm { namespace jit {
 

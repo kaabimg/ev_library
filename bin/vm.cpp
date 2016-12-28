@@ -1,11 +1,9 @@
 
-#include <ev/vm/virtual_machine.h>
-#include <ev/core/logging.h>
+#include <ev/vm/virtual_machine.hpp>
+#include <ev/core/logging.hpp>
+
 #include <iostream>
-int print(int v){
-    ev::debug() << v;
-    return v;
-}
+
 
 int main()
 {

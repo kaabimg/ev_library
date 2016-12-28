@@ -1,18 +1,18 @@
-#include "compiler.h"
+#include "compiler.hpp"
 
 #include <iostream>
 #include <sstream>
 
-#include <ev/core/logging.h>
-#include <ev/core/scope_exit.h>
+#include <ev/core/logging.hpp>
+#include <ev/core/scope_exit.hpp>
 
-#include "../parser/ast.h"
-#include "../jit/context.h"
-#include "../jit/function.h"
-#include "../jit/module.h"
-#include "../jit/type.h"
+#include "../parser/ast.hpp"
+#include "../jit/context.hpp"
+#include "../jit/function.hpp"
+#include "../jit/module.hpp"
+#include "../jit/type.hpp"
 
-#include "../vm_exceptions.h"
+#include "../vm_exceptions.hpp"
 
 using namespace ev::vm;
 

@@ -1,5 +1,5 @@
-#include "type.h"
-#include "private_data.h"
+#include "type.hpp"
+#include "private_data.hpp"
 
 using namespace ev::vm;
 using namespace ev::vm::jit;

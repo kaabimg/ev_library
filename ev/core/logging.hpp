@@ -1,29 +1,39 @@
 #pragma once
 
 #include <iostream>
+
 namespace ev { namespace detail {
 
-static const char * g_debug_prefix =    "[   debug]";
 static const char * g_info_prefix =     "[    info]";
 static const char * g_warning_prefix =  "[ warning]";
 static const char * g_error_prefix =    "[   error]";
 static const char * g_critical_prefix = "[critical]";
 
-struct ev_print_object {
-    std::ostream & stream;
-    ev_print_object(std::ostream & out,const char * prefix):stream(out){
-        stream << prefix;
+struct ev_print_object
+{
+    ev_print_object(std::ostream & out,const char * prefix = nullptr):stream(out){
+        if(prefix)
+            stream << prefix;
     }
     ~ev_print_object(){
         stream << std::endl;
     }
 
     template <typename T>
-    ev_print_object & operator << (T && d)
+    ev_print_object & operator [] (T && d)
     {
-        stream << " " << std::forward<T>(d);
+        stream << '[' << std::forward<T>(d) << ']';
         return *this;
     }
+
+    template <typename T>
+    ev_print_object & operator << (T && d)
+    {
+        stream << ' ' << std::forward<T>(d);
+        return *this;
+    }
+private:
+    std::ostream & stream;
 };
 
 
@@ -50,7 +60,7 @@ inline std::string create_indent(size_t level){
 
 
 inline detail::ev_print_object debug(std::ostream& out = std::cout){
-    return detail::ev_print_object(out,detail::g_debug_prefix);
+    return detail::ev_print_object(out);
 }
 
 inline detail::ev_print_object warning(std::ostream& out = std::cout){
@@ -68,12 +78,6 @@ inline detail::ev_print_object info(std::ostream& out = std::cout){
     return detail::ev_print_object(out,detail::g_info_prefix);
 }
 
-
-template <typename H,typename ... T>
-inline void debug(const H & h,const T & ... t){
-    detail::ev_print_object print_obj(detail::g_debug_prefix);
-    detail::print_helper(print_obj,h,t...);
-}
 
 } // ev
 

@@ -1,7 +1,8 @@
-#include "runtime_function.h"
-#include "jit/private_data.h"
+#include "runtime_function.hpp"
+#include "jit/private_data.hpp"
 
 using namespace ev::vm;
+
 runtime_function_data_t::runtime_function_data_t(void *fd):
     m_func_data((jit::function_private_t*)fd)
 {}

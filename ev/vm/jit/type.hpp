@@ -1,8 +1,8 @@
 #pragma once
 
-#include "function_signature.h"
-#include "data_fwd_declare.h"
-#include "object.h"
+#include "function_signature.hpp"
+#include "data_fwd_declare.hpp"
+#include "object.hpp"
 
 namespace ev { namespace vm { namespace jit {
 

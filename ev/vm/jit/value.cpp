@@ -1,6 +1,6 @@
-#include "value.h"
-#include "private_data.h"
-#include "context.h"
+#include "value.hpp"
+#include "private_data.hpp"
+#include "context.hpp"
 
 using namespace ev::vm;
 using namespace ev::vm::jit;

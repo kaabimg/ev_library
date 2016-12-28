@@ -1,5 +1,15 @@
 #pragma once
 
+
+#include "execution_engine.hpp"
+#include "data_fwd_declare.hpp"
+#include "value.hpp"
+#include "function.hpp"
+#include "module.hpp"
+#include "type.hpp"
+
+#include <ev/core/logging.hpp>
+
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DerivedTypes.h>
@@ -11,23 +21,10 @@
 #include <llvm/IR/Verifier.h>
 #include <llvm/IR/Mangler.h>
 #include <llvm/IR/DataLayout.h>
-
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/STLExtras.h>
 
-
-#include <ev/core/logging.h>
-
-
 #include <unordered_map>
-
-#include "execution_engine.h"
-#include "data_fwd_declare.h"
-#include "value.h"
-#include "function.h"
-#include "module.h"
-#include "type.h"
-
 
 
 namespace ev { namespace vm { namespace jit {

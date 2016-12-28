@@ -1,8 +1,8 @@
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 
-#include <ev/vm/parser/parser.h>
-#include <ev/vm/parser/ast.h>
+#include <ev/vm/parser/parser.hpp>
+#include <ev/vm/parser/ast.hpp>
 
 #include <float.h>
 

@@ -22,6 +22,16 @@ public:\
     type_name(type_name&& another) {data_t* tmp = d; d = another.d ; another.d = tmp;}\
     type_name& operator=(type_name&& another) {data_t* tmp = d; d = another.d ; another.d = tmp;return *this;}
 
+
+#define EV_DEFAULT_CONSTRUCTORS(cls) \
+    cls(const cls&) = default; \
+    cls(cls&&) = default;
+
+
+#define EV_DEFAULT_OPERATORS(cls) \
+    cls& operator=(const cls &) = default; \
+    cls& operator=(cls &&) = default;
+
 // loops and variables
 #define ev_forever while(true)
 #define ev_delete_all(container) for(auto e : container) delete e

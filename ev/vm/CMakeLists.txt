@@ -1,10 +1,5 @@
 
-
 include_directories(${BOOST_INCLUDE_DIR})
-
-set(EXECUTABLE_OUTPUT_PATH ${BIN_DIR})
-
-
 
 set (SOURCES parser/parser.cpp
              compiler/compiler.cpp
@@ -19,25 +14,25 @@ set (SOURCES parser/parser.cpp
 )
 
 
-set (HEADERS  parser/ast.h
-             parser/ast_adapted.h
-              parser/parser.h
-              compiler/compiler.h
-              jit/module.h
-              jit/function.h
-              jit/function_signature.h
-              jit/context.h
-              jit/data_fwd_declare.h
-              jit/value.h
-              jit/private_data.h
-              jit/object.h
-              jit/execution_engine.h
-              jit/type.h
-              vm_exceptions.h
-              vm_types.h
-              vm_object.h
-              virtual_machine.h
-              runtime_function.h
+set (HEADERS  parser/ast.hpp
+             parser/ast_adapted.hpp
+              parser/parser.hpp
+              compiler/compiler.hpp
+              jit/module.hpp
+              jit/function.hpp
+              jit/function_signature.hpp
+              jit/context.hpp
+              jit/data_fwd_declare.hpp
+              jit/value.hpp
+              jit/private_data.hpp
+              jit/object.hpp
+              jit/execution_engine.hpp
+              jit/type.hpp
+              vm_exceptions.hpp
+              vm_types.hpp
+              vm_object.hpp
+              virtual_machine.hpp
+              runtime_function.hpp
 )
 
 

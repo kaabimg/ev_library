@@ -1,9 +1,8 @@
-#include "context.h"
-#include "private_data.h"
-#include "type.h"
+#include "context.hpp"
+#include "private_data.hpp"
+#include "type.hpp"
 
 using namespace ev::vm::jit;
-
 
 context_t::context_t() : d (new context_private_t)
 {

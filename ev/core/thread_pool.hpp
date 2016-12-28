@@ -1,5 +1,7 @@
 #pragma once
 
+#include "preprocessor.hpp"
+
 #include <vector>
 #include <queue>
 #include <memory>
@@ -7,8 +9,7 @@
 #include <condition_variable>
 #include <future>
 #include <functional>
-#include <stdexcept>
-#include "preprocessor.h"
+
 
 namespace ev {
 
@@ -16,15 +17,11 @@ class thread_pool_t {
 public:
     thread_pool_t(size_t size = std::max(1u,std::thread::hardware_concurrency()));
 
-    template<class F, class... Args>
-    inline auto post(F&& f, Args&&... args)
-        -> std::future<typename std::result_of<F(Args...)>::type>;
+    template<class F>
+    inline std::future<typename std::result_of<F()>::type> post(F&& f);
 
-
-    template<class F, class... Args>
-    inline void post_detached(F&& f, Args&&... args);
-
-    inline void stop();
+    template<class F>
+    inline void post_detached(F&& f);
 
     ~thread_pool_t();
 
@@ -37,12 +34,10 @@ private:
     std::queue<std::function<void()>> m_tasks;
     std::mutex m_queue_mutex;
     std::condition_variable m_wait_condition;
-    bool m_stop;
 };
 
 // the constructor just launches some amount of workers
 inline thread_pool_t::thread_pool_t(size_t threads)
-    :   m_stop(false)
 {
     for(size_t i = 0;i<threads;++i)
         m_threads.emplace_back([this]{this->work();});
@@ -57,8 +52,8 @@ void thread_pool_t::work()
         {
             std::unique_lock<std::mutex> lock(m_queue_mutex);
             m_wait_condition.wait(lock,
-                [this]{ return m_stop || !m_tasks.empty(); });
-            if(m_stop && m_tasks.empty())
+                [this]{ return !m_tasks.empty(); });
+            if(m_tasks.empty())
                 return;
             task = std::move(m_tasks.front());
             m_tasks.pop();
@@ -67,22 +62,14 @@ void thread_pool_t::work()
     }
 }
 
-void thread_pool_t::stop()
+
+template<class F>
+std::future<typename std::result_of<F()>::type> thread_pool_t::post(F&& f)
 {
-    m_stop = true;
-}
-
-
-template<class F, class... Args>
-auto thread_pool_t::post(F&& f, Args&&... args)
-    -> std::future<typename std::result_of<F(Args...)>::type>
-{
-    if(m_stop) throw std::runtime_error("posting on stopped thread pool");
-
-    using return_type = typename std::result_of<F(Args...)>::type;
+    using return_type = typename std::result_of<F()>::type;
 
     auto task = std::make_shared<std::packaged_task<return_type()>>(
-            std::bind(std::forward<F>(f), std::forward<Args>(args)...)
+            std::bind(std::forward<F>(f))
         );
 
     std::future<return_type> res = task->get_future();
@@ -95,14 +82,13 @@ auto thread_pool_t::post(F&& f, Args&&... args)
     return res;
 }
 
-template<class F, class... Args>
-void thread_pool_t::post_detached(F&& f, Args&&... args)
+template<class F>
+void thread_pool_t::post_detached(F&& f)
 {
-    if(m_stop) throw std::runtime_error("posting on stopped thread pool");
     {
         std::unique_lock<std::mutex> lock(m_queue_mutex);
         ev_unused(lock);
-        std::function<void(Args &&... args)> func{std::forward<F>(f),std::forward<Args>(args)...};
+        std::function<void()> func{std::forward<F>(f)};
         m_tasks.emplace(std::move(func));
     }
     m_wait_condition.notify_one();
@@ -117,7 +103,6 @@ void thread_pool_t::join_all()
 
 thread_pool_t::~thread_pool_t()
 {
-    stop();
     m_wait_condition.notify_all();
     join_all();
 }

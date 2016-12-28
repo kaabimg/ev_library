@@ -10,3 +10,4 @@ target_link_libraries(virtual_machine ev_vm LLVM-3.9 rt dl pthread z m pthread)
 ##################################################################################
 
 add_executable (proto_bin proto.cpp)
+target_link_libraries(proto_bin ev_ocl)

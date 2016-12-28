@@ -1,10 +1,10 @@
 #define CATCH_CONFIG_MAIN
+
 #include <catch.hpp>
 
-
-#include <ev/core/scope_exit.h>
-#include <ev/core/thread_pool.h>
-#include <ev/core/shared_data.h>
+#include <ev/core/scope_exit.hpp>
+#include <ev/core/thread_pool.hpp>
+#include <ev/core/shared_data.hpp>
 
 
 TEST_CASE("scope_exit_tc")

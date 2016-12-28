@@ -3,7 +3,7 @@
 
 #include <boost/fusion/include/adapt_struct.hpp>
 
-#include "ast.h"
+#include "ast.hpp"
 
 BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::number_t,value)
 BOOST_FUSION_ADAPT_STRUCT(ev::vm::ast::identifier_t,value)

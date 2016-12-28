@@ -1,10 +1,10 @@
-#include "module.h"
+#include "module.hpp"
 
-#include "context.h"
-#include "function.h"
-#include "function_signature.h"
-#include "private_data.h"
-#include "type.h"
+#include "context.hpp"
+#include "function.hpp"
+#include "function_signature.hpp"
+#include "private_data.hpp"
+#include "type.hpp"
 
 
 using namespace ev::vm;

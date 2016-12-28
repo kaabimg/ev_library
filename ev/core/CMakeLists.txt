@@ -2,14 +2,14 @@ cmake_minimum_required( VERSION 2.6 )
 
 
 
-set(HEADER_FILES utils.h
-    thread_pool.h
-    logging.h
-    shared_data.h
-    preprocessor.h
-    scope_exit.h
-    object.h
-    basic_types.h
+set(HEADER_FILES utils.hpp
+    thread_pool.hpp
+    logging.hpp
+    shared_data.hpp
+    preprocessor.hpp
+    scope_exit.hpp
+    object.hpp
+    basic_types.hpp
 )
 
 

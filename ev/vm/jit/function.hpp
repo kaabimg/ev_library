@@ -1,8 +1,8 @@
 #pragma once
 
-#include "function_signature.h"
-#include "value.h"
-#include "object.h"
+#include "function_signature.hpp"
+#include "value.hpp"
+#include "object.hpp"
 
 
 namespace ev { namespace vm {

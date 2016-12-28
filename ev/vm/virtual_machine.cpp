@@ -1,12 +1,12 @@
-#include "virtual_machine.h"
+#include "virtual_machine.hpp"
 
-#include "parser/ast.h"
-#include "parser/parser.h"
-#include "compiler/compiler.h"
-#include "jit/context.h"
-#include "jit/function.h"
-#include "jit/private_data.h"
-#include "vm_exceptions.h"
+#include "parser/ast.hpp"
+#include "parser/parser.hpp"
+#include "compiler/compiler.hpp"
+#include "jit/context.hpp"
+#include "jit/function.hpp"
+#include "jit/private_data.hpp"
+#include "vm_exceptions.hpp"
 
 #include <iostream>
 #include <memory>

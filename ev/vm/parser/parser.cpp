@@ -2,9 +2,9 @@
 //#define BOOST_SPIRIT_X3_DEBUG
 
 
-#include "parser.h"
-#include "ast_adapted.h"
-#include "../vm_exceptions.h"
+#include "parser.hpp"
+#include "ast_adapted.hpp"
+#include "../vm_exceptions.hpp"
 
 #include <iostream>
 

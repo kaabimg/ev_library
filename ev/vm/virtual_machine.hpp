@@ -1,13 +1,13 @@
 #pragma once
 
+#include "runtime_function.hpp"
+#include "jit/function_signature.hpp"
+
+#include <ev/core/preprocessor.hpp>
 
 #include <string>
 #include <functional>
 
-#include <ev/core/preprocessor.h>
-
-#include "runtime_function.h"
-#include "jit/function_signature.h"
 
 
 namespace ev { namespace vm {

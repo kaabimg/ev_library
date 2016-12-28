@@ -1,10 +1,11 @@
 #pragma once
 
+#include "object.hpp"
+#include "data_fwd_declare.hpp"
+#include "function_signature.hpp"
+
 #include <memory>
 #include <vector>
-#include "object.h"
-#include "data_fwd_declare.h"
-#include "function_signature.h"
 
 namespace ev { namespace vm {
 
