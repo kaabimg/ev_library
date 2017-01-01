@@ -38,7 +38,9 @@ std::string device_t::profile() const
 
 device_type_e device_t::type() const
 {
-    return (device_type_e)get_basic_type_info<cl_device_type>(CL_DEVICE_TYPE);
+    return static_cast<device_type_e>(
+        get_basic_type_info<cl_device_type>(CL_DEVICE_TYPE)
+    );
 }
 
 size_t device_t::max_clock_frequency() const
@@ -57,13 +59,13 @@ size_t device_t::max_compute_units() const
 std::string device_t::get_string_info(cl_device_info info_id) const
 {
     size_t size;
-    check_status(clGetDeviceInfo(m_data, info_id,0,nullptr, &size));
+    check_status(clGetDeviceInfo(cl_object(), info_id,0,nullptr, &size));
     std::string info;
     if(size)
     {
         char name_str[size];
         check_status(
-            clGetDeviceInfo(m_data, info_id,size, name_str,nullptr)
+            clGetDeviceInfo(cl_object(), info_id,size, name_str,nullptr)
         );
         info.resize(size-1);
         std::copy(name_str,name_str+size-1,info.begin());

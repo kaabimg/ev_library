@@ -5,10 +5,12 @@ cmake_minimum_required( VERSION 2.6 )
 set(HEADER_FILES utils.hpp
     thread_pool.hpp
     logging.hpp
-    shared_data.hpp
+    logging_helpers.hpp
+    synchronized_data.hpp
     preprocessor.hpp
     scope_exit.hpp
     object.hpp
+    flags.hpp
     basic_types.hpp
 )
 

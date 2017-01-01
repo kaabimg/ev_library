@@ -5,6 +5,7 @@
 namespace ev { namespace ocl {
 
 class device_t;
+
 class platform_t : public object_wrapper_t<cl_platform_id>
 {
 public:
@@ -12,10 +13,10 @@ public:
         :wrapper_type{id}
     {}
 
-    static std::vector<platform_t> get_all();
+    static std::vector<platform_t> get_platforms();
 
     std::vector<device_t> get_devices(
-            device_type_e type = device_type_e::all
+            flags_t<device_type_e> type = device_type_e::all
             )const;
 
     // properties
@@ -27,8 +28,13 @@ public:
 
 protected:
     std::string get_string_info(cl_platform_info)const;
-
 };
+
+inline std::vector<platform_t> get_platfomrs()
+{
+    return platform_t::get_platforms();
+}
+
 
 
 }}

@@ -4,7 +4,7 @@
 
 #include <ev/core/scope_exit.hpp>
 #include <ev/core/thread_pool.hpp>
-#include <ev/core/shared_data.hpp>
+#include <ev/core/synchronized_data.hpp>
 
 
 TEST_CASE("scope_exit_tc")
@@ -58,9 +58,9 @@ TEST_CASE("scope_exit_tc")
 
 
 
-TEST_CASE("shared_data_tc")
+TEST_CASE("synchronized_data_tc")
 {
-    ev::shared_data_t<std::vector<int>> sv;
+    ev::synchronized_data_t<std::vector<int>> sv;
 
     int size = 100;
 
@@ -94,8 +94,8 @@ TEST_CASE("shared_data_tc")
 
 TEST_CASE("thread_pool_tc")
 {
-    ev::shared_data_t<std::vector<int>> sv;
-    ev::shared_data_t<double,std::mutex> sn(10.4);
+    ev::synchronized_data_t<std::vector<int>> sv;
+    ev::synchronized_data_t<double,std::mutex> sn(10.4);
     {
         ev::thread_pool_t th_p {};
         int size = 100;

@@ -9,27 +9,41 @@ static const char * g_warning_prefix =  "[ warning]";
 static const char * g_error_prefix =    "[   error]";
 static const char * g_critical_prefix = "[critical]";
 
-struct ev_print_object
+}
+template <typename T>
+struct print_impl_t
 {
-    ev_print_object(std::ostream & out,const char * prefix = nullptr):stream(out){
+    static inline void print(std::ostream & out,const T & t)
+    {
+        out << t;
+    }
+};
+
+
+struct printer_t
+{
+    printer_t(std::ostream & out,const char * prefix = nullptr):stream(out){
         if(prefix)
             stream << prefix;
     }
-    ~ev_print_object(){
+    ~printer_t(){
         stream << std::endl;
     }
 
     template <typename T>
-    ev_print_object & operator [] (T && d)
+    printer_t & operator [] (const T & d)
     {
-        stream << '[' << std::forward<T>(d) << ']';
+        stream << '[' ;
+        print_impl_t<T>::print(stream,d);
+        stream << ']';
         return *this;
     }
 
     template <typename T>
-    ev_print_object & operator << (T && d)
+    printer_t & operator << (const T & d)
     {
-        stream << ' ' << std::forward<T>(d);
+        stream << ' ' ;
+        print_impl_t<T>::print(stream,d);
         return *this;
     }
 private:
@@ -37,52 +51,27 @@ private:
 };
 
 
-template <typename T>
-inline void print_helper(ev_print_object & print_obj,const T & t){
-    print_obj << t;
+
+inline printer_t debug(std::ostream& out = std::cout){
+    return printer_t(out);
 }
 
-template <typename H,typename ... T>
-inline void print_helper(ev_print_object & print_obj,const H & h,const T & ... t){
-    print_obj << h;
-    print_helper(print_obj,t...);
+inline printer_t warning(std::ostream& out = std::cout){
+    return printer_t(out,detail::g_warning_prefix);
+}
+inline printer_t error(std::ostream& out = std::cout){
+    return printer_t(out,detail::g_error_prefix);
 }
 
-inline std::string create_indent(size_t level){
-    std::string indent(level*4,' ');
-    for(size_t i =0;i< level*4 ;i = i+2){
-        indent[i] = '.';
-    }
-    return std::move(indent);
+inline printer_t critical(std::ostream& out = std::cout){
+    return printer_t(out,detail::g_critical_prefix);
 }
 
-}
-
-
-inline detail::ev_print_object debug(std::ostream& out = std::cout){
-    return detail::ev_print_object(out);
-}
-
-inline detail::ev_print_object warning(std::ostream& out = std::cout){
-    return detail::ev_print_object(out,detail::g_warning_prefix);
-}
-inline detail::ev_print_object error(std::ostream& out = std::cout){
-    return detail::ev_print_object(out,detail::g_error_prefix);
-}
-
-inline detail::ev_print_object critical(std::ostream& out = std::cout){
-    return detail::ev_print_object(out,detail::g_critical_prefix);
-}
-
-inline detail::ev_print_object info(std::ostream& out = std::cout){
-    return detail::ev_print_object(out,detail::g_info_prefix);
+inline printer_t info(std::ostream& out = std::cout){
+    return printer_t(out,detail::g_info_prefix);
 }
 
 
 } // ev
-
-
-
-#define EV_TRACE(level)  ev::debug()<< ev::detail::create_indent(level) << __PRETTY_FUNCTION__
 
 

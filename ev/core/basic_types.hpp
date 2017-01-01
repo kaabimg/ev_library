@@ -1,10 +1,9 @@
 #pragma once
 
-
 namespace ev {
 
 using address_t = void*;
-
+using byte_t = unsigned char;
 
 struct mem_block_t {
     address_t data;

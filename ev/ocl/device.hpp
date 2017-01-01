@@ -4,10 +4,14 @@
 
 namespace ev { namespace ocl {
 
+EV_OCL_DECLARE_CLEAR_FUNCTION(cl_device_id,clRetainDevice,clReleaseDevice)
+
 class device_t : public object_wrapper_t<cl_device_id> {
 public:
-    device_t(cl_device_id id)
-        :wrapper_type {id}
+
+    device_t(cl_device_id id,
+             init_mode_e mode = init_mode_e::create)
+        : wrapper_type {id,mode}
     {}
 
     //properties
@@ -33,7 +37,7 @@ T device_t::get_basic_type_info(cl_device_info info_id)const
     T info;
     check_status(
         clGetDeviceInfo(
-            m_data,
+            cl_object(),
             info_id,
             sizeof(T),
             &info,

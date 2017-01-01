@@ -9,6 +9,9 @@ set (SOURCES
     kernel.cpp
     platform.cpp
     program.cpp
+    memory_object.cpp
+    action.cpp
+    event.cpp
 )
 
 
@@ -21,6 +24,11 @@ set (HEADERS
     kernel.hpp
     platform.hpp
     program.hpp
+    memory_object.hpp
+    action.hpp
+    nd_range.hpp
+    event.hpp
+    debug.hpp
 )
 
 

@@ -34,7 +34,7 @@ struct lock_helper_t<std::mutex> {
 
 
 template <typename T,typename Mutex = std::shared_mutex>
-class shared_data_t {
+class synchronized_data_t {
     T m_data;
     mutable Mutex m_mutex;
 
@@ -48,41 +48,46 @@ public:
               void (unlock_function)(Mutex&)>
     class lock_t
     {
-        shared_data_t* m_data;
+        synchronized_data_t* m_data = nullptr;
 
     public:
-        inline lock_t(shared_data_t * d):m_data(d){
-            if(m_data) lock_function(m_data->m_mutex);
+        inline lock_t(synchronized_data_t * d):m_data(d){
+            lock();
         }
 
         inline lock_t(const lock_t & rhs):lock_t(rhs.m_data){}
+
         inline lock_t(lock_t && rhs){
-            m_data = rhs.m_data;
-            rhs.m_data = nullptr;
-            if(m_data) lock_function(m_data->m_mutex);
+            std::swap(m_data,rhs.m_data);
         }
 
         inline ~lock_t(){
-            if(m_data) unlock_function(m_data->m_mutex);
+            unlock();
         }
 
 
         inline lock_t& operator =(const lock_t & rhs){
-            if(m_data) unlock_function(m_data->m_mutex);
+            unlock();
             m_data = rhs.m_data;
-            if(m_data) lock_function(m_data->m_mutex);
+            lock();
             return *this;
         }
 
         inline lock_t& operator =(lock_t && rhs){
-            if(m_data) unlock_function(m_data->m_mutex);
-            m_data = rhs.m_data;
-            rhs.m_data = nullptr;
+            std::swap(m_data,rhs.m_data);
             return *this;
         }
 
         inline TA* operator->(){
             return &m_data->m_data;
+        }
+
+    private:
+        void lock(){
+            if(m_data) lock_function(m_data->m_mutex);
+        }
+        void unlock(){
+            if(m_data) unlock_function(m_data->m_mutex);
         }
     };
 
@@ -99,29 +104,29 @@ public:
         lock_helper_t<Mutex>::unlock
         >;
 
-    /// shared_data_t
+    /// synchronized_data_t
 
 
-    shared_data_t()noexcept(std::is_nothrow_constructible<T>::value){}
+    synchronized_data_t()noexcept(std::is_nothrow_constructible<T>::value){}
 
-    shared_data_t(const shared_data_t & rhs)noexcept(std::is_nothrow_copy_assignable<T>::value)
+    synchronized_data_t(const synchronized_data_t & rhs)noexcept(std::is_nothrow_copy_assignable<T>::value)
     {
         auto read_lock = rhs.acquire_shared_lock();
         ev_unused(read_lock);
         m_data = rhs.m_data;
     }
 
-    shared_data_t(shared_data_t && rhs)noexcept(std::is_nothrow_move_constructible<T>::value)
+    synchronized_data_t(synchronized_data_t && rhs)noexcept(std::is_nothrow_move_constructible<T>::value)
         :m_data(std::move(rhs.m_data)){}
 
 
-    shared_data_t(const T& d)noexcept(std::is_nothrow_copy_constructible<T>::value)
+    synchronized_data_t(const T& d)noexcept(std::is_nothrow_copy_constructible<T>::value)
         :m_data(d){}
-    shared_data_t(T&& d):m_data(std::move(d)){}
+    synchronized_data_t(T&& d):m_data(std::move(d)){}
 
 
 
-    shared_data_t & operator = (const shared_data_t & rhs)noexcept(std::is_nothrow_copy_assignable<T>::value)
+    synchronized_data_t & operator = (const synchronized_data_t & rhs)noexcept(std::is_nothrow_copy_assignable<T>::value)
     {
 
         if(this < &rhs){
@@ -141,7 +146,7 @@ public:
     }
 
 
-    shared_data_t & operator = (shared_data_t && rhs)noexcept(std::is_nothrow_move_assignable<T>::value)
+    synchronized_data_t & operator = (synchronized_data_t && rhs)noexcept(std::is_nothrow_move_assignable<T>::value)
     {
         auto lock = acquire_exclusive_lock();
         ev_unused(lock);
@@ -151,7 +156,7 @@ public:
 
 
     inline const shared_lock_t acquire_shared_lock()const{
-        return shared_lock_t(const_cast<shared_data_t*>(this));
+        return shared_lock_t(const_cast<synchronized_data_t*>(this));
     }
 
     inline exclusive_lock_t acquire_exclusive_lock(){
@@ -166,7 +171,7 @@ public:
         return acquire_exclusive_lock();
     }
 
-    inline const shared_data_t& as_const()const{
+    inline const synchronized_data_t& as_const()const{
         return *this;
     }
 
