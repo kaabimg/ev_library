@@ -1,10 +1,8 @@
 #define CATCH_CONFIG_MAIN
-
 #include <catch.hpp>
 
 #include <ev/core/scope_exit.hpp>
-#include <ev/core/thread_pool.hpp>
-#include <ev/core/synchronized_data.hpp>
+#include <ev/core/logging.hpp>
 
 
 TEST_CASE("scope_exit_tc")
@@ -57,13 +55,13 @@ TEST_CASE("scope_exit_tc")
 }
 
 
+#include <ev/core/synchronized_data.hpp>
+#include <ev/core/thread_pool.hpp>
 
 TEST_CASE("synchronized_data_tc")
 {
     ev::synchronized_data_t<std::vector<int>> sv;
-
     int size = 100;
-
     auto producer_task = [&]()mutable {
 
         for (int i = 0; i < size; ++i) {
@@ -71,7 +69,6 @@ TEST_CASE("synchronized_data_tc")
         }
 
     };
-
     auto consumer_task = [&]()mutable {
         int total = 0;
 
@@ -97,7 +94,7 @@ TEST_CASE("thread_pool_tc")
     ev::synchronized_data_t<std::vector<int>> sv;
     ev::synchronized_data_t<double,std::mutex> sn(10.4);
     {
-        ev::thread_pool_t th_p {};
+        ev::thread_pool_t th_p {4};
         int size = 100;
         auto producer_task = [&]()mutable {
             sv->push_back(rand());
@@ -119,11 +116,16 @@ TEST_CASE("thread_pool_tc")
             }
         };
 
+
         for (int i = 0; i < size; ++i) {
             th_p.post_detached(producer_task);
             th_p.post_detached(consumer_task);
-
+            th_p.post_detached(consumer_task);
+            th_p.post_detached(producer_task);
         }
+
+        std::future<void> last = th_p.post([]{});
+        last.wait();
     }
 
     REQUIRE(sv->empty());
@@ -132,3 +134,30 @@ TEST_CASE("thread_pool_tc")
 }
 
 
+#include <ev/core/flags.hpp>
+
+enum class flags_tc_e {
+    zero = 0,
+    one  = 1,
+    two  = 2,
+    foor = 4
+};
+EV_FLAGS(flags_tc_e)
+
+TEST_CASE("flags_tc")
+{
+    ev::flags_t<flags_tc_e> res = flags_tc_e::one | flags_tc_e::two ;
+
+    REQUIRE(res.test(flags_tc_e::one));
+    REQUIRE(res.test(flags_tc_e::two));
+    REQUIRE(!res.test(flags_tc_e::foor));
+
+    res.clear(flags_tc_e::two);
+
+    REQUIRE(!res.test(flags_tc_e::two));
+
+    res.enable(flags_tc_e::foor);
+
+    REQUIRE(res.test(flags_tc_e::foor));
+
+}

@@ -10,15 +10,14 @@ struct mem_block_t {
     unsigned int size;
 };
 
-struct construct_inplace_t{};
-struct empty_t{};
+struct construct_inplace_t {};
+struct empty_t {};
 
-template <typename T = empty_t,bool cond = true>
+template <typename T = empty_t, bool cond = true>
 struct loop_scoped_variable_t {
-    template <typename ... A>
-    loop_scoped_variable_t(A && ... d):data(std::forward<A>(d)...){}
-    operator bool()const{return cond;}
+    template <typename... A>
+    loop_scoped_variable_t(A&&... d) : data(std::forward<A>(d)...) {}
+    operator bool() const { return cond; }
     T data;
 };
-
 }
