@@ -4,29 +4,22 @@
 
 #include <iostream>
 
-
-int main()
-{
+int main() {
     ev::vm::virtual_machine_t vm;
 
-    std::string statement,input;
+    std::string statement, input;
     std::cout << ">> ";
     std::getline(std::cin, input);
 
     while (input.size()) {
-
-        if(*input.rbegin() == '\\'){
+        if (*input.rbegin() == '\\') {
             *input.rbegin() = ' ';
             statement.append(input);
-        }
-        else {
+        } else {
             statement = input;
-            try  {
+            try {
                 vm.eval(statement);
-            }
-            catch(const std::exception & e){
-                ev::error()<<e.what();
-            }
+            } catch (const std::exception& e) { ev::error() << e.what(); }
 
             statement.clear();
         }
@@ -36,8 +29,5 @@ int main()
         std::getline(std::cin, input);
     }
 
-
-
     return 0;
 }
-

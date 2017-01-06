@@ -2,12 +2,9 @@
 
 #include <boost/variant.hpp>
 
-namespace ev { namespace vm {
+namespace ev {
+namespace vm {
 
-struct object_t {
-
-};
-
-
-}}
-
+struct object_t {};
+}
+}
