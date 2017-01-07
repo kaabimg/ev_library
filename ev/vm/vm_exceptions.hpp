@@ -16,22 +16,22 @@ enum class error_type_e {
 };
 
 struct compile_exception_t : std::exception {
-    compile_exception_t(const std::string& what,
+    compile_exception_t(const std::string&     what,
                         const text_position_t& where = text_position_t())
         : m_what(what), m_where(where) {}
 
-    const char* what() const noexcept { return m_what.c_str(); }
+    const char*     what() const noexcept { return m_what.c_str(); }
     text_position_t where() const { return m_where; }
 
     virtual error_type_e type() const = 0;
 
 private:
-    std::string m_what;
+    std::string     m_what;
     text_position_t m_where;
 };
 
 #define EV_VM_EXCEPTION(name, t)                           \
-    name(const std::string& what,                          \
+    name(const std::string&     what,                      \
          const text_position_t& where = text_position_t()) \
         : compile_exception_t(what, where) {}              \
     error_type_e type() const { return t; }

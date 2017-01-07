@@ -19,7 +19,7 @@ struct function_call_t;
 
 struct identifier_t : x3::position_tagged {
     identifier_t(const std::string& name = "") : value(name) {}
-    std::string value;
+    std::string                     value;
 };
 
 struct variable_t : identifier_t {
@@ -81,21 +81,21 @@ enum class operator_type_e {
 
 struct unary_t : x3::position_tagged {
     operator_type_e op;
-    operand_t operand;
+    operand_t       operand;
 };
 
 struct operation_t : x3::position_tagged {
     operator_type_e op;
-    operand_t operand;
+    operand_t       operand;
 };
 
 struct expression_t : x3::position_tagged {
-    operand_t first;
+    operand_t                first;
     std::vector<operation_t> rest;
 };
 
 struct function_call_t : x3::position_tagged {
-    identifier_t name;
+    identifier_t              name;
     std::vector<expression_t> arguments;
 };
 
@@ -106,19 +106,19 @@ struct variable_declaration_t : x3::position_tagged {
 
 struct anonymous_function_declaration_t : x3::position_tagged {
     std::vector<variable_declaration_t> arguments;
-    identifier_t return_type;
-    expression_t expression;
+    identifier_t                        return_type;
+    expression_t                        expression;
 };
 
 struct function_declaration_t : x3::position_tagged {
-    identifier_t name;
+    identifier_t                        name;
     std::vector<variable_declaration_t> arguments;
-    identifier_t return_type;
-    expression_t expression;
+    identifier_t                        return_type;
+    expression_t                        expression;
 };
 
 struct struct_t {
-    identifier_t name;
+    identifier_t                        name;
     std::vector<variable_declaration_t> fields;
 };
 

@@ -17,7 +17,7 @@ struct buffuer_action_data_t {
 
     cl_mem m_buffer = nullptr;
 
-    void* m_data = nullptr;
+    void*  m_data = nullptr;
     size_t m_size = 0;
 };
 
@@ -56,7 +56,7 @@ public:
     exec_kernel_action_t& operator[](const nd_range_t& r);
 
 private:
-    cl_kernel m_kernel;
+    cl_kernel  m_kernel;
     nd_range_t m_range;
 };
 }

@@ -6,7 +6,7 @@
 private:                                             \
     type_name(const type_name&) = delete;            \
     type_name& operator=(const type_name&) = delete; \
-    type_name(type_name&& another) = delete;         \
+    type_name(type_name&& another)         = delete; \
     type_name& operator=(type_name&& another) = delete;
 
 #define EV_PRIVATE(type_name)                        \
@@ -19,19 +19,19 @@ private:                                             \
 public:                                              \
     type_name(type_name&& another) {                 \
         data_t* tmp = d;                             \
-        d = another.d;                               \
-        another.d = tmp;                             \
+        d           = another.d;                     \
+        another.d   = tmp;                           \
     }                                                \
     type_name& operator=(type_name&& another) {      \
         data_t* tmp = d;                             \
-        d = another.d;                               \
-        another.d = tmp;                             \
+        d           = another.d;                     \
+        another.d   = tmp;                           \
         return *this;                                \
     }
 
 #define EV_DEFAULT_CONSTRUCTORS(cls) \
     cls(const cls&) = default;       \
-    cls(cls&&) = default;
+    cls(cls&&)      = default;
 
 #define EV_DEFAULT_OPERATORS(cls)         \
     cls& operator=(const cls&) = default; \

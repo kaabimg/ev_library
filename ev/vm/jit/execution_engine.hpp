@@ -37,8 +37,8 @@ using namespace llvm::orc;
 
 struct execution_engine_t {
     using obj_linking_layer_t = ObjectLinkingLayer<>;
-    using ir_compile_layer_t = IRCompileLayer<obj_linking_layer_t>;
-    using module_handle_t = ir_compile_layer_t::ModuleSetHandleT;
+    using ir_compile_layer_t  = IRCompileLayer<obj_linking_layer_t>;
+    using module_handle_t     = ir_compile_layer_t::ModuleSetHandleT;
     using optimize_function_t = std::function<Module*(Module*)>;
 
     execution_engine_t()
@@ -85,7 +85,7 @@ struct execution_engine_t {
     }
 
     std::string mangle(const std::string& symbol) const {
-        std::string mangled_name;
+        std::string        mangled_name;
         raw_string_ostream mangled_name_stream(mangled_name);
         Mangler::getNameWithPrefix(mangled_name_stream, symbol, m_data_layout);
         return mangled_name;
@@ -125,11 +125,11 @@ protected:
     }
 
 private:
-    bool m_init = init();
+    bool                           m_init = init();
     std::unique_ptr<TargetMachine> m_target_machine;
-    const DataLayout m_data_layout;
-    obj_linking_layer_t m_object_layer;
-    ir_compile_layer_t m_compile_layer;
+    const DataLayout               m_data_layout;
+    obj_linking_layer_t            m_object_layer;
+    ir_compile_layer_t             m_compile_layer;
     IRTransformLayer<ir_compile_layer_t, optimize_function_t> m_optimize_layer;
 };
 }

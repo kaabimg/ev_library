@@ -15,11 +15,11 @@ namespace ev {
 namespace vm {
 namespace jit {
 
-using value_data_t = llvm::Value*;
+using value_data_t    = llvm::Value*;
 using function_data_t = llvm::Function*;
-using block_data_t = llvm::BasicBlock*;
-using type_data_t = llvm::Type*;
-using struct_data_t = llvm::StructType*;
+using block_data_t    = llvm::BasicBlock*;
+using type_data_t     = llvm::Type*;
+using struct_data_t   = llvm::StructType*;
 }
 }
 }

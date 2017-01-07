@@ -26,11 +26,11 @@ struct lock_helper_t<std::mutex> {
 
 template <typename T, typename Mutex = std::shared_mutex>
 class synchronized_data_t {
-    T m_data;
+    T             m_data;
     mutable Mutex m_mutex;
 
 public:
-    using data_type = T;
+    using data_type  = T;
     using mutex_type = Mutex;
 
     template <typename TA,

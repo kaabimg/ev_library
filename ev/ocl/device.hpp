@@ -13,15 +13,15 @@ public:
         : wrapper_type{id, mode} {}
 
     // properties
-    bool is_available() const;
-    std::string name() const;
-    std::string vendor() const;
-    std::string version() const;
-    std::string driver_version() const;
-    std::string profile() const;
+    bool          is_available() const;
+    std::string   name() const;
+    std::string   vendor() const;
+    std::string   version() const;
+    std::string   driver_version() const;
+    std::string   profile() const;
     device_type_e type() const;
-    size_t max_clock_frequency() const;
-    size_t max_compute_units() const;
+    size_t        max_clock_frequency() const;
+    size_t        max_compute_units() const;
 
 protected:
     std::string get_string_info(cl_device_info info_id) const;

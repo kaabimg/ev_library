@@ -22,7 +22,7 @@ bool block_t::has_variable(const std::string& name) const {
 
 value_t block_t::find_variable(const std::string& name) const {
     value_t res;
-    auto iter = std::find_if(d->variables.rbegin(), d->variables.rend(),
+    auto    iter = std::find_if(d->variables.rbegin(), d->variables.rend(),
                              [&](auto& i) { return i.name == name; });
 
     if (iter != d->variables.rend()) res = iter->value;
@@ -52,7 +52,7 @@ type_t function_t::arg_type_at(size_t i) const {
 }
 
 block_t function_t::new_block(const std::string& name) {
-    block_t block = create_object<block_t>();
+    block_t block     = create_object<block_t>();
     block.d->function = d.get();
     block.d->data =
         llvm::BasicBlock::Create(d->module->context->context, name, d->data);

@@ -12,7 +12,7 @@ namespace vm {
 namespace jit {
 
 struct function_signature_t {
-    std::string return_type;
+    std::string              return_type;
     std::vector<std::string> arg_types;
     bool operator==(const function_signature_t& another) const;
     bool operator!=(const function_signature_t& another) const;

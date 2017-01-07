@@ -22,8 +22,8 @@ public:
 
     // properties
     std::vector<std::string> kernel_names() const;
-    std::string source() const;
-    std::string build_log() const;
+    std::string              source() const;
+    std::string              build_log() const;
 
 private:
     static void on_program_built(cl_program program, void* user_data);

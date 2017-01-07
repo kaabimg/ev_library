@@ -13,18 +13,18 @@ TEST_CASE("parser::integer") {
     parser_t parser;
 
     try {
-        int32_t value = 33;
-        parser_result_t ast = parser.parse(std::to_string(value));
+        int32_t         value = 33;
+        parser_result_t ast   = parser.parse(std::to_string(value));
 
         ast::statement_t& statement = *ast.statement.get();
         REQUIRE(statement.type() == ast::statement_type_e::expression);
 
         ast::expression_t& expression = statement.as<ast::expression_t>();
-        ast::operand_t& operand = expression.first;
+        ast::operand_t&    operand    = expression.first;
         REQUIRE(operand.type() == ast::operand_type_e::expression);
 
         expression = operand.as<x3::forward_ast<ast::expression_t>>();
-        operand = expression.first;
+        operand    = expression.first;
         REQUIRE(operand.type() == ast::operand_type_e::number);
 
         ast::number_t& number = operand.as<ast::number_t>();
@@ -39,18 +39,18 @@ TEST_CASE("parser::long") {
     parser_t parser;
 
     try {
-        int64_t value = 21474836470;
-        parser_result_t ast = parser.parse(std::to_string(value));
+        int64_t         value = 21474836470;
+        parser_result_t ast   = parser.parse(std::to_string(value));
 
         ast::statement_t& statement = *ast.statement.get();
         REQUIRE(statement.type() == ast::statement_type_e::expression);
 
         ast::expression_t& expression = statement.as<ast::expression_t>();
-        ast::operand_t& operand = expression.first;
+        ast::operand_t&    operand    = expression.first;
         REQUIRE(operand.type() == ast::operand_type_e::expression);
 
         expression = operand.as<x3::forward_ast<ast::expression_t>>();
-        operand = expression.first;
+        operand    = expression.first;
         REQUIRE(operand.type() == ast::operand_type_e::number);
 
         ast::number_t& number = operand.as<ast::number_t>();
@@ -74,11 +74,11 @@ TEST_CASE("parser::float") {
         REQUIRE(statement.type() == ast::statement_type_e::expression);
 
         ast::expression_t& expression = statement.as<ast::expression_t>();
-        ast::operand_t& operand = expression.first;
+        ast::operand_t&    operand    = expression.first;
         REQUIRE(operand.type() == ast::operand_type_e::expression);
 
         expression = operand.as<x3::forward_ast<ast::expression_t>>();
-        operand = expression.first;
+        operand    = expression.first;
         REQUIRE(operand.type() == ast::operand_type_e::number);
 
         ast::number_t& number = operand.as<ast::number_t>();
@@ -93,16 +93,16 @@ TEST_CASE("parser::double") {
     parser_t parser;
 
     try {
-        parser_result_t ast = parser.parse(std::to_string(DBL_MAX));
+        parser_result_t   ast       = parser.parse(std::to_string(DBL_MAX));
         ast::statement_t& statement = *ast.statement.get();
         REQUIRE(statement.type() == ast::statement_type_e::expression);
 
         ast::expression_t& expression = statement.as<ast::expression_t>();
-        ast::operand_t& operand = expression.first;
+        ast::operand_t&    operand    = expression.first;
         REQUIRE(operand.type() == ast::operand_type_e::expression);
 
         expression = operand.as<x3::forward_ast<ast::expression_t>>();
-        operand = expression.first;
+        operand    = expression.first;
         REQUIRE(operand.type() == ast::operand_type_e::number);
 
         ast::number_t& number = operand.as<ast::number_t>();

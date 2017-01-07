@@ -20,16 +20,16 @@ public:
 
     template <typename T>
     buffer_t new_buffer(
-        size_t count,
+        size_t                  count,
         flags_t<memory_flags_e> flags = memory_flags_e::read_write);
 
     program_t new_program_from_file(
-        const std::string& path,
+        const std::string&              path,
         const std::vector<std::string>& include_dirs =
             std::vector<std::string>());
 
     program_t new_program_from_sources(
-        const std::string& program_txt,
+        const std::string&              program_txt,
         const std::vector<std::string>& include_dirs =
             std::vector<std::string>());
 

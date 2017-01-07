@@ -20,7 +20,7 @@ struct virtual_machine_t {
     runtime_function_t<Sig> build(const std::string&);
 
 protected:
-    void* create_function(const std::string& str,
+    void* create_function(const std::string&               str,
                           const jit::function_signature_t& expected_signature);
 
 private:

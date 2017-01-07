@@ -11,9 +11,9 @@ EV_OCL_DECLARE_CLEAR_FUNCTION(cl_mem, clRetainMemObject, clReleaseMemObject)
 
 class buffer_t : public object_wrapper_t<cl_mem> {
 public:
-    buffer_t(const context_t& context,
+    buffer_t(const context_t&        context,
              flags_t<memory_flags_e> flags,
-             size_t size);
+             size_t                  size);
 
     template <typename T>
     write_buffer_action_t operator<<(const std::vector<T>& data);

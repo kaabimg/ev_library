@@ -5,18 +5,18 @@
 int main() {
     // memcached_servers_parse (char *server_strings);
     memcached_server_st* servers = NULL;
-    memcached_st* memc;
-    memcached_return rc;
-    const char* key = "keystring";
-    const char* value = "keyvalue";
+    memcached_st*        memc;
+    memcached_return     rc;
+    const char*          key   = "keystring";
+    const char*          value = "keyvalue";
 
-    char* retrieved_value;
-    size_t value_length;
+    char*    retrieved_value;
+    size_t   value_length;
     uint32_t flags;
 
-    memc = memcached_create(NULL);
+    memc    = memcached_create(NULL);
     servers = memcached_server_list_append(servers, "localhost", 11211, &rc);
-    rc = memcached_server_push(memc, servers);
+    rc      = memcached_server_push(memc, servers);
 
     if (rc == MEMCACHED_SUCCESS)
         fprintf(stderr, "Added server successfully\n");

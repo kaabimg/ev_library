@@ -5,9 +5,9 @@ using namespace ev::ocl;
 
 #include <bitset>
 
-buffer_t::buffer_t(const context_t& context,
+buffer_t::buffer_t(const context_t&        context,
                    flags_t<memory_flags_e> flags,
-                   size_t size)
+                   size_t                  size)
     : wrapper_type{nullptr} {
     cl_int status;
     set_data(clCreateBuffer(context.cl_object(), flags.data(), size, nullptr,

@@ -69,7 +69,7 @@ struct exceptions_counter_t {
 template <typename Func, bool condition>
 struct exception_proactor_t {
     exceptions_counter_t counter;
-    Func action;
+    Func                 action;
 
     exception_proactor_t(Func&& f) : action(std::forward<Func>(f)) {}
     ~exception_proactor_t() {

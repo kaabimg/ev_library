@@ -18,9 +18,9 @@ namespace ev {
 namespace vm {
 
 struct virtual_machine_t::data_t {
-    parser_t parser;
+    parser_t       parser;
     jit::context_t context;
-    compiler_t compiler{context};
+    compiler_t     compiler{context};
 };
 }
 }
@@ -33,7 +33,7 @@ virtual_machine_t::~virtual_machine_t() {
 
 void virtual_machine_t::eval(const std::string& line) {
     if (line.size() && *line.begin() == '#') { return; }
-    parser_result_t result = d->parser.parse(line);
+    parser_result_t result   = d->parser.parse(line);
     jit::function_t function = d->compiler.compile(*result.statement.get());
     d->context.compile();
 
@@ -45,7 +45,7 @@ void virtual_machine_t::eval(const std::string& line) {
 }
 
 void* virtual_machine_t::create_function(
-    const std::string& str,
+    const std::string&               str,
     const jit::function_signature_t& expected_signature) {
     parser_result_t result = d->parser.parse(str);
 

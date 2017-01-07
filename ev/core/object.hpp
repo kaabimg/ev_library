@@ -1,9 +1,10 @@
 #pragma once
 
+#include "preprocessor.hpp"
+
 #include <vector>
 #include <algorithm>
 #include <functional>
-#include "preprocessor.h"
 
 namespace ev {
 
@@ -18,7 +19,7 @@ private:
     void remove_child(object_t*);
 
 private:
-    object_t* m_parent = nullptr;
+    object_t*              m_parent = nullptr;
     std::vector<object_t*> m_children;
 };
 
@@ -46,16 +47,24 @@ void object_t::remove_child(object_t* c) {
     if (it != m_children.end()) m_children.erase(it);
 }
 
+template <typename P>
+struct property_trait {
+    using type = std::conditional<std::is_trivial<P>::value &&
+                                      sizeof(P) <= 2 * sizeof(double),
+                                  P,
+                                  const P&>;
+};
+
 template <typename T>
 struct property_t {
     virtual T read(object_t* object) const = 0;
-    virtual void write(object_t*, const T& v) const = 0;
+    virtual void write(object_t*, property_trait<T>::type v) const = 0;
 };
 
 template <typename T>
 struct member_property_t : property_t<T> {
     using Reader = std::function<T(ev::object_t*)>;
-    using Writer = std::function<void(ev::object_t*, const T&)>;
+    using Writer = std::function<void(ev::object_t*, property_trait<T>::type)>;
 
     const Reader reader;
     const Writer writer;
@@ -64,7 +73,9 @@ struct member_property_t : property_t<T> {
         : reader(std::forward<Reader>(r)), writer(std::forward<Writer>(w)) {}
 
     T read(object_t* object) const { return reader(object); }
-    void write(object_t* object, const T& v) const { writer(object, v); }
+    void write(object_t* object, property_trait<T>::type v) const {
+        writer(object, v);
+    }
 };
 
 template <typename T>

@@ -40,8 +40,8 @@ TEST_CASE("scope_exit_tc") {
 
 TEST_CASE("synchronized_data_tc") {
     ev::synchronized_data_t<std::vector<int>> sv;
-    int size = 100;
-    auto producer_task = [&]() mutable {
+    int                                       size          = 100;
+    auto                                      producer_task = [&]() mutable {
 
         for (int i = 0; i < size; ++i) { sv->push_back(i); }
 
@@ -71,9 +71,9 @@ TEST_CASE("thread_pool_tc") {
     ev::synchronized_data_t<double, std::mutex> sn(10.4);
     {
         ev::thread_pool_t th_p{4};
-        int size = 100;
-        auto producer_task = [&]() mutable { sv->push_back(rand()); };
-        auto consumer_task = [&]() mutable {
+        int               size = 100;
+        auto producer_task     = [&]() mutable { sv->push_back(rand()); };
+        auto consumer_task     = [&]() mutable {
 
             bool exit = false;
 

@@ -18,11 +18,11 @@ struct type_t;
 struct function_private_t;
 
 struct function_t : object_t<function_private_t>, compilation_scope_t {
-    std::string logical_name() const;
+    std::string                     logical_name() const;
     const function_creation_info_t& creation_info() const;
-    type_t return_type() const;
-    size_t arg_count() const;
-    type_t arg_type_at(size_t) const;
+    type_t                          return_type() const;
+    size_t                          arg_count() const;
+    type_t                          arg_type_at(size_t) const;
 
     block_t new_block(const std::string& name);
     bool finalize(std::string* error_str = nullptr);

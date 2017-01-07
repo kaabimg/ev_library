@@ -32,11 +32,11 @@ protected:
     void join_all();
 
 private:
-    std::vector<std::thread> m_threads;
+    std::vector<std::thread>           m_threads;
     std::queue<std::function<void()> > m_tasks;
-    std::mutex m_queue_mutex;
-    std::condition_variable m_wait_condition;
-    bool m_done = false;
+    std::mutex                         m_queue_mutex;
+    std::condition_variable            m_wait_condition;
+    bool                               m_done = false;
 };
 
 // the constructor just launches some amount of workers

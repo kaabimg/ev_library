@@ -3,10 +3,10 @@
 namespace ev {
 
 using address_t = void*;
-using byte_t = unsigned char;
+using byte_t    = unsigned char;
 
 struct mem_block_t {
-    address_t data;
+    address_t    data;
     unsigned int size;
 };
 

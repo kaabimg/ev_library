@@ -21,7 +21,7 @@ void program_t::build(const std::string& options) {
 }
 
 kernel_t program_t::get_kenel(const std::string& name) const {
-    cl_int status;
+    cl_int    status;
     cl_kernel kernel = clCreateKernel(cl_object(), name.c_str(), &status);
     check_status(status);
     return kernel_t{kernel};

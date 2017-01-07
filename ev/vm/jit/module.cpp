@@ -18,9 +18,9 @@ std::string module_t::name() const {
 }
 
 function_t module_t::new_function(const function_creation_info_t& info) {
-    function_t func = create_object<function_t>();
+    function_t func       = create_object<function_t>();
     func.d->creation_info = info;
-    func.d->module = d.get();
+    func.d->module        = d.get();
     std::vector<type_data_t> args_type(info.arg_types.size());
 
     int i = 0;
@@ -58,7 +58,7 @@ function_t module_t::find_function(const function_id_t& info) const {
 }
 
 function_t module_t::find_function(const std::string& name,
-                                   unsigned arg_count) const {
+                                   unsigned           arg_count) const {
     auto iter = std::find_if(
         d->functions.begin(), d->functions.end(), [&](const function_t& f) {
             return (name == f.creation_info().name) &&
@@ -80,7 +80,7 @@ std::vector<function_t>& module_t::functions() {
 struct_t module_t::new_struct(struct_info_t&& info) {
     std::vector<type_data_t> types{info.field_types.size()};
 
-    int i = 0;
+    int i                                          = 0;
     for (auto& type : info.field_types) types[i++] = type;
 
     llvm::StructType* type = llvm::StructType::create(types);
@@ -88,8 +88,8 @@ struct_t module_t::new_struct(struct_info_t&& info) {
 
     struct_t stct = create_object<struct_t>();
 
-    stct->data = type;
-    stct->module = d.get();
+    stct->data            = type;
+    stct->module          = d.get();
     d->structs_data[type] = std::move(info);
     return stct;
 }
@@ -100,7 +100,7 @@ struct_t module_t::find_struct(const std::string& name) const {
     return struct_t();
 }
 
-value_t module_t::new_call(const function_t& f,
+value_t module_t::new_call(const function_t&           f,
                            std::vector<value_data_t>&& args) {
     return create_object<value_t>(
         d->context, d->context->builder.CreateCall(f, std::move(args)));

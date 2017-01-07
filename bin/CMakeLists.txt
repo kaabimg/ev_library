@@ -22,3 +22,7 @@ target_link_libraries(proto_bin ev_ocl)
 add_executable (mem_c mem_c.cpp)
 target_link_libraries(mem_c memcached)
 
+##################################################################################
+
+add_executable (ogl ogl.cpp)
+target_link_libraries(ogl EGL GLESv2)

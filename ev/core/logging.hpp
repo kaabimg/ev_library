@@ -5,9 +5,10 @@
 namespace ev {
 namespace detail {
 
-static const char* g_info_prefix = "[    info]";
-static const char* g_warning_prefix = "[ warning]";
-static const char* g_error_prefix = "[   error]";
+static const char* g_info_prefix     = "[    debug]";
+static const char* g_info_prefix     = "[    info]";
+static const char* g_warning_prefix  = "[ warning]";
+static const char* g_error_prefix    = "[   error]";
 static const char* g_critical_prefix = "[critical]";
 }
 template <typename T>

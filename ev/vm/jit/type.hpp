@@ -35,8 +35,8 @@ protected:
 };
 
 struct struct_info_t {
-    std::string name;
-    std::vector<type_t> field_types;
+    std::string              name;
+    std::vector<type_t>      field_types;
     std::vector<std::string> field_names;
     //
 
@@ -50,9 +50,9 @@ struct struct_info_t {
 class struct_private_t;
 
 struct struct_t : object_t<struct_private_t> {
-    const std::string& name() const;
+    const std::string&              name() const;
     const std::vector<std::string>& field_names() const;
-    const std::vector<type_t>& field_types() const;
+    const std::vector<type_t>&      field_types() const;
 
     int field_index(const std::string& name) const;
 

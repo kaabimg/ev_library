@@ -29,11 +29,11 @@ x3::symbols<ast::operator_type_e> add_operator, multiply_operator,
 
 // rules
 
-const x3::rule<struct id_type, std::string> id = "id";
+const x3::rule<struct id_type, std::string>               id = "id";
 const x3::rule<struct identifier_type, ast::identifier_t> identifier =
     "identifier";
 const x3::rule<struct variable_type, ast::variable_t> variable = "variable";
-const x3::rule<struct number_type, ast::number_t> number = "number";
+const x3::rule<struct number_type, ast::number_t>     number   = "number";
 
 const x3::rule<struct additive_expression_type, ast::expression_t>
     additive_expression = "additive_expression";
@@ -72,7 +72,7 @@ const x3::rule<struct error_handler_t, ast::statement_t> statement =
 const auto id_def = raw[lexeme[(alpha | '_') >> *(alnum | '_')]];
 
 const auto identifier_def = id;
-const auto variable_def = id;
+const auto variable_def   = id;
 
 const auto number_def =
     x3::real_parser<float, x3::strict_real_policies<float>>{} |
@@ -140,7 +140,7 @@ BOOST_SPIRIT_DEFINE(id,
 struct error_handler_t {
     template <typename Iterator, typename Exception, typename Context>
     x3::error_handler_result on_error(Iterator&,
-                                      Iterator const& last,
+                                      Iterator const&  last,
                                       Exception const& x,
                                       Context const& /*context*/) {
         std::stringstream ss;
@@ -190,7 +190,7 @@ parser_result_t parser_t::parse(const std::string& line) {
     parser_result_t result;
 
     std::string::const_iterator begin = line.begin();
-    std::string::const_iterator end = line.end();
+    std::string::const_iterator end   = line.end();
 
     boost::spirit::x3::ascii::space_type space;
 

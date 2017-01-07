@@ -8,7 +8,7 @@ std::vector<ev::ocl::platform_t> ev::ocl::platform_t::get_platforms() {
     cl_uint count = 0;
     clGetPlatformIDs(0, NULL, &count);
     std::vector<cl_platform_id> ids{count};
-    std::vector<platform_t> platforms;
+    std::vector<platform_t>     platforms;
     platforms.reserve(count);
     clGetPlatformIDs(count, ids.data(), nullptr);
     for (auto id : ids) platforms.emplace_back(id);
@@ -17,9 +17,9 @@ std::vector<ev::ocl::platform_t> ev::ocl::platform_t::get_platforms() {
 
 std::vector<device_t> platform_t::get_devices(
     flags_t<device_type_e> type) const {
-    std::vector<device_t> devices;
+    std::vector<device_t>     devices;
     std::vector<cl_device_id> device_ids;
-    cl_uint count = 0;
+    cl_uint                   count = 0;
     clGetDeviceIDs(cl_object(), type.data(), 0, nullptr, &count);
     device_ids.resize(count);
     clGetDeviceIDs(cl_object(), type.data(), count, device_ids.data(), nullptr);

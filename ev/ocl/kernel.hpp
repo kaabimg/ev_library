@@ -11,9 +11,9 @@ struct kernel_arg_t {
     kernel_arg_t(size_t i, cl_mem obj, size_t s)
         : index(i), object(obj), size(s) {}
 
-    size_t index = 0;
+    size_t index  = 0;
     cl_mem object = nullptr;
-    size_t size = 0;
+    size_t size   = 0;
 };
 
 EV_OCL_DECLARE_CLEAR_FUNCTION(cl_kernel, clRetainKernel, clReleaseKernel)

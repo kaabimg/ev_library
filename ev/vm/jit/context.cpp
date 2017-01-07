@@ -20,7 +20,7 @@ void context_t::compile() {
         d->has_compiled_modules = true;
     }
     std::vector<llvm::Module*> modules{d->modules.size()};
-    int i = 0;
+    int                        i = 0;
     for (auto& module : d->modules) { modules[i++] = &module.second.d->module; }
 
     d->added_modules_handle = d->execution_engine.add(std::move(modules));
@@ -60,7 +60,7 @@ type_t context_t::get_builtin_type(type_kind_e kind) {
 }
 
 value_t context_t::new_constant(type_kind_e kind, void* val) {
-    value_t value = create_object<value_t>();
+    value_t value  = create_object<value_t>();
     value->context = d;
 
     switch (kind) {

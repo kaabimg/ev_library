@@ -21,7 +21,7 @@
     };                                                                    \
     }                                                                     \
     template <typename T>                                                 \
-    void ev::print_impl_t<type<T>>::print(std::ostream& ostream,          \
+    void ev::print_impl_t<type<T>>::print(std::ostream&  ostream,         \
                                           const type<T>& data)
 
 ///////////////////////////////////////////////

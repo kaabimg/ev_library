@@ -46,7 +46,7 @@ void transform_omp() {
 
 #pragma omp parallel for
     for (int i = 0; i < data_size; ++i) { data[i] = std::sin(data[i]); }
-#pragma omp parallel for
+#pragma omp  parallel for
     for (int i = 0; i < data_size; ++i) { data[i] = std::sin(data[i]); }
 
     ev::debug() << __PRETTY_FUNCTION__ << "elapsed (ms)" << time.elapsed_ms();

@@ -48,7 +48,7 @@ std::vector<device_t> context_t::devices() const {
 }
 
 program_t context_t::new_program_from_file(
-    const std::string& path,
+    const std::string&              path,
     const std::vector<std::string>& include_dirs) {
     std::ifstream input_file{path};
     if (input_file) {
@@ -62,13 +62,13 @@ program_t context_t::new_program_from_file(
 }
 
 program_t context_t::new_program_from_sources(
-    const std::string& program_txt,
+    const std::string&              program_txt,
     const std::vector<std::string>& include_dirs)
 
 {
-    cl_int status;
-    const char* str = program_txt.c_str();
-    cl_program program = clCreateProgramWithSource(
+    cl_int      status;
+    const char* str     = program_txt.c_str();
+    cl_program  program = clCreateProgramWithSource(
         cl_object(), 1, (const char**)&str, nullptr, &status);
 
     check_status(status);

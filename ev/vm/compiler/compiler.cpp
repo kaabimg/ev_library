@@ -79,9 +79,9 @@ jit::value_t compiler_t::build(const ast::expression_t& expression) {
         }
 
         switch (operation.op) {
-            case ast::operator_type_e::plus: lhs = lhs + rhs; break;
-            case ast::operator_type_e::minus: lhs = lhs - rhs; break;
-            case ast::operator_type_e::times: lhs = lhs * rhs; break;
+            case ast::operator_type_e::plus: lhs   = lhs + rhs; break;
+            case ast::operator_type_e::minus: lhs  = lhs - rhs; break;
+            case ast::operator_type_e::times: lhs  = lhs * rhs; break;
             case ast::operator_type_e::divide: lhs = lhs / rhs; break;
             default: break;
         }
@@ -154,7 +154,7 @@ jit::function_t compiler_t::build(
     jit::module_t current_module = m_context.main_module();  // TODO
 
     jit::function_creation_info_t info;
-    info.name = function_dec.name.value;
+    info.name        = function_dec.name.value;
     info.return_type = function_dec.return_type.value;
     info.arg_types.resize(function_dec.arguments.size());
 
@@ -201,17 +201,17 @@ jit::function_t compiler_t::build(
     main_block.set_return(return_value);
 
     std::string error_str;
-    bool ok = function.finalize(&error_str);
+    bool        ok = function.finalize(&error_str);
     if (!ok) { throw compile_error_t(error_str); }
     return function;
 }
 
 jit::function_t compiler_t::create_top_level_expression_function(
     const ast::expression_t& expression) {
-    int i = 0;
+    int                           i = 0;
     jit::function_creation_info_t info;
-    static const char* name_prefix = "__expression_";
-    info.name = name_prefix + std::to_string(i);
+    static const char*            name_prefix = "__expression_";
+    info.name                                 = name_prefix + std::to_string(i);
     info.return_type = builtin_type_names.find(type_kind_e::r64)->second;
 
     while (m_context.main_module().find_function(info.name, 0)) {
@@ -238,7 +238,7 @@ jit::function_t compiler_t::create_top_level_expression_function(
     m_context.main_module().pop_scope();
 
     std::string error_str;
-    bool ok = function.finalize(&error_str);
+    bool        ok = function.finalize(&error_str);
     if (!ok) { throw compile_error_t(error_str); }
     return function;
 }

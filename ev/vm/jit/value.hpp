@@ -12,7 +12,7 @@ struct type_t;
 
 struct value_t : object_t<value_private_t> {
     type_t type() const;
-    bool is_number() const;
+    bool   is_number() const;
 
     value_data_t data() const;
 
@@ -36,7 +36,7 @@ protected:
 
 struct named_value_t {
     std::string name;
-    value_t value;
+    value_t     value;
 };
 }
 }
