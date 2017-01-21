@@ -1,10 +1,12 @@
 #pragma once
 
 #include <unordered_map>
-namespace ev {
-namespace vm {
-
-enum class type_kind_e : uint8_t {
+namespace ev
+{
+namespace vm
+{
+enum class type_kind_e : uint8_t
+{
     unknown = 0,
     boolean,
     i32,
@@ -29,14 +31,16 @@ static const std::unordered_map<type_kind_e, std::string> builtin_type_names = {
     {type_kind_e::r64, "real64"}};
 
 template <typename T>
-constexpr type_kind_e get_type_kind() {
+constexpr type_kind_e get_type_kind()
+{
     return type_kind_e::unknown;
 }
 
-#define EV_VM_DECLARE_BASIC_TYPE(type, kind)             \
-    template <>                                          \
-    inline constexpr type_kind_e get_type_kind<type>() { \
-        return type_kind_e::kind;                        \
+#define EV_VM_DECLARE_BASIC_TYPE(type, kind)           \
+    template <>                                        \
+    inline constexpr type_kind_e get_type_kind<type>() \
+    {                                                  \
+        return type_kind_e::kind;                      \
     }
 
 EV_VM_DECLARE_BASIC_TYPE(bool, boolean)

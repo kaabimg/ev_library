@@ -5,14 +5,16 @@
 #include "object.hpp"
 #include "value.hpp"
 
-#include <ev/core/preprocessor.hpp>
+#include <ev/core/basic_types.hpp>
 
 #include <memory>
 
-namespace ev {
-namespace vm {
-namespace jit {
-
+namespace ev
+{
+namespace vm
+{
+namespace jit
+{
 class context_private_t;
 class function_t;
 class value_t;
@@ -23,7 +25,8 @@ class type_t;
 class struct_t;
 class struct_info_t;
 
-struct context_t {
+struct context_t : non_copyable_t
+{
     context_t();
     ~context_t();
 
@@ -46,11 +49,11 @@ private:
     friend class function_t;
     friend class value_t;
     friend class block_t;
-    EV_DISABLE_COPY(context_t)
 };
 
 template <typename T>
-value_t context_t::new_constant(T value) {
+value_t context_t::new_constant(T value)
+{
     return new_constant(get_type_kind<T>(), &value);
 }
 }

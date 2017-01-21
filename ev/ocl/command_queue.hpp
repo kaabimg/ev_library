@@ -2,9 +2,10 @@
 
 #include "common.hpp"
 
-namespace ev {
-namespace ocl {
-
+namespace ev
+{
+namespace ocl
+{
 class context_t;
 class device_t;
 class action_t;
@@ -15,7 +16,8 @@ EV_OCL_DECLARE_CLEAR_FUNCTION(cl_command_queue,
                               clRetainCommandQueue,
                               clReleaseCommandQueue)
 
-class command_queue_t : public object_wrapper_t<cl_command_queue> {
+class command_queue_t : public object_wrapper_t<cl_command_queue>
+{
 public:
     command_queue_t(const context_t& context, const device_t& device);
 

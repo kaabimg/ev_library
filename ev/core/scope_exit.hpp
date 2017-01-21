@@ -3,20 +3,24 @@
 #include "preprocessor.hpp"
 #include <exception>
 
-namespace ev {
-namespace detail {
-
+namespace ev
+{
+namespace detail
+{
 //////
 template <typename Func>
-struct scope_exit_proactor_t {
+struct scope_exit_proactor_t
+{
     Func action;
     scope_exit_proactor_t(Func&& f) : action(std::forward<Func>(f)) {}
     ~scope_exit_proactor_t() { action(); }
 };
 
-struct scope_exit_builder_t {
+struct scope_exit_builder_t
+{
     template <typename Func>
-    scope_exit_proactor_t<Func> operator<<(Func&& f) {
+    scope_exit_proactor_t<Func> operator<<(Func&& f)
+    {
         return scope_exit_proactor_t<Func>(std::forward<Func>(f));
     }
 };
@@ -24,31 +28,37 @@ struct scope_exit_builder_t {
 //////
 
 template <typename Cond, typename Func>
-struct conditional_scope_exit_proactor_t {
+struct conditional_scope_exit_proactor_t
+{
     Cond cond;
     Func action;
     conditional_scope_exit_proactor_t(Cond&& cond, Func&& f)
-        : cond(std::forward<Cond>(cond)), action(std::forward<Func>(f)) {}
+        : cond(std::forward<Cond>(cond)), action(std::forward<Func>(f))
+    {
+    }
 
-    ~conditional_scope_exit_proactor_t() {
+    ~conditional_scope_exit_proactor_t()
+    {
         if (cond()) action();
     }
 };
 
 template <typename Cond>
-struct scope_exit_condition_t {
+struct scope_exit_condition_t
+{
     Cond cond;
 
     scope_exit_condition_t(Cond&& c) : cond(std::forward<Cond>(c)) {}
-
     template <typename Func>
-    conditional_scope_exit_proactor_t<Cond, Func> operator<<(Func&& f) {
+    conditional_scope_exit_proactor_t<Cond, Func> operator<<(Func&& f)
+    {
         return conditional_scope_exit_proactor_t<Cond, Func>(
             std::move(cond), std::forward<Func>(f));
     }
 };
 
-inline auto make_scope_exit_condition(auto&& c) {
+inline auto make_scope_exit_condition(auto&& c)
+{
     typedef typename std::remove_reference<decltype(c)>::type condition_type;
     return scope_exit_condition_t<condition_type>(
         std::forward<condition_type>(c));
@@ -56,31 +66,38 @@ inline auto make_scope_exit_condition(auto&& c) {
 
 //////
 
-struct exceptions_counter_t {
+struct exceptions_counter_t
+{
     const int value;
 
     exceptions_counter_t() : value(std::uncaught_exceptions()) {}
-
-    bool has_new_exceptions() const {
+    bool has_new_exceptions() const
+    {
         return std::uncaught_exceptions() != value;
     }
 };
 
 template <typename Func, bool condition>
-struct exception_proactor_t {
+struct exception_proactor_t
+{
     exceptions_counter_t counter;
-    Func                 action;
+    Func action;
 
     exception_proactor_t(Func&& f) : action(std::forward<Func>(f)) {}
-    ~exception_proactor_t() {
-        if (counter.has_new_exceptions() == condition) { action(); }
+    ~exception_proactor_t()
+    {
+        if (counter.has_new_exceptions() == condition) {
+            action();
+        }
     }
 };
 
 template <bool condition>
-struct exception_proactor_builder_t {
+struct exception_proactor_builder_t
+{
     template <typename Fun>
-    exception_proactor_t<Fun, condition> operator<<(Fun&& f) {
+    exception_proactor_t<Fun, condition> operator<<(Fun&& f)
+    {
         return exception_proactor_t<Fun, condition>(std::forward<Fun>(f));
     }
 };

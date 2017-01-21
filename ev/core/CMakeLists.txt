@@ -1,8 +1,6 @@
-cmake_minimum_required( VERSION 2.6 )
-
-
-
-set(HEADER_FILES utils.hpp
+set(HEADER_FILES
+    utils.hpp
+    file_utils.hpp
     thread_pool.hpp
     logging.hpp
     logging_helpers.hpp
@@ -12,6 +10,7 @@ set(HEADER_FILES utils.hpp
     object.hpp
     flags.hpp
     basic_types.hpp
+    property.hpp
 )
 
 

@@ -4,7 +4,8 @@
 
 #include <iostream>
 
-int main() {
+int main()
+{
     ev::vm::virtual_machine_t vm;
 
     std::string statement, input;
@@ -15,11 +16,18 @@ int main() {
         if (*input.rbegin() == '\\') {
             *input.rbegin() = ' ';
             statement.append(input);
-        } else {
+        }
+        else
+        {
             statement = input;
-            try {
+            try
+            {
                 vm.eval(statement);
-            } catch (const std::exception& e) { ev::error() << e.what(); }
+            }
+            catch (const std::exception& e)
+            {
+                ev::error() << e.what();
+            }
 
             statement.clear();
         }

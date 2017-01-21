@@ -1,3 +1,7 @@
 #pragma once
 
-#include "common.hpp"
+#include "application.hpp"
+#include "window.hpp"
+#include "shader.hpp"
+#include "painter.hpp"
+#include "buffer.hpp"

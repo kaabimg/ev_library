@@ -9,7 +9,8 @@
 using namespace ev::ocl;
 
 context_t::context_t(const std::vector<device_t>& devices)
-    : wrapper_type{nullptr} {
+    : wrapper_type{nullptr}
+{
     std::vector<cl_device_id> device_ids;
     device_ids.reserve(devices.size());
 
@@ -23,9 +24,12 @@ context_t::context_t(const std::vector<device_t>& devices)
     check_status(status);
 }
 
-context_t::context_t(cl_context c) : wrapper_type{c} {}
+context_t::context_t(cl_context c) : wrapper_type{c}
+{
+}
 
-std::vector<device_t> context_t::devices() const {
+std::vector<device_t> context_t::devices() const
+{
     std::vector<device_t> devices;
 
     size_t size;
@@ -48,8 +52,9 @@ std::vector<device_t> context_t::devices() const {
 }
 
 program_t context_t::new_program_from_file(
-    const std::string&              path,
-    const std::vector<std::string>& include_dirs) {
+    const std::string& path,
+    const std::vector<std::string>& include_dirs)
+{
     std::ifstream input_file{path};
     if (input_file) {
         return new_program_from_sources(
@@ -62,13 +67,13 @@ program_t context_t::new_program_from_file(
 }
 
 program_t context_t::new_program_from_sources(
-    const std::string&              program_txt,
+    const std::string& program_txt,
     const std::vector<std::string>& include_dirs)
 
 {
-    cl_int      status;
-    const char* str     = program_txt.c_str();
-    cl_program  program = clCreateProgramWithSource(
+    cl_int status;
+    const char* str    = program_txt.c_str();
+    cl_program program = clCreateProgramWithSource(
         cl_object(), 1, (const char**)&str, nullptr, &status);
 
     check_status(status);
@@ -76,10 +81,12 @@ program_t context_t::new_program_from_sources(
     return program_t{program};
 }
 
-command_queue_t context_t::new_command_queue(device_t device) {
+command_queue_t context_t::new_command_queue(device_t device)
+{
     return command_queue_t{*this, device};
 }
 
-buffer_t context_t::create_buffer(size_t size, flags_t<memory_flags_e> flags) {
+buffer_t context_t::create_buffer(size_t size, flags_t<memory_flags_e> flags)
+{
     return buffer_t{*this, flags, size};
 }

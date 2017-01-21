@@ -28,14 +28,17 @@
 #include <string>
 #include <vector>
 
-namespace ev {
-namespace vm {
-namespace jit {
-
+namespace ev
+{
+namespace vm
+{
+namespace jit
+{
 using namespace llvm;
 using namespace llvm::orc;
 
-struct execution_engine_t {
+struct execution_engine_t
+{
     using obj_linking_layer_t = ObjectLinkingLayer<>;
     using ir_compile_layer_t  = IRCompileLayer<obj_linking_layer_t>;
     using module_handle_t     = ir_compile_layer_t::ModuleSetHandleT;
@@ -45,7 +48,8 @@ struct execution_engine_t {
         : m_target_machine(EngineBuilder().selectTarget()),
           m_data_layout(m_target_machine->createDataLayout()),
           m_compile_layer(m_object_layer, SimpleCompiler(*m_target_machine)),
-          m_optimize_layer(m_compile_layer, optimize_module) {
+          m_optimize_layer(m_compile_layer, optimize_module)
+    {
         if (!m_init) {
             throw std::runtime_error("Failed to init the JIT engine");
         }
@@ -53,8 +57,8 @@ struct execution_engine_t {
     }
 
     TargetMachine& target_machine() { return *m_target_machine; }
-
-    module_handle_t add(std::vector<Module*>&& modules) {
+    module_handle_t add(std::vector<Module*>&& modules)
+    {
         auto resolver = createLambdaResolver(
             // Look back into the JIT itself to find symbols that are part of
             // the same "logical dylib".
@@ -80,23 +84,27 @@ struct execution_engine_t {
             std::move(resolver));
     }
 
-    void remove(module_handle_t handle) {
+    void remove(module_handle_t handle)
+    {
         m_optimize_layer.removeModuleSet(handle);
     }
 
-    std::string mangle(const std::string& symbol) const {
-        std::string        mangled_name;
+    std::string mangle(const std::string& symbol) const
+    {
+        std::string mangled_name;
         raw_string_ostream mangled_name_stream(mangled_name);
         Mangler::getNameWithPrefix(mangled_name_stream, symbol, m_data_layout);
         return mangled_name;
     }
 
-    JITSymbol find_symbol(const std::string& name) {
+    JITSymbol find_symbol(const std::string& name)
+    {
         return m_optimize_layer.findSymbol(mangle(name), true);
     }
 
 private:
-    static Module* optimize_module(Module* module) {
+    static Module* optimize_module(Module* module)
+    {
         // Create a function pass manager.
         auto function_pass_manager =
             std::make_unique<legacy::FunctionPassManager>(module);
@@ -116,7 +124,8 @@ private:
     }
 
 protected:
-    static bool init() {
+    static bool init()
+    {
         static const bool i =  // the init functions return false if success
             !InitializeNativeTarget() && !InitializeNativeTargetAsmPrinter() &&
             !InitializeNativeTargetAsmParser();
@@ -125,11 +134,11 @@ protected:
     }
 
 private:
-    bool                           m_init = init();
+    bool m_init = init();
     std::unique_ptr<TargetMachine> m_target_machine;
-    const DataLayout               m_data_layout;
-    obj_linking_layer_t            m_object_layer;
-    ir_compile_layer_t             m_compile_layer;
+    const DataLayout m_data_layout;
+    obj_linking_layer_t m_object_layer;
+    ir_compile_layer_t m_compile_layer;
     IRTransformLayer<ir_compile_layer_t, optimize_function_t> m_optimize_layer;
 };
 }

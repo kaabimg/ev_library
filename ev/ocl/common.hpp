@@ -11,10 +11,12 @@
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #include <CL/cl.h>
 
-namespace ev {
-namespace ocl {
-
-enum class device_type_e : unsigned long int {
+namespace ev
+{
+namespace ocl
+{
+enum class device_type_e : unsigned long int
+{
 
     default_    = CL_DEVICE_TYPE_DEFAULT,
     cpu         = CL_DEVICE_TYPE_CPU,
@@ -26,8 +28,9 @@ enum class device_type_e : unsigned long int {
 
 EV_FLAGS(device_type_e)
 
-inline std::ostream& operator<<(std::ostream&              os,
-                                ev::flags_t<device_type_e> flags) {
+inline std::ostream& operator<<(std::ostream& os,
+                                ev::flags_t<device_type_e> flags)
+{
     bool first = true;
 
     if (flags.test(device_type_e::default_)) {
@@ -62,7 +65,8 @@ inline std::ostream& operator<<(std::ostream&              os,
     return os;
 }
 
-enum class memory_flags_e {
+enum class memory_flags_e
+{
     read_write            = CL_MEM_READ_WRITE,
     write_only            = CL_MEM_WRITE_ONLY,
     read_only             = CL_MEM_READ_ONLY,
@@ -81,37 +85,43 @@ EV_FLAGS(memory_flags_e)
 
 /////////
 
-class cl_error_t : public std::exception {
+class cl_error_t : public std::exception
+{
 public:
     cl_error_t(cl_int error);
     ~cl_error_t() noexcept {}
-
     const char* what() const noexcept;
-    cl_int      error() const;
+    cl_int error() const;
 
 private:
     void build_error_string();
 
 private:
-    cl_int      m_error;
+    cl_int m_error;
     std::string m_error_string;
 };
 
-inline void check_status(cl_int status) {
-    if (status != CL_SUCCESS) { throw cl_error_t(status); }
+inline void check_status(cl_int status)
+{
+    if (status != CL_SUCCESS) {
+        throw cl_error_t(status);
+    }
 }
 
 template <typename T>
-inline cl_int dummy_retain_function(T) {
+inline cl_int dummy_retain_function(T)
+{
     return CL_SUCCESS;
 }
 
 template <typename T>
-inline cl_int dummy_release_function(T) {
+inline cl_int dummy_release_function(T)
+{
     return CL_SUCCESS;
 }
 template <typename T>
-struct cl_object_handler_t {
+struct cl_object_handler_t
+{
     typedef cl_int (*retain_function_t)(T);
     typedef cl_int (*release_function_t)(T);
 
@@ -123,51 +133,64 @@ struct cl_object_handler_t {
 
 #define EV_OCL_DECLARE_CLEAR_FUNCTION(cl_type, retain_func, release_func)    \
     template <>                                                              \
-    struct cl_object_handler_t<cl_type> {                                    \
+    struct cl_object_handler_t<cl_type>                                      \
+    {                                                                        \
         typedef cl_int (*retain_function_t)(cl_type);                        \
         typedef cl_int (*release_function_t)(cl_type);                       \
-        static constexpr retain_function_t  retain_function  = retain_func;  \
+        static constexpr retain_function_t retain_function   = retain_func;  \
         static constexpr release_function_t release_function = release_func; \
     };
 
-struct object_wrapper_base_t {
-    enum class init_mode_e { create, reuse };
+struct object_wrapper_base_t
+{
+    enum class init_mode_e
+    {
+        create,
+        reuse
+    };
 };
 
 template <typename T>
-class object_wrapper_t : public object_wrapper_base_t {
+class object_wrapper_t : public object_wrapper_base_t
+{
 public:
     using wrapper_type = object_wrapper_t<T>;
 
-    object_wrapper_t(T d, init_mode_e mode = init_mode_e::create) {
+    object_wrapper_t(T d, init_mode_e mode = init_mode_e::create)
+    {
         m_data = d;
         if (mode == init_mode_e::reuse) retain();
     }
 
-    void set_data(T d, init_mode_e mode) {
+    void set_data(T d, init_mode_e mode)
+    {
         release();
         m_data = d;
         if (mode == init_mode_e::reuse) retain();
     }
 
-    object_wrapper_t(const object_wrapper_t& rhs) {
+    object_wrapper_t(const object_wrapper_t& rhs)
+    {
         m_data = rhs.m_data;
         retain();
     }
 
-    object_wrapper_t(object_wrapper_t&& rhs) {
+    object_wrapper_t(object_wrapper_t&& rhs)
+    {
         m_data     = rhs.m_data;
         rhs.m_data = nullptr;
     }
 
-    object_wrapper_t& operator=(const object_wrapper_t& rhs) {
+    object_wrapper_t& operator=(const object_wrapper_t& rhs)
+    {
         release();
         m_data = rhs.m_data;
         retain();
         return *this;
     }
 
-    object_wrapper_t& operator=(object_wrapper_t&& rhs) {
+    object_wrapper_t& operator=(object_wrapper_t&& rhs)
+    {
         release();
         m_data     = rhs.m_data;
         rhs.m_data = nullptr;
@@ -175,15 +198,15 @@ public:
     }
 
     ~object_wrapper_t() { release(); }
-
     bool is_valid() const { return m_data != nullptr; }
-    T    cl_object() const { return m_data; }
-
+    T cl_object() const { return m_data; }
 private:
-    void retain() {
+    void retain()
+    {
         if (m_data) cl_object_handler_t<T>::retain_function(m_data);
     }
-    void release() {
+    void release()
+    {
         if (m_data) cl_object_handler_t<T>::release_function(m_data);
     }
 

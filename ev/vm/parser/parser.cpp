@@ -13,27 +13,28 @@ using namespace ev::vm;
 
 namespace x3 = boost::spirit::x3;
 
-namespace ev {
-namespace vm {
-
+namespace ev
+{
+namespace vm
+{
 using x3::raw;
 using x3::lexeme;
 using x3::alpha;
 using x3::alnum;
 
-namespace rules {
-
+namespace rules
+{
 // operators
 x3::symbols<ast::operator_type_e> add_operator, multiply_operator,
     unary_operator;
 
 // rules
 
-const x3::rule<struct id_type, std::string>               id = "id";
+const x3::rule<struct id_type, std::string> id = "id";
 const x3::rule<struct identifier_type, ast::identifier_t> identifier =
     "identifier";
 const x3::rule<struct variable_type, ast::variable_t> variable = "variable";
-const x3::rule<struct number_type, ast::number_t>     number   = "number";
+const x3::rule<struct number_type, ast::number_t> number       = "number";
 
 const x3::rule<struct additive_expression_type, ast::expression_t>
     additive_expression = "additive_expression";
@@ -137,12 +138,14 @@ BOOST_SPIRIT_DEFINE(id,
 
 #include <sstream>
 
-struct error_handler_t {
+struct error_handler_t
+{
     template <typename Iterator, typename Exception, typename Context>
     x3::error_handler_result on_error(Iterator&,
-                                      Iterator const&  last,
+                                      Iterator const& last,
                                       Exception const& x,
-                                      Context const& /*context*/) {
+                                      Context const& /*context*/)
+    {
         std::stringstream ss;
         ss << "Error! Expecting: " << x.which() << " here: \""
            << std::string(x.where(), last) << "\"";
@@ -153,7 +156,8 @@ struct error_handler_t {
     }
 };
 
-inline bool init_operators() {
+inline bool init_operators()
+{
     add_operator.add("+", ast::operator_type_e::plus)(
         "-", ast::operator_type_e::minus);
 
@@ -166,7 +170,8 @@ inline bool init_operators() {
     return true;
 }
 
-inline const auto& main_rule() {
+inline const auto& main_rule()
+{
     static bool i = init_operators();
     ev_unused(i);
 
@@ -174,19 +179,24 @@ inline const auto& main_rule() {
 }
 }
 
-struct parser_t::data_t {
+struct parser_t::data_t
+{
     const x3::rule<rules::error_handler_t, ast::statement_t>& main_rule =
         rules::main_rule();
 };
 }
 }
-parser_t::parser_t() : d(new data_t) {}
+parser_t::parser_t() : d(new data_t)
+{
+}
 
-parser_t::~parser_t() {
+parser_t::~parser_t()
+{
     delete d;
 }
 
-parser_result_t parser_t::parse(const std::string& line) {
+parser_result_t parser_t::parse(const std::string& line)
+{
     parser_result_t result;
 
     std::string::const_iterator begin = line.begin();

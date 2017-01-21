@@ -3,16 +3,19 @@
 #include "data_fwd_declare.hpp"
 #include "object.hpp"
 
-namespace ev {
-namespace vm {
-namespace jit {
-
+namespace ev
+{
+namespace vm
+{
+namespace jit
+{
 struct value_private_t;
 struct type_t;
 
-struct value_t : object_t<value_private_t> {
+struct value_t : object_t<value_private_t>
+{
     type_t type() const;
-    bool   is_number() const;
+    bool is_number() const;
 
     value_data_t data() const;
 
@@ -34,9 +37,10 @@ protected:
     friend class module_t;
 };
 
-struct named_value_t {
+struct named_value_t
+{
     std::string name;
-    value_t     value;
+    value_t value;
 };
 }
 }

@@ -1,19 +1,22 @@
 #pragma once
 
-#include <ev/core/preprocessor.hpp>
+#include <ev/core/basic_types.hpp>
 
 #include <cstdint>
 
-namespace ev {
-namespace vm {
-
-namespace jit {
+namespace ev
+{
+namespace vm
+{
+namespace jit
+{
 struct value_t;
 struct context_t;
 struct function_t;
 }
 
-namespace ast {
+namespace ast
+{
 struct number_t;
 struct expression_t;
 struct statement_t;
@@ -23,9 +26,9 @@ struct function_call_t;
 struct function_declaration_t;
 }
 
-struct compiler_t {
+struct compiler_t : non_copyable_t
+{
     compiler_t(jit::context_t& context) : m_context(context) {}
-
     jit::function_t compile(const ast::statement_t&);
 
 protected:
@@ -48,8 +51,6 @@ protected:
 
 private:
     jit::context_t& m_context;
-
-    EV_DISABLE_COPY(compiler_t)
 };
 }
 }

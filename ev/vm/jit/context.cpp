@@ -4,24 +4,31 @@
 
 using namespace ev::vm::jit;
 
-context_t::context_t() : d(new context_private_t) {
+context_t::context_t() : d(new context_private_t)
+{
     d->interface = this;
     new_module("main");
 }
 
-context_t::~context_t() {
+context_t::~context_t()
+{
     delete d;
 }
 
-void context_t::compile() {
+void context_t::compile()
+{
     if (d->has_compiled_modules) {
         d->execution_engine.remove(d->added_modules_handle);
-    } else {
+    }
+    else
+    {
         d->has_compiled_modules = true;
     }
     std::vector<llvm::Module*> modules{d->modules.size()};
-    int                        i = 0;
-    for (auto& module : d->modules) { modules[i++] = &module.second.d->module; }
+    int i = 0;
+    for (auto& module : d->modules) {
+        modules[i++] = &module.second.d->module;
+    }
 
     d->added_modules_handle = d->execution_engine.add(std::move(modules));
 
@@ -36,9 +43,11 @@ void context_t::compile() {
     }
 }
 
-type_t context_t::get_builtin_type(type_kind_e kind) {
+type_t context_t::get_builtin_type(type_kind_e kind)
+{
     type_t type;
-    switch (kind) {
+    switch (kind)
+    {
         case type_kind_e::boolean:
             type.m_data = llvm::Type::getInt1Ty(d->context);
             break;
@@ -59,11 +68,13 @@ type_t context_t::get_builtin_type(type_kind_e kind) {
     return type;
 }
 
-value_t context_t::new_constant(type_kind_e kind, void* val) {
+value_t context_t::new_constant(type_kind_e kind, void* val)
+{
     value_t value  = create_object<value_t>();
     value->context = d;
 
-    switch (kind) {
+    switch (kind)
+    {
         case type_kind_e::boolean:
             value->data =
                 llvm::ConstantInt::get(llvm::Type::getInt8Ty(d->context),
@@ -95,7 +106,8 @@ value_t context_t::new_constant(type_kind_e kind, void* val) {
     return value;
 }
 
-module_t context_t::new_module(const std::string& name) {
+module_t context_t::new_module(const std::string& name)
+{
     if (find_module("name")) return module_t();
 
     module_t module = create_object<module_t>(name, d);
@@ -106,12 +118,14 @@ module_t context_t::new_module(const std::string& name) {
     return module;
 }
 
-module_t context_t::find_module(const std::string& name) const {
+module_t context_t::find_module(const std::string& name) const
+{
     auto iter = d->modules.find(name);
     if (iter != d->modules.end()) return iter->second;
     return module_t();
 }
 
-module_t context_t::main_module() const {
+module_t context_t::main_module() const
+{
     return find_module("main");
 }

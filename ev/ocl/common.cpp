@@ -4,22 +4,27 @@
 
 using namespace ev::ocl;
 
-cl_error_t::cl_error_t(cl_int error) : m_error(error) {
+cl_error_t::cl_error_t(cl_int error) : m_error(error)
+{
     build_error_string();
 }
 
-const char* cl_error_t::what() const noexcept {
+const char* cl_error_t::what() const noexcept
+{
     return m_error_string.c_str();
 }
 
-cl_int cl_error_t::error() const {
+cl_int cl_error_t::error() const
+{
     return m_error;
 }
 
 #define __CASE_ERROR_CODE(code) \
     case code: m_error_string = #code; break
-void cl_error_t::build_error_string() {
-    switch (m_error) {
+void cl_error_t::build_error_string()
+{
+    switch (m_error)
+    {
         __CASE_ERROR_CODE(CL_DEVICE_NOT_FOUND);
         __CASE_ERROR_CODE(CL_DEVICE_NOT_AVAILABLE);
         __CASE_ERROR_CODE(CL_COMPILER_NOT_AVAILABLE);

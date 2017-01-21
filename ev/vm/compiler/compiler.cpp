@@ -18,14 +18,18 @@ using namespace ev::vm;
 
 namespace x3 = boost::spirit::x3;
 
-jit::function_t compiler_t::compile(const ast::statement_t& statement) {
-    switch (statement.type()) {
-        case ast::statement_type_e::expression: {
+jit::function_t compiler_t::compile(const ast::statement_t& statement)
+{
+    switch (statement.type())
+    {
+        case ast::statement_type_e::expression:
+        {
             return create_top_level_expression_function(
                 statement.as<ast::expression_t>());
             break;
         }
-        case ast::statement_type_e::function_declaration: {
+        case ast::statement_type_e::function_declaration:
+        {
             return build(statement.as<ast::function_declaration_t>());
             break;
         }
@@ -36,28 +40,35 @@ jit::function_t compiler_t::compile(const ast::statement_t& statement) {
     throw compile_error_t("unknown statement type");
 }
 
-jit::value_t compiler_t::build(bool v) {
+jit::value_t compiler_t::build(bool v)
+{
     return m_context.new_constant<bool>(v);
 }
 
-jit::value_t compiler_t::build(int32_t v) {
+jit::value_t compiler_t::build(int32_t v)
+{
     return m_context.new_constant<int32_t>(v);
 }
 
-jit::value_t compiler_t::build(int64_t v) {
+jit::value_t compiler_t::build(int64_t v)
+{
     return m_context.new_constant<int64_t>(v);
 }
 
-jit::value_t compiler_t::build(float v) {
+jit::value_t compiler_t::build(float v)
+{
     return m_context.new_constant<float>(v);
 }
 
-jit::value_t compiler_t::build(double v) {
+jit::value_t compiler_t::build(double v)
+{
     return m_context.new_constant<double>(v);
 }
 
-jit::value_t compiler_t::build(const ast::number_t& n) {
-    switch (n.type()) {
+jit::value_t compiler_t::build(const ast::number_t& n)
+{
+    switch (n.type())
+    {
         case ast::number_type_e::i32: return build(n.get<int32_t>());
         case ast::number_type_e::i64: return build(n.get<int64_t>());
         case ast::number_type_e::r32: return build(n.get<float>());
@@ -66,10 +77,13 @@ jit::value_t compiler_t::build(const ast::number_t& n) {
     }
 }
 
-jit::value_t compiler_t::build(const ast::expression_t& expression) {
+jit::value_t compiler_t::build(const ast::expression_t& expression)
+{
     jit::value_t lhs = build(expression.first);
 
-    if (expression.rest.empty()) { return lhs; }
+    if (expression.rest.empty()) {
+        return lhs;
+    }
 
     for (const ast::operation_t& operation : expression.rest) {
         jit::value_t rhs = build(operation.operand);
@@ -78,7 +92,8 @@ jit::value_t compiler_t::build(const ast::expression_t& expression) {
             throw compile_error_t("Not a number", expression);
         }
 
-        switch (operation.op) {
+        switch (operation.op)
+        {
             case ast::operator_type_e::plus: lhs   = lhs + rhs; break;
             case ast::operator_type_e::minus: lhs  = lhs - rhs; break;
             case ast::operator_type_e::times: lhs  = lhs * rhs; break;
@@ -89,11 +104,14 @@ jit::value_t compiler_t::build(const ast::expression_t& expression) {
     return lhs;
 }
 
-jit::value_t compiler_t::build(const ast::operand_t& operand) {
-    switch (operand.type()) {
+jit::value_t compiler_t::build(const ast::operand_t& operand)
+{
+    switch (operand.type())
+    {
         case ast::operand_type_e::number:
             return build(operand.as<ast::number_t>());
-        case ast::operand_type_e::variable: {
+        case ast::operand_type_e::variable:
+        {
             jit::value_t var = m_context.main_module().find_variable(
                 operand.as<ast::variable_t>().value);
             if (var) return var;
@@ -118,16 +136,19 @@ jit::value_t compiler_t::build(const ast::operand_t& operand) {
     }
 }
 
-jit::value_t compiler_t::build(const ast::unary_t& expression) {
+jit::value_t compiler_t::build(const ast::unary_t& expression)
+{
     jit::value_t rhs = build(expression.operand);
-    switch (expression.op) {
+    switch (expression.op)
+    {
         case ast::operator_type_e::positive: return rhs;
         case ast::operator_type_e::negative: return -rhs;
         default: throw compile_error_t("Unknown unary oprator", expression);
     }
 }
 
-jit::value_t compiler_t::build(const ast::function_call_t& func_call) {
+jit::value_t compiler_t::build(const ast::function_call_t& func_call)
+{
     jit::module_t current_module = m_context.main_module();
 
     std::vector<jit::value_data_t> args(func_call.arguments.size());
@@ -150,7 +171,8 @@ jit::value_t compiler_t::build(const ast::function_call_t& func_call) {
 }
 
 jit::function_t compiler_t::build(
-    const ast::function_declaration_t& function_dec) {
+    const ast::function_declaration_t& function_dec)
+{
     jit::module_t current_module = m_context.main_module();  // TODO
 
     jit::function_creation_info_t info;
@@ -177,7 +199,8 @@ jit::function_t compiler_t::build(
 
     jit::function_t function = m_context.main_module().new_function(info);
 
-    on_scope_exit_with_exception {
+    on_scope_exit_with_exception
+    {
         m_context.main_module().remove_function(function);
     };
 
@@ -187,7 +210,8 @@ jit::function_t compiler_t::build(
 
     m_context.main_module().push_scope(main_block);
 
-    on_scope_exit {
+    on_scope_exit
+    {
         m_context.main_module().pop_scope();
         m_context.main_module().pop_scope();
     };
@@ -201,17 +225,20 @@ jit::function_t compiler_t::build(
     main_block.set_return(return_value);
 
     std::string error_str;
-    bool        ok = function.finalize(&error_str);
-    if (!ok) { throw compile_error_t(error_str); }
+    bool ok = function.finalize(&error_str);
+    if (!ok) {
+        throw compile_error_t(error_str);
+    }
     return function;
 }
 
 jit::function_t compiler_t::create_top_level_expression_function(
-    const ast::expression_t& expression) {
-    int                           i = 0;
+    const ast::expression_t& expression)
+{
+    int i = 0;
     jit::function_creation_info_t info;
-    static const char*            name_prefix = "__expression_";
-    info.name                                 = name_prefix + std::to_string(i);
+    static const char* name_prefix = "__expression_";
+    info.name                      = name_prefix + std::to_string(i);
     info.return_type = builtin_type_names.find(type_kind_e::r64)->second;
 
     while (m_context.main_module().find_function(info.name, 0)) {
@@ -238,7 +265,9 @@ jit::function_t compiler_t::create_top_level_expression_function(
     m_context.main_module().pop_scope();
 
     std::string error_str;
-    bool        ok = function.finalize(&error_str);
-    if (!ok) { throw compile_error_t(error_str); }
+    bool ok = function.finalize(&error_str);
+    if (!ok) {
+        throw compile_error_t(error_str);
+    }
     return function;
 }

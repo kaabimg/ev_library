@@ -2,13 +2,6 @@
 
 // data
 
-#define EV_DISABLE_COPY(type_name)                   \
-private:                                             \
-    type_name(const type_name&) = delete;            \
-    type_name& operator=(const type_name&) = delete; \
-    type_name(type_name&& another)         = delete; \
-    type_name& operator=(type_name&& another) = delete;
-
 #define EV_PRIVATE(type_name)                        \
 private:                                             \
     struct data_t;                                   \
@@ -17,17 +10,28 @@ private:                                             \
     type_name& operator=(const type_name&) = delete; \
                                                      \
 public:                                              \
-    type_name(type_name&& another) {                 \
+    type_name(type_name&& another)                   \
+    {                                                \
         data_t* tmp = d;                             \
         d           = another.d;                     \
         another.d   = tmp;                           \
     }                                                \
-    type_name& operator=(type_name&& another) {      \
+    type_name& operator=(type_name&& another)        \
+    {                                                \
         data_t* tmp = d;                             \
         d           = another.d;                     \
         another.d   = tmp;                           \
         return *this;                                \
     }
+
+#define EV_IMPL(type_name)                    \
+private:                                      \
+    struct impl_t;                            \
+    impl_t* m_impl;                           \
+                                              \
+public:                                       \
+    type_name(type_name&& another) = default; \
+    type_name& operator=(type_name&& another) = default
 
 #define EV_DEFAULT_CONSTRUCTORS(cls) \
     cls(const cls&) = default;       \

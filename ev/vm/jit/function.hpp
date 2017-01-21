@@ -4,25 +4,27 @@
 #include "value.hpp"
 #include "object.hpp"
 
-namespace ev {
-namespace vm {
-
+namespace ev
+{
+namespace vm
+{
 template <typename Sig>
 struct runtime_function_t;
 struct virtual_machine_t;
 
-namespace jit {
-
+namespace jit
+{
 struct block_t;
 struct type_t;
 struct function_private_t;
 
-struct function_t : object_t<function_private_t>, compilation_scope_t {
-    std::string                     logical_name() const;
+struct function_t : object_t<function_private_t>, compilation_scope_t
+{
+    std::string logical_name() const;
     const function_creation_info_t& creation_info() const;
-    type_t                          return_type() const;
-    size_t                          arg_count() const;
-    type_t                          arg_type_at(size_t) const;
+    type_t return_type() const;
+    size_t arg_count() const;
+    type_t arg_type_at(size_t) const;
 
     block_t new_block(const std::string& name);
     bool finalize(std::string* error_str = nullptr);
@@ -43,7 +45,8 @@ protected:
 };
 
 struct block_private_t;
-struct block_t : object_t<block_private_t>, compilation_scope_t {
+struct block_t : object_t<block_private_t>, compilation_scope_t
+{
     value_t find_variable(const std::string& name) const override;
     void set_as_insert_point();
     void set_return(const value_t&);

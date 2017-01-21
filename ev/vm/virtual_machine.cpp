@@ -14,43 +14,53 @@
 
 using namespace ev::vm;
 
-namespace ev {
-namespace vm {
-
-struct virtual_machine_t::data_t {
-    parser_t       parser;
+namespace ev
+{
+namespace vm
+{
+struct virtual_machine_t::data_t
+{
+    parser_t parser;
     jit::context_t context;
-    compiler_t     compiler{context};
+    compiler_t compiler{context};
 };
 }
 }
 
-virtual_machine_t::virtual_machine_t() : d(new virtual_machine_t::data_t) {}
+virtual_machine_t::virtual_machine_t() : d(new virtual_machine_t::data_t)
+{
+}
 
-virtual_machine_t::~virtual_machine_t() {
+virtual_machine_t::~virtual_machine_t()
+{
     delete d;
 }
 
-void virtual_machine_t::eval(const std::string& line) {
-    if (line.size() && *line.begin() == '#') { return; }
+void virtual_machine_t::eval(const std::string& line)
+{
+    if (line.size() && *line.begin() == '#') {
+        return;
+    }
     parser_result_t result   = d->parser.parse(line);
     jit::function_t function = d->compiler.compile(*result.statement.get());
     d->context.compile();
 
     if (function &&
-        result.statement->type() == ast::statement_type_e::expression) {
+        result.statement->type() == ast::statement_type_e::expression)
+    {
         runtime_function_t<double()> f{function.d.get()};
         std::cout << f() << std::endl;
     }
 }
 
 void* virtual_machine_t::create_function(
-    const std::string&               str,
-    const jit::function_signature_t& expected_signature) {
+    const std::string& str,
+    const jit::function_signature_t& expected_signature)
+{
     parser_result_t result = d->parser.parse(str);
 
-    if (result.statement->type() !=
-        ast::statement_type_e::function_declaration) {
+    if (result.statement->type() != ast::statement_type_e::function_declaration)
+    {
         throw syntax_error_t("Expected a function definition");
     }
 

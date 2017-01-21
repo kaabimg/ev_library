@@ -14,60 +14,81 @@ void transform_opencl_cpu();
 
 const size_t data_size = 50'000'000;
 
-int main() {
+int main()
+{
     transform_serial();
     transform_omp();
     transform_opencl_gpu();
     transform_opencl_cpu();
 }
 
-void transform_serial() {
+void transform_serial()
+{
     std::vector<float> data;
     data.resize(data_size);
 
-    for (int i = 0; i < data_size; ++i) { data[i] = i * 1.; }
+    for (int i = 0; i < data_size; ++i) {
+        data[i] = i * 1.;
+    }
 
     ev::time_t time;
 
-    for (int i = 0; i < data_size; ++i) { data[i] = std::sin(data[i]); }
-    for (int i = 0; i < data_size; ++i) { data[i] = std::sin(data[i]); }
+    for (int i = 0; i < data_size; ++i) {
+        data[i] = std::sin(data[i]);
+    }
+    for (int i = 0; i < data_size; ++i) {
+        data[i] = std::sin(data[i]);
+    }
     ev::debug() << __PRETTY_FUNCTION__ << "elapsed (ms)" << time.elapsed_ms();
 
     ev::debug() << data.size();
 }
 
-void transform_omp() {
+void transform_omp()
+{
     std::vector<float> data;
     data.resize(data_size);
 
-    for (int i = 0; i < data_size; ++i) { data[i] = i; }
+    for (int i = 0; i < data_size; ++i) {
+        data[i] = i;
+    }
 
     ev::time_t time;
 
 #pragma omp parallel for
-    for (int i = 0; i < data_size; ++i) { data[i] = std::sin(data[i]); }
-#pragma omp  parallel for
-    for (int i = 0; i < data_size; ++i) { data[i] = std::sin(data[i]); }
+    for (int i = 0; i < data_size; ++i) {
+        data[i] = std::sin(data[i]);
+    }
+#pragma omp parallel for
+    for (int i = 0; i < data_size; ++i) {
+        data[i] = std::sin(data[i]);
+    }
 
     ev::debug() << __PRETTY_FUNCTION__ << "elapsed (ms)" << time.elapsed_ms();
 
     ev::debug() << data.size();
 }
 
-void transform_opencl_gpu() {
+void transform_opencl_gpu()
+{
     ev::time_t time;
 
-    try {
+    try
+    {
         for (ocl::platform_t platform : ocl::get_platfomrs()) {
             std::vector<ocl::device_t> gpu_devices =
                 platform.get_devices(ocl::device_type_e::gpu);
 
-            if (gpu_devices.empty()) { continue; }
+            if (gpu_devices.empty()) {
+                continue;
+            }
 
             std::vector<float> data;
             data.resize(data_size);
 
-            for (int i = 0; i < data_size; ++i) { data[i] = i * 1.; }
+            for (int i = 0; i < data_size; ++i) {
+                data[i] = i * 1.;
+            }
 
             ev::time_t time;
 
@@ -94,23 +115,31 @@ void transform_opencl_gpu() {
             ev::debug() << __PRETTY_FUNCTION__ << "elapsed (ms)"
                         << time.elapsed_ms();
         }
-    } catch (const std::exception& error) {
+    }
+    catch (const std::exception& error)
+    {
         ev::error(std::cerr) << error.what();
     }
 }
 
-void transform_opencl_cpu() {
-    try {
+void transform_opencl_cpu()
+{
+    try
+    {
         for (ocl::platform_t platform : ocl::get_platfomrs()) {
             std::vector<ocl::device_t> gpu_devices =
                 platform.get_devices(ocl::device_type_e::cpu);
 
-            if (gpu_devices.empty()) { continue; }
+            if (gpu_devices.empty()) {
+                continue;
+            }
 
             std::vector<float> data;
             data.resize(data_size);
 
-            for (int i = 0; i < data_size; ++i) { data[i] = i * 1.; }
+            for (int i = 0; i < data_size; ++i) {
+                data[i] = i * 1.;
+            }
 
             ev::time_t time;
 
@@ -137,7 +166,9 @@ void transform_opencl_cpu() {
             ev::debug() << __PRETTY_FUNCTION__ << "elapsed (ms)"
                         << time.elapsed_ms();
         }
-    } catch (const std::exception& error) {
+    }
+    catch (const std::exception& error)
+    {
         ev::error(std::cerr) << error.what();
     }
 }
