@@ -1,6 +1,6 @@
-
 #include <ev/core/object.hpp>
 #include <ev/core/logging.hpp>
+
 int main(int argc, char* argv[])
 {
     ev::object_t obj;
