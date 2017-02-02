@@ -27,7 +27,7 @@ protected:
     void unregister_window(window_t*);
 
 private:
-    EV_IMPL(application_t);
+    EV_IMPL(application_t)
 };
 }
 }

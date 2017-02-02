@@ -19,10 +19,10 @@ public:
     size_t size() const;
 
     template <class F>
-    inline std::future<typename std::result_of<F()>::type> post(F&& f);
+    inline std::future<typename std::result_of<F()>::type> async(F&& f);
 
     template <class F>
-    inline void post_detached(F&& f);
+    inline void async_detached(F&& f);
 
     ~thread_pool_t();
 
@@ -67,7 +67,7 @@ void thread_pool_t::work()
 }
 
 template <class F>
-std::future<typename std::result_of<F()>::type> thread_pool_t::post(F&& f)
+std::future<typename std::result_of<F()>::type> thread_pool_t::async(F&& f)
 {
     using return_type = typename std::result_of<F()>::type;
 
@@ -85,7 +85,7 @@ std::future<typename std::result_of<F()>::type> thread_pool_t::post(F&& f)
 }
 
 template <class F>
-void thread_pool_t::post_detached(F&& f)
+void thread_pool_t::async_detached(F&& f)
 {
     {
         std::unique_lock<std::mutex> lock(m_queue_mutex);
@@ -103,10 +103,10 @@ void thread_pool_t::join_all()
 
 thread_pool_t::~thread_pool_t()
 {
-    m_done = true;
     {
-        std::unique_lock<std::mutex> lock(m_queue_mutex);
+        std::unique_lock<std::mutex> lock(m_queue_mutex);        
         ev_unused(lock);
+        m_done = true;
         m_wait_condition.notify_all();
     }
     join_all();

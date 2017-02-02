@@ -35,18 +35,31 @@ target_link_libraries(vr ev_vlr ev_ogl GLESv2)
 ##################################################################################
 #add_library(compute_cpp lm")
 
-set(COMPUTECPP_PACKAGE_ROOT_DIR "/home/ghaith/data/development/install/sycl/ComputeCpp-CE-0.1.1-Linux/")
+#set(COMPUTECPP_PACKAGE_ROOT_DIR "/home/ghaith/data/development/install/sycl/ComputeCpp-CE-0.1.1-Linux/")
 
 
-include(FindOpenCL)
-include(/home/ghaith/data/development/install/sycl/computecpp-sdk/cmake/Modules/FindComputeCpp.cmake)
+#include(FindOpenCL)
+#include(/home/ghaith/data/development/install/sycl/computecpp-sdk/cmake/Modules/FindComputeCpp.cmake)
 
-set(SOURCE_NAME "sycl")
+#set(SOURCE_NAME "sycl")
 
-include_directories(${COMPUTECPP_INCLUDE_DIRECTORY})
+#include_directories(${COMPUTECPP_INCLUDE_DIRECTORY})
 
-add_executable(${SOURCE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_NAME}.cpp)
-target_compile_options(${SOURCE_NAME} PUBLIC ${HOST_COMPILER_OPTIONS})
+#add_executable(${SOURCE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_NAME}.cpp)
+#target_compile_options(${SOURCE_NAME} PUBLIC ${HOST_COMPILER_OPTIONS})
 
-add_sycl_to_target(${SOURCE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_NAME}.cpp
-                    ${CMAKE_CURRENT_BINARY_DIR})
+#add_sycl_to_target(${SOURCE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_NAME}.cpp
+#                    ${CMAKE_CURRENT_BINARY_DIR})
+
+
+
+#################################################################################
+
+add_executable (atk atk.cpp)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+find_package(Qt5Core)
+find_package(Qt5Widgets)
+qt5_use_modules(atk Core Widgets)
+target_link_libraries(atk ev_atk ${QT_LIBRARIES})

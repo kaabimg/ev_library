@@ -106,13 +106,13 @@ TEST_CASE("thread_pool_tc")
         };
 
         for (int i = 0; i < size; ++i) {
-            th_p.post_detached(producer_task);
-            th_p.post_detached(consumer_task);
-            th_p.post_detached(consumer_task);
-            th_p.post_detached(producer_task);
+            th_p.async_detached(producer_task);
+            th_p.async_detached(consumer_task);
+            th_p.async_detached(consumer_task);
+            th_p.async_detached(producer_task);
         }
 
-        std::future<void> last = th_p.post([] {});
+        std::future<void> last = th_p.async([] {});
         last.wait();
     }
 

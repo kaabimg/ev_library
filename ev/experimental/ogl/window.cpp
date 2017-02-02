@@ -54,24 +54,24 @@ inline void window_size_callback(GLFWwindow* window,
 window_t::window_t(const size_2d_t& size,
                    const std::string& title,
                    ev::object_t* parent)
-    : ev::object_t{parent}, m_impl{new impl_t}
+    : ev::object_t{parent}, d{new impl_t}
 {
     init(size, title);
 }
 
 void window_t::init(const size_2d_t& size, const std::string& title)
 {
-    m_impl->window = glfwCreateWindow(size.width, size.height, title.c_str(),
+    d->window = glfwCreateWindow(size.width, size.height, title.c_str(),
                                       nullptr, nullptr);
 
-    if (!m_impl->window) {
+    if (!d->window) {
         throw std::runtime_error("Failed to create Window");
     }
-    glfwSetWindowUserPointer(m_impl->window, this);
+    glfwSetWindowUserPointer(d->window, this);
 
-    glfwSetKeyCallback(m_impl->window, events::key_callback);
-    glfwSetMouseButtonCallback(m_impl->window, events::mouse_callback);
-    glfwSetWindowSizeCallback(m_impl->window, events::window_size_callback);
+    glfwSetKeyCallback(d->window, events::key_callback);
+    glfwSetMouseButtonCallback(d->window, events::mouse_callback);
+    glfwSetWindowSizeCallback(d->window, events::window_size_callback);
 
     application_t::instance().register_window(this);
 
@@ -80,28 +80,28 @@ void window_t::init(const size_2d_t& size, const std::string& title)
 
 window_t::~window_t()
 {
-    application_t::instance().unregister_window(this);
-    if (m_impl) {
-        delete m_impl;
-        m_impl = nullptr;
+    if (d) {
+        application_t::instance().unregister_window(this);
+        delete d;
+        d = nullptr;
     }
 }
 
 void window_t::show()
 {
-    glfwShowWindow(m_impl->window);
+    glfwShowWindow(d->window);
     set_need_update();
 }
 
 void window_t::hide()
 {
-    glfwHideWindow(m_impl->window);
+    glfwHideWindow(d->window);
     set_need_update();
 }
 
 bool window_t::is_visible() const
 {
-    int visible = glfwGetWindowAttrib(m_impl->window, GLFW_VISIBLE);
+    int visible = glfwGetWindowAttrib(d->window, GLFW_VISIBLE);
     return visible == GLFW_TRUE;
 }
 
@@ -114,53 +114,53 @@ void window_t::close()
 size_2d_t window_t::size() const
 {
     size_2d_t size;
-    glfwGetWindowSize(m_impl->window, &size.width, &size.height);
+    glfwGetWindowSize(d->window, &size.width, &size.height);
     return size;
 }
 
 void window_t::resize(const size_2d_t& size)
 {
-    glfwSetWindowSize(m_impl->window, size.width, size.height);
+    glfwSetWindowSize(d->window, size.width, size.height);
 }
 
 position_t window_t::position() const
 {
     position_t pos;
-    glfwGetWindowPos(m_impl->window, &pos.x, &pos.y);
+    glfwGetWindowPos(d->window, &pos.x, &pos.y);
     return pos;
 }
 void window_t::set_position(const position_t& pos)
 {
-    glfwSetWindowPos(m_impl->window, pos.x, pos.y);
+    glfwSetWindowPos(d->window, pos.x, pos.y);
 }
 
 void window_t::set_paint_func(window_t::paint_func_t&& func)
 {
-    m_impl->paint_func = std::move(func);
+    d->paint_func = std::move(func);
 }
 
 void window_t::paint()
 {
-    if (m_impl->paint_func) m_impl->paint_func(*this);
+    if (d->paint_func) d->paint_func(*this);
 }
 
 void window_t::set_need_update(bool val)
 {
-    m_impl->need_update = val;
+    d->need_update = val;
 }
 
 void window_t::make_current()
 {
-    glfwMakeContextCurrent(m_impl->window);
+    glfwMakeContextCurrent(d->window);
 }
 
 void window_t::render()
 {
-    if (m_impl->need_update) {
+    if (d->need_update) {
         make_current();
         paint();
-        glfwSwapBuffers(m_impl->window);
-        m_impl->need_update = false;
+        glfwSwapBuffers(d->window);
+        d->need_update = false;
     }
 }
 
@@ -191,7 +191,7 @@ bool window_t::on_key_event(key_event_t* event)
 
 bool window_t::on_close_event(close_event_t*)
 {
-    glfwSetWindowShouldClose(m_impl->window, GLFW_TRUE);
+    glfwSetWindowShouldClose(d->window, GLFW_TRUE);
     application_t::instance().unregister_window(this);
     return true;
 }

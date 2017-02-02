@@ -10,16 +10,14 @@
 #include <queue>
 
 using namespace ev::ogl;
-struct application_t::impl_t
-{
+struct application_t::impl_t {
     static application_t* instance;
 
     ev::synchronized_data_t<std::queue<ev::event_t*>> events;
     std::vector<window_t*> windows;
 };
 
-namespace events
-{
+namespace events {
 void on_error(int, const char* description)
 {
     throw std::runtime_error(description);
@@ -28,11 +26,9 @@ void on_error(int, const char* description)
 
 application_t* application_t::impl_t::instance = nullptr;
 
-application_t::application_t(int argc, char** argv)
-    : ev::object_t{nullptr}, m_impl{new impl_t}
+application_t::application_t(int argc, char** argv) : ev::object_t{nullptr}, d{new impl_t}
 {
-    if (impl_t::instance)
-        throw std::runtime_error("application_t instancieted twice");
+    if (impl_t::instance) throw std::runtime_error("application_t instancieted twice");
 
     if (glfwInit() != GLFW_TRUE) {
         throw std::runtime_error("Failed to init GLFW");
@@ -47,21 +43,22 @@ application_t::application_t(int argc, char** argv)
 
 application_t::~application_t()
 {
-    delete m_impl;
-    glfwTerminate();
+    if (d) {
+        delete d;
+        glfwTerminate();
+    }
 }
 
 application_t& application_t::instance()
 {
-    if (!impl_t::instance)
-        throw std::runtime_error("application_t not instancieted");
+    if (!impl_t::instance) throw std::runtime_error("application_t not instancieted");
 
     return *impl_t::instance;
 }
 
 void application_t::post(ev::event_t* event)
 {
-    m_impl->events->push(event);
+    d->events->push(event);
     glfwPostEmptyEvent();
 }
 
@@ -72,9 +69,8 @@ int application_t::exec()
 
         event_t* event = nullptr;
 
-        do
-        {
-            synchronized(events, m_impl->events)
+        do {
+            synchronized(events, d->events)
             {
                 if (!events.empty()) {
                     event = events.front();
@@ -88,8 +84,8 @@ int application_t::exec()
                 delete event;
             }
         } while (event);
-        if (m_impl->windows.empty()) break;
-        for (auto window : m_impl->windows) window->render();
+        if (d->windows.empty()) break;
+        for (auto window : d->windows) window->render();
     }
 
     return EXIT_SUCCESS;
@@ -97,12 +93,12 @@ int application_t::exec()
 
 void application_t::register_window(window_t* w)
 {
-    auto pos = std::find(m_impl->windows.begin(), m_impl->windows.end(), w);
-    if (pos == m_impl->windows.end()) m_impl->windows.push_back(w);
+    auto pos = std::find(d->windows.begin(), d->windows.end(), w);
+    if (pos == d->windows.end()) d->windows.push_back(w);
 }
 
 void application_t::unregister_window(window_t* w)
 {
-    auto pos = std::find(m_impl->windows.begin(), m_impl->windows.end(), w);
-    if (pos != m_impl->windows.end()) m_impl->windows.erase(pos);
+    auto pos = std::find(d->windows.begin(), d->windows.end(), w);
+    if (pos != d->windows.end()) d->windows.erase(pos);
 }

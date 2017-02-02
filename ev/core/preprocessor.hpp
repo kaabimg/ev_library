@@ -5,7 +5,7 @@
 #define EV_PRIVATE(type_name)                        \
 private:                                             \
     struct data_t;                                   \
-    data_t* d;                                       \
+    data_t* d                   = nullptr;           \
     type_name(const type_name&) = delete;            \
     type_name& operator=(const type_name&) = delete; \
                                                      \
@@ -24,14 +24,26 @@ public:                                              \
         return *this;                                \
     }
 
-#define EV_IMPL(type_name)                    \
-private:                                      \
-    struct impl_t;                            \
-    impl_t* m_impl;                           \
-                                              \
+#define EV_IMPL(type_name) \
+private:                   \
+    struct impl_t;         \
+    impl_t* d = nullptr;
+
+#define EV_IMPL_MOVE_OP(type_name)            \
 public:                                       \
-    type_name(type_name&& another) = default; \
-    type_name& operator=(type_name&& another) = default
+    type_name(type_name&& another)            \
+    {                                         \
+        impl_t* tmp = d;                      \
+        d           = another.d;              \
+        another.d   = tmp;                    \
+    }                                         \
+    type_name& operator=(type_name&& another) \
+    {                                         \
+        impl_t* tmp = d;                      \
+        d           = another.d;              \
+        another.d   = tmp;                    \
+        return *this;                         \
+    }
 
 #define EV_DEFAULT_CONSTRUCTORS(cls) \
     cls(const cls&) = default;       \
@@ -67,8 +79,5 @@ public:                                       \
 #define EV_ARG_2_OR_1(...) EV_ARGS_2(__VA_ARGS__, __VA_ARGS__)
 
 // args count : between 1 and 10
-#define EV_ARG_COUNT(...) \
-    __EV_ARG_COUNT(0, __VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
-#define __EV_ARG_COUNT(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, count, \
-                       ...)                                                \
-    count
+#define EV_ARG_COUNT(...) __EV_ARG_COUNT(0, __VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+#define __EV_ARG_COUNT(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, count, ...) count

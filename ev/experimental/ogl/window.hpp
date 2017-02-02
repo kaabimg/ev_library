@@ -44,7 +44,7 @@ protected:
     virtual bool on_resize_event(resize_event_t*);
 
 private:
-    EV_IMPL(window_t);
+    EV_IMPL(window_t)
 };
 
 using window_paint_func_t = window_t::paint_func_t;
