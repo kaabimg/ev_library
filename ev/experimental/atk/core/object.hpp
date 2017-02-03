@@ -5,6 +5,7 @@
 #include "../qtypes_fwd.hpp"
 
 #include <ev/core/preprocessor.hpp>
+#include <ev/core/flags.hpp>
 
 #include <qobject.h>
 #include <qvector.h>
@@ -18,11 +19,18 @@ using object_list_t = qvector<object_t*>;
 
 enum class object_attribute_e { label, description };
 
+enum object_state_f { modified = 1, processing = 1 << 1, locked = 1 << 2 };
+
+EV_FLAGS(object_state_f)
+
 class object_t : public qobject, public attribute_interface<object_attribute_e> {
     Q_OBJECT
 public:
     object_t(object_t* parent = nullptr);
     ~object_t();
+
+    void set_state(object_state_f s, bool enabled);
+    flags_t<object_state_f> state() const;
 
     inline qstring name() const;
     inline void set_name(const qstring&);
@@ -45,6 +53,7 @@ public:
 
 Q_SIGNALS:
     void children_changed();
+    void state_changed();
     void attribute_changed(object_attribute_e att);
 
 private:

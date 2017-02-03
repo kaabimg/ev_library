@@ -1,6 +1,7 @@
 #include "tab_bar.hpp"
 #include "../widget.hpp"
 #include "../main_window.hpp"
+#include "../../preprocessor.hpp"
 
 #include <qboxlayout.h>
 #include <qevent.h>
@@ -14,8 +15,8 @@ struct tab_element_t::impl_t {
     widget_t* widget;
     QPropertyAnimation* animator;
     bool selected;
-    float fadeValue;
-    QSize prefferedSize;
+    float fade_value;
+    QSize preferred_size;
 };
 
 tab_element_t::tab_element_t(widget_t* widget, qwidget* parent) : qwidget(parent), d(new impl_t)
@@ -27,8 +28,8 @@ tab_element_t::tab_element_t(widget_t* widget, qwidget* parent) : qwidget(parent
 
     d->widget    = widget;
     d->selected  = false;
-    d->fadeValue = 0;
-    d->animator  = new QPropertyAnimation(this, "fadeValue", this);
+    d->fade_value = 0;
+    d->animator  = new QPropertyAnimation(this, "fade_value", this);
 }
 
 tab_element_t::~tab_element_t()
@@ -46,59 +47,59 @@ widget_t* tab_element_t::widget() const
     return d->widget;
 }
 
-float tab_element_t::fadeValue() const
+float tab_element_t::fade_value() const
 {
-    return d->fadeValue;
+    return d->fade_value;
 }
 
 QSize tab_element_t::minimumSizeHint() const
 {
-    return d->prefferedSize;
+    return d->preferred_size;
 }
 
-void tab_element_t::setPrefferedSize(const QSize& size)
+void tab_element_t::set_preferred_size(const QSize& size)
 {
-    d->prefferedSize = size;
+    d->preferred_size = size;
 }
 
-QRect tab_element_t::iconRect() const
+QRect tab_element_t::icon_rect() const
 {
     QRect rect = QRect(this->rect().topLeft(),QSize(width(),height()*0.7));
     int adjust = rect.width()-rect.height();
     adjust/=2;
     rect.adjust(adjust,0,-adjust,0);
-    adjustRect(rect,2);
+    adjust_rect(rect,2);
     return rect;
 }
 
-QRect tab_element_t::textRect() const
+QRect tab_element_t::text_rect() const
 {
     QRect rect(0, 0, width(), height() * 0.3);
     rect.translate(0, height() * 0.7);
     return rect;
 }
 
-void tab_element_t::adjustRect(QRect& rect, int value) const
+void tab_element_t::adjust_rect(QRect& rect, int value) const
 {
     rect.adjust(value, value, -value, -value);
 }
 
-void tab_element_t::setSelected(bool arg, bool mouseEvent)
+void tab_element_t::set_selected(bool arg, bool mouse_event)
 {
     if (d->selected != arg) {
         d->selected = arg;
         update();
-        if (d->selected) Q_EMIT selected(d->widget, mouseEvent);
+        if (d->selected) Q_EMIT selected(d->widget, mouse_event);
     }
 }
 
-void tab_element_t::setFadeValue(float arg)
+void tab_element_t::set_fade_value(float arg)
 {
-    d->fadeValue = arg;
+    d->fade_value = arg;
     update();
 }
 
-QFont tab_element_t::fontFromWidth(int w) const
+QFont tab_element_t::font_from_width(int w) const
 {
     QFont font = this->font();
     if (d->selected) font.setBold(true);
@@ -111,7 +112,7 @@ QFont tab_element_t::fontFromWidth(int w) const
     return font;
 }
 
-void tab_element_t::fadeIn()
+void tab_element_t::fade_in()
 {
     d->animator->stop();
     d->animator->setDuration(80);
@@ -119,7 +120,7 @@ void tab_element_t::fadeIn()
     d->animator->start();
 }
 
-void tab_element_t::fadeOut()
+void tab_element_t::fade_out()
 {
     d->animator->stop();
     d->animator->setDuration(160);
@@ -140,7 +141,7 @@ void tab_element_t::paintEvent(QPaintEvent*)
     }
 
     if (!d->selected) {
-        int value      = int(fadeValue());
+        int value      = int(fade_value());
         QColor bgColor = atk_main_window->window_palette().light_gray;
         bgColor.setAlpha(value);
         painter.fillRect(backgroundRect, bgColor);
@@ -152,7 +153,7 @@ void tab_element_t::paintEvent(QPaintEvent*)
     auto icon = d->widget->icon();
     if(!icon.isNull())
     {
-        QRect iconRect = this->iconRect();
+        QRect iconRect = this->icon_rect();
         QPixmap pixmap = icon.pixmap(iconRect.size());
         painter.drawPixmap(iconRect, pixmap);
     }
@@ -164,74 +165,70 @@ void tab_element_t::paintEvent(QPaintEvent*)
     painter.setFont(font);
     painter.setPen(atk_main_window->window_palette().light);
 
-    painter.drawText(textRect(), Qt::AlignCenter, d->widget->title());
+    painter.drawText(text_rect(), Qt::AlignCenter, d->widget->title());
 }
 
 void tab_element_t::enterEvent(QEvent*)
 {
-    fadeIn();
+    fade_in();
 }
 
 void tab_element_t::leaveEvent(QEvent*)
 {
-    fadeOut();
+    fade_out();
 }
 
 void tab_element_t::mousePressEvent(QMouseEvent* e)
 {
     e->accept();
-    setSelected(true, true);
+    set_selected(true, true);
 }
 
 //////////////////////////////////////////
 
 struct tab_bar_t::impl_t {
     Qt::Orientation orientation;
-    QBoxLayout *mainLayout, *tabsLayout, *widgetsLayout, *spacerLayout;
+    QBoxLayout *main_layout, *tabs_layout, *widgets_layout, *spacer_layout;
     QWidget* spacer;
-    QList<tab_element_t*> tabs;
-    QColor selectionColor;
-    QColor outlineColor;
-    QSize tabSize;
-    int maximumSize;
+    QList<tab_element_t*> tabs;  
+    QSize tab_size;
 };
 
 tab_bar_t::tab_bar_t(qwidget* parent) : qwidget(parent), d(new impl_t)
 {
-    d->maximumSize   = -1;
-    d->mainLayout    = new QVBoxLayout;
-    d->tabsLayout    = new QVBoxLayout;
-    d->widgetsLayout = new QVBoxLayout;
-    d->spacerLayout  = new QVBoxLayout;
+    d->main_layout    = new QVBoxLayout;
+    d->tabs_layout    = new QVBoxLayout;
+    d->widgets_layout = new QVBoxLayout;
+    d->spacer_layout  = new QVBoxLayout;
 
     d->spacer = new QWidget(this);
     d->spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    d->spacerLayout->addWidget(d->spacer);
+    d->spacer_layout->addWidget(d->spacer);
 
-    d->mainLayout->setSpacing(0);
-    d->mainLayout->setMargin(0);
-    d->mainLayout->setContentsMargins(0, 0, 0, 0);
+    d->main_layout->setSpacing(0);
+    d->main_layout->setMargin(0);
+    d->main_layout->setContentsMargins(0, 0, 0, 0);
 
-    d->tabsLayout->setSpacing(0);
-    d->tabsLayout->setMargin(0);
-    d->tabsLayout->setContentsMargins(0, 0, 0, 0);
+    d->tabs_layout->setSpacing(0);
+    d->tabs_layout->setMargin(0);
+    d->tabs_layout->setContentsMargins(0, 0, 0, 0);
 
-    d->widgetsLayout->setSpacing(0);
-    d->widgetsLayout->setMargin(0);
-    d->widgetsLayout->setContentsMargins(0, 0, 0, 0);
+    d->widgets_layout->setSpacing(0);
+    d->widgets_layout->setMargin(0);
+    d->widgets_layout->setContentsMargins(0, 0, 0, 0);
 
-    d->spacerLayout->setSpacing(0);
-    d->spacerLayout->setMargin(0);
-    d->spacerLayout->setContentsMargins(0, 0, 0, 0);
+    d->spacer_layout->setSpacing(0);
+    d->spacer_layout->setMargin(0);
+    d->spacer_layout->setContentsMargins(0, 0, 0, 0);
 
-    setLayout(d->mainLayout);
+    setLayout(d->main_layout);
 
-    d->tabSize = QSize(80, 55);
+    d->tab_size = QSize(80, 55);
 
-    d->mainLayout->addLayout(d->tabsLayout);
-    d->mainLayout->addLayout(d->widgetsLayout);
-    d->mainLayout->addLayout(d->spacerLayout);
+    d->main_layout->addLayout(d->tabs_layout);
+    d->main_layout->addLayout(d->widgets_layout);
+    d->main_layout->addLayout(d->spacer_layout);
 
     setMaximumWidth(80);
 }
@@ -241,14 +238,14 @@ tab_bar_t::~tab_bar_t()
     delete d;
 }
 
-int tab_bar_t::currentIndex() const
+int tab_bar_t::current_index() const
 {
-    tab_element_t* current = currentTabElement();
-    if (current) return d->tabsLayout->indexOf(current);
+    tab_element_t* current = current_tab_element();
+    if (current) return d->tabs_layout->indexOf(current);
     return -1;
 }
 
-qwidget* tab_bar_t::currentTab() const
+qwidget* tab_bar_t::current_tab() const
 {
     for (int i = 0; i < d->tabs.size(); ++i) {
         if (d->tabs[i]->is_selected()) {
@@ -258,7 +255,7 @@ qwidget* tab_bar_t::currentTab() const
     return nullptr;
 }
 
-tab_element_t* tab_bar_t::currentTabElement() const
+tab_element_t* tab_bar_t::current_tab_element() const
 {
     for (int i = 0; i < d->tabs.size(); ++i) {
         if (d->tabs[i]->is_selected()) {
@@ -268,108 +265,93 @@ tab_element_t* tab_bar_t::currentTabElement() const
     return nullptr;
 }
 
-int tab_bar_t::tabsCount() const
+int tab_bar_t::tab_count() const
 {
     return d->tabs.size();
 }
 
-tab_element_t* tab_bar_t::createTabElement(widget_t* widget)
+tab_element_t* tab_bar_t::create_tab_element(widget_t* widget)
 {
-    tab_element_t* tabElement = new tab_element_t(widget, this);
+    tab_element_t* tab_element = new tab_element_t(widget, this);
 
-    d->tabs << tabElement;
-    tabElement->setPrefferedSize(d->tabSize);
-    connect(tabElement, SIGNAL(selected(widget_t*, bool)), this,
-            SLOT(onTabSelected(widget_t*, bool)));
-    return tabElement;
+    d->tabs << tab_element;
+    tab_element->set_preferred_size(d->tab_size);
+    connect(ATK_SIGNAL(tab_element,selected), ATK_SLOT(this,on_tab_selected));
+    return tab_element;
 }
 
-void tab_bar_t::insertTab(widget_t* widget, int position)
+void tab_bar_t::add_tab(widget_t* widget, int position)
 {
-    tab_element_t* tabElement = createTabElement(widget);
+    tab_element_t* tab_element = create_tab_element(widget);
     if(position == -1)
-        d->tabsLayout->addWidget(tabElement);
+        d->tabs_layout->addWidget(tab_element);
     else
-        d->tabsLayout->insertWidget(position, tabElement);
+        d->tabs_layout->insertWidget(position, tab_element);
 }
 
-void tab_bar_t::removeTab(widget_t* widget)
+void tab_bar_t::remove_tab(widget_t* widget)
 {
     for (int i = 0; i < d->tabs.size(); ++i) {
         if (d->tabs[i]->widget() == widget) {
             tab_element_t* tab = d->tabs.takeAt(i);
-            d->tabsLayout->removeWidget(tab);
+            d->tabs_layout->removeWidget(tab);
             delete tab;
             return;
         }
     }
 }
 
-void tab_bar_t::addWidget(QWidget* widget)
+void tab_bar_t::add_widget(QWidget* widget)
 {
-    d->widgetsLayout->addWidget(widget);
+    d->widgets_layout->addWidget(widget);
 }
 
-void tab_bar_t::insertWidget(QWidget* widget, int position)
+void tab_bar_t::insert_widget(QWidget* widget, int position)
 {
-    d->widgetsLayout->insertWidget(position, widget);
+    d->widgets_layout->insertWidget(position, widget);
 }
 
-void tab_bar_t::removeWidget(QWidget* widget)
+void tab_bar_t::remove_widget(QWidget* widget)
 {
-    d->widgetsLayout->removeWidget(widget);
+    d->widgets_layout->removeWidget(widget);
 }
 
-void tab_bar_t::setCurrentTab(widget_t* widget)
+void tab_bar_t::set_current_tab(widget_t* widget)
 {
     for (int i = 0; i < d->tabs.size(); ++i) {
         if (d->tabs[i]->widget() == widget) {
-            d->tabs[i]->setSelected(true);
+            d->tabs[i]->set_selected(true);
             return;
         }
     }
 }
 
-void tab_bar_t::removeHoverIndicator()
+void tab_bar_t::remove_hover_indicator()
 {
     for (int i = 0; i < d->tabs.size(); ++i) {
-        d->tabs[i]->fadeOut();
+        d->tabs[i]->fade_out();
     }
 }
 
-void tab_bar_t::setCurrentIndex(int index)
+void tab_bar_t::set_current_index(int index)
 {
-    if (index > -1 && index < tabsCount()) {
-        setCurrentTab(
-            qobject_cast<tab_element_t*>(d->tabsLayout->itemAt(index)->widget())->widget());
-        removeHoverIndicator();
+    if (index > -1 && index < tab_count()) {
+        set_current_tab(
+            qobject_cast<tab_element_t*>(d->tabs_layout->itemAt(index)->widget())->widget());
+        remove_hover_indicator();
     }
 }
 
-QSize tab_bar_t::tabSize() const
-{
-    return d->tabSize;
-}
 
-int tab_bar_t::maximumSize() const
-{
-    return d->maximumSize;
-}
-
-void tab_bar_t::setMaximumSize(int arg)
-{
-    d->maximumSize = arg;
-}
-
-void tab_bar_t::onTabSelected(widget_t* widget, bool mouseEvent)
+void tab_bar_t::on_tab_selected(widget_t* widget, bool mouse_event)
 {
     for (int i = 0; i < d->tabs.size(); ++i) {
         if (d->tabs[i]->widget() != widget) {
-            d->tabs[i]->setSelected(false);
+            d->tabs[i]->set_selected(false);
         }
     }
-    if(mouseEvent)
-    Q_EMIT showRequest(widget);
+    if(mouse_event)
+    Q_EMIT show_request(widget);
 }
 
 void tab_bar_t::paintEvent(QPaintEvent* event)

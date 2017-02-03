@@ -1,15 +1,23 @@
 #pragma once
 
-class QObject;
-class QApplication;
-class QWidget;
-class QAction;
 
-class QString;
-class QByteArray;
-class QVariant;
-class QIcon;
-class QColor;
+#define ATK_ALIAS_QTYPE(qtype,type) \
+class qtype; \
+namespace ev { namespace atk { using type = qtype; }  }
+
+
+ATK_ALIAS_QTYPE(QObject,qobject)
+ATK_ALIAS_QTYPE(QApplication,qapplication)
+ATK_ALIAS_QTYPE(QWidget,qwidget)
+ATK_ALIAS_QTYPE(QAction,qaction)
+ATK_ALIAS_QTYPE(QString,qstring)
+ATK_ALIAS_QTYPE(QStringList,qtringlist)
+ATK_ALIAS_QTYPE(QByteArray,qbytearray)
+ATK_ALIAS_QTYPE(QVariant,qvariant)
+ATK_ALIAS_QTYPE(QIcon,qicon)
+ATK_ALIAS_QTYPE(QColor,qcolor)
+ATK_ALIAS_QTYPE(QModelIndex,qmodelindex)
+
 
 template <typename T>
 class QVector;
@@ -25,17 +33,6 @@ class QMap;
 
 namespace ev {
 namespace atk {
-
-using qobject      = QObject;
-using qwidget      = QWidget;
-using qapplication = QApplication;
-using qaction      = QAction;
-
-using qstring    = QString;
-using qbytearray = QByteArray;
-using qvariant   = QVariant;
-using qicon      = QIcon;
-using qcolor     = QColor;
 
 template <typename T>
 using qvector = QVector<T>;

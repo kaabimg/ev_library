@@ -15,6 +15,7 @@ using namespace ev::atk;
 struct object_t::impl_t {
     qvector<object_t*> chilren;
     qhash<object_attribute_e, qvariant> attributes;
+    ev::flags_t<object_state_f> state;
 };
 
 object_t::object_t(object_t* parent) : qobject(parent), d(new impl_t)
@@ -25,6 +26,19 @@ object_t::object_t(object_t* parent) : qobject(parent), d(new impl_t)
 object_t::~object_t()
 {
     delete d;
+}
+
+void object_t::set_state(object_state_f s, bool enabled)
+{
+    if(enabled)
+        d->state.enable(s);
+    else d->state.clear(s);
+    Q_EMIT state_changed();
+}
+
+ev::flags_t<object_state_f> object_t::state() const
+{
+    return d->state;
 }
 
 object_t* object_t::get_parent() const

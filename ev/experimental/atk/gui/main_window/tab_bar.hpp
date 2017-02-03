@@ -14,7 +14,7 @@ class widget_t;
 
 class tab_element_t : public QWidget {
     Q_OBJECT
-    Q_PROPERTY(float fadeValue READ fadeValue WRITE setFadeValue)
+    Q_PROPERTY(float fade_value READ fade_value WRITE set_fade_value)
 
 public:
     explicit tab_element_t(widget_t* widget, qwidget* parent = nullptr);
@@ -22,9 +22,9 @@ public:
     bool is_selected() const;
 
     widget_t* widget() const;
-    float fadeValue() const;
+    float fade_value() const;
     QSize minimumSizeHint() const;
-    void setPrefferedSize(const QSize& size);
+    void set_preferred_size(const QSize& size);
 
 protected:
     void mousePressEvent(QMouseEvent* e);
@@ -33,22 +33,22 @@ protected:
     void leaveEvent(QEvent*);
 
 protected:
-    void fadeIn();
-    void fadeOut();
+    void fade_in();
+    void fade_out();
     friend class tab_bar_t;
 
 Q_SIGNALS:
     void selected(widget_t*, bool mouseEvent = false);
 
 public Q_SLOTS:
-    void setFadeValue(float arg);
-    void setSelected(bool arg, bool mouseEvent = false);
+    void set_fade_value(float arg);
+    void set_selected(bool arg, bool mouse_event = false);
 
 protected:
-    QFont fontFromWidth(int w) const;
-    QRect iconRect() const;
-    QRect textRect() const;
-    void adjustRect(QRect& rect, int value = 4) const;
+    QFont font_from_width(int w) const;
+    QRect icon_rect() const;
+    QRect text_rect() const;
+    void adjust_rect(QRect& rect, int value = 4) const;
 
 private:
     EV_IMPL(tab_element_t)
@@ -60,38 +60,35 @@ public:
     explicit tab_bar_t(qwidget* parent = 0);
     ~tab_bar_t();
 
-    int currentIndex() const;
-    qwidget* currentTab() const;
-    int tabsCount() const;
+    int current_index() const;
+    qwidget* current_tab() const;
+    int tab_count() const;
 
-    QSize tabSize() const;
-    int maximumSize() const;
 
 Q_SIGNALS:
-    void showRequest(qwidget*);
+    void show_request(widget_t*);
 
 public Q_SLOTS:
 
-    void insertTab(widget_t*, int position = -1);
-    void removeTab(widget_t*);
-    void setCurrentTab(widget_t*);
-    void setCurrentIndex(int);
+    void add_tab(widget_t*, int position = -1);
+    void remove_tab(widget_t*);
+    void set_current_tab(widget_t*);
+    void set_current_index(int);
 
-    void addWidget(qwidget*);
-    void insertWidget(qwidget*, int position);
-    void removeWidget(qwidget*);
-
-    void setMaximumSize(int arg);
+    void add_widget(qwidget*);
+    void insert_widget(qwidget*, int position);
+    void remove_widget(qwidget*);
 
 protected Q_SLOTS:
-    void onTabSelected(widget_t*, bool mouseEvent);
+    void on_tab_selected(widget_t*, bool mouse_event);
 
 protected:
-    tab_element_t* createTabElement(widget_t*);
-    tab_element_t* currentTabElement() const;
-
+    tab_element_t* create_tab_element(widget_t*);
+    tab_element_t* current_tab_element() const;
+    void remove_hover_indicator();
+protected:
     void paintEvent(QPaintEvent*);
-    void removeHoverIndicator();
+
 
 private:
     EV_IMPL(tab_bar_t)

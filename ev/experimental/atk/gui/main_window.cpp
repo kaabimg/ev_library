@@ -10,6 +10,7 @@
 #include <qstackedwidget.h>
 #include <qfile.h>
 #include <qapplication.h>
+#include <qdebug.h>
 
 namespace ev {
 namespace atk {
@@ -24,7 +25,6 @@ struct view_container_t {
     qwidget* left_widget          = nullptr;
     widget_t* central_widget      = nullptr;
 };
-
 
 struct main_window_t::impl_t {
     QHBoxLayout* main_layout;
@@ -108,6 +108,7 @@ main_window_t::main_window_t(const main_window_settings_t& settings)
     ////
     connect(ATK_SIGNAL(d->io_bar, show_request), ATK_SLOT(this, on_io_pane_show_request));
     connect(ATK_SIGNAL(d->io_bar, hide_request), ATK_SLOT(this, on_io_pane_hide_request));
+    connect(ATK_SIGNAL(d->tab_bar, show_request), ATK_SLOT(this, on_view_show_request));
 }
 
 main_window_t::~main_window_t()
@@ -148,12 +149,14 @@ void main_window_t::add_view(mainview_provider_t* provider)
     view.left_widget    = provider->left_widget();
     view.central_widget = provider->central_widget();
 
+    d->views << view;
+
     d->left_side_widget_container->addWidget(view.left_widget);
 
-
-
     d->content_widget_container->addWidget(view.central_widget);
-    d->tab_bar->insertTab(view.central_widget);
+    d->tab_bar->add_tab(view.central_widget);
+
+    set_current_view(d->views.size()-1);
 }
 
 void main_window_t::add_pane(widget_t* iopane)
@@ -170,6 +173,11 @@ void main_window_t::add_status_widget(qwidget* widget)
     d->io_bar->add_widget(widget);
 }
 
+void main_window_t::set_current_view(int index)
+{
+    d->tab_bar->set_current_index(index);
+}
+
 void main_window_t::on_io_pane_show_request(widget_t* widget)
 {
     d->io_pane_container->setVisible(true);
@@ -179,4 +187,21 @@ void main_window_t::on_io_pane_show_request(widget_t* widget)
 void main_window_t::on_io_pane_hide_request()
 {
     d->io_pane_container->setVisible(false);
+}
+
+void main_window_t::on_view_show_request(widget_t* w)
+{
+    auto iter = std::find_if(d->views.begin(), d->views.end(),
+              [w](const view_container_t& c) { return c.central_widget == w; });
+
+    if(iter != d->views.end()){
+        if(iter->left_widget) {
+            d->left_side_widget_container->setVisible(true);
+            d->left_side_widget_container->setCurrentWidget(iter->left_widget);
+        }
+        else
+            d->left_side_widget_container->setVisible(false);
+
+        d->content_widget_container->setCurrentWidget(w);
+    }
 }

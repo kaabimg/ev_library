@@ -83,9 +83,13 @@ public:
     void add_view(mainview_provider_t*);
     void add_pane(widget_t*iopane);
     void add_status_widget(qwidget*);
+
+    void set_current_view(int index);
+
 protected Q_SLOTS:
     void on_io_pane_show_request(widget_t*);
     void on_io_pane_hide_request();
+    void on_view_show_request(widget_t*);
 
 protected:
     void load_icons();
