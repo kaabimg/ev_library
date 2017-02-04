@@ -45,14 +45,17 @@ struct main_window_t::impl_t {
 main_window_t* main_window_t::impl_t::instance = nullptr;
 
 main_window_t::main_window_t(const main_window_settings_t& settings)
-    : qwidget{nullptr}, d{new impl_t}
+    : qmainwindow{nullptr}, d{new impl_t}
 {
     impl_t::instance = this;
 
     d->settings = settings;
     load_icons();
 
-    d->main_layout    = new QHBoxLayout(this);
+    qwidget* central_widget = new qwidget(this);
+    d->main_layout    = new QHBoxLayout(central_widget);
+    setCentralWidget(central_widget);
+
     d->content_layout = new QVBoxLayout;
 
     d->main_layout->setContentsMargins(0, 0, 0, 0);
@@ -94,17 +97,17 @@ main_window_t::main_window_t(const main_window_settings_t& settings)
 
     ////
 
-    QFile style_file(":/main_style.qss");
-    style_file.open(QFile::ReadOnly);
+//    QFile style_file(":/main_style.qss");
+//    style_file.open(QFile::ReadOnly);
 
-    qstring ss          = style_file.readAll();
-    const auto& palette = d->settings.palette;
+//    qstring ss          = style_file.readAll();
+//    const auto& palette = d->settings.palette;
 
-    ss = ss.arg(palette.dark.name(), palette.dark_gray.name(), palette.light_gray.name(),
-                palette.light.name(), palette.primary.name(), palette.secondary.name());
+//    ss = ss.arg(palette.dark.name(), palette.dark_gray.name(), palette.light_gray.name(),
+//                palette.light.name(), palette.primary.name(), palette.secondary.name());
 
-    qApp->setStyleSheet(ss);
-    style_file.close();
+//    qApp->setStyleSheet(ss);
+//    style_file.close();
     ////
     connect(ATK_SIGNAL(d->io_bar, show_request), ATK_SLOT(this, on_io_pane_show_request));
     connect(ATK_SIGNAL(d->io_bar, hide_request), ATK_SLOT(this, on_io_pane_hide_request));

@@ -23,11 +23,15 @@ public:
     object_t* object() const;
     void set_object(object_t*) const;
 
+    void enable_toolbar(bool);
+
+    void set_content(qwidget*);
+
     qvariant attribute(widget_attribute_e att) const;
     void set_attribute(widget_attribute_e att, const qvariant& val);
 
     inline qstring title() const;
-    inline void set_title(const qstring& title);
+    void set_title(const qstring& title);
 
     inline qicon icon() const;
     inline void set_icon(const qicon& icon);
@@ -45,11 +49,6 @@ private:
 qstring widget_t::title() const
 {
     return windowTitle();
-}
-
-void widget_t::set_title(const qstring& title)
-{
-    setWindowTitle(title);
 }
 
 qicon widget_t::icon() const

@@ -9,6 +9,7 @@ namespace ev { namespace atk { using type = qtype; }  }
 ATK_ALIAS_QTYPE(QObject,qobject)
 ATK_ALIAS_QTYPE(QApplication,qapplication)
 ATK_ALIAS_QTYPE(QWidget,qwidget)
+ATK_ALIAS_QTYPE(QMainWindow,qmainwindow)
 ATK_ALIAS_QTYPE(QAction,qaction)
 ATK_ALIAS_QTYPE(QString,qstring)
 ATK_ALIAS_QTYPE(QStringList,qtringlist)

@@ -1,4 +1,5 @@
-#include "object_tree_model.hpp"
+#include "object_model.hpp"
+#include "main_window.hpp"
 #include "../core/object.hpp"
 
 using namespace ev::atk;
@@ -14,9 +15,7 @@ object_t* object_model_base_t::root() const
     return m_root;
 }
 
-qmodelindex object_model_base_t::index(int row,
-                                            int column,
-                                            const qmodelindex& parent_index) const
+qmodelindex object_model_base_t::index(int row, int column, const qmodelindex& parent_index) const
 {
     if (!hasIndex(row, column, parent_index)) return qmodelindex();
 
@@ -109,9 +108,7 @@ bool object_model_base_t::setData(const qmodelindex& index, const qvariant& valu
     return false;
 }
 
-qvariant object_model_base_t::headerData(int section,
-                                              Qt::Orientation orientation,
-                                              int role) const
+qvariant object_model_base_t::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (m_proxy.get_header_data) return m_proxy.get_header_data(section, orientation, role);
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
@@ -156,8 +153,7 @@ object_t* object_model_base_t::object_for_index(const qmodelindex& index) const
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-object_model_t::object_model_t(object_t* root, qobject* parent)
-    : QSortFilterProxyModel(parent)
+object_model_t::object_model_t(object_t* root, qobject* parent) : QSortFilterProxyModel(parent)
 {
     setSourceModel(new object_model_base_t(root, this));
 }
@@ -178,21 +174,20 @@ bool object_model_t::filterAcceptsRow(int source_row, const QModelIndex& source_
     return m_proxy.filter(static_cast<object_t*>(index.internalPointer()));
 }
 
-bool object_model_t::lessThan(const QModelIndex& source_left,
-                                   const QModelIndex& source_right) const
+bool object_model_t::lessThan(const QModelIndex& source_left, const QModelIndex& source_right) const
 {
     return m_proxy.less_than(static_cast<object_t*>(source_left.internalPointer()),
                              static_cast<object_t*>(source_right.internalPointer()));
 }
 
-void object_model_t::set_data_proxy(const object_data_proxy_t &proxy)
+void object_model_t::set_data_proxy(const object_data_proxy_t& proxy)
 {
     beginResetModel();
     source()->m_proxy = proxy;
     endResetModel();
 }
 
-void object_model_t::set_filter_sort_proxy(const filter_sort_proxy_t &proxy)
+void object_model_t::set_filter_sort_proxy(const filter_sort_proxy_t& proxy)
 {
     beginResetModel();
     m_proxy = proxy;

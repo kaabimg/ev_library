@@ -2,7 +2,7 @@
 
 #include "../qtypes_fwd.hpp"
 #include <ev/core/preprocessor.hpp>
-#include <qwidget.h>
+#include <qmainwindow.h>
 #include <qicon.h>
 
 #define atk_main_window ::ev::atk::main_window_t::instance()
@@ -67,7 +67,7 @@ enum class standard_icon_e {
 
 };
 
-class main_window_t : public qwidget {
+class main_window_t : public qmainwindow {
     Q_OBJECT
 public:
     main_window_t(const main_window_settings_t& settings = main_window_settings_t());

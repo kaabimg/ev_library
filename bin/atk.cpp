@@ -3,7 +3,7 @@
 
 #include <ev/experimental/atk/gui/main_window.hpp>
 #include <ev/experimental/atk/gui/widget.hpp>
-#include <ev/experimental/atk/gui/object_tree_model.hpp>
+#include <ev/experimental/atk/gui/object_tree_view.hpp>
 
 #include <qtextedit.h>
 #include <qicon.h>
@@ -20,10 +20,8 @@ int tab = 1;
 struct view_t : atk::mainview_provider_t {
     QWidget* left_widget() const override
     {
-        auto tree_view = new QListView;
-        auto model     = new atk::object_model_t(atk_app->session(), tree_view);
-        tree_view->setModel(model);
-        return tree_view;
+        auto view = new atk::object_tree_view_t(atk_app->session());
+        return view;
     }
 
     atk::widget_t* central_widget() const override
@@ -31,6 +29,7 @@ struct view_t : atk::mainview_provider_t {
         auto w = atk::widget_t::make_from(new QTextEdit("Content1"));
         w->set_title("tab" + QString::number(tab++));
         w->set_icon(QApplication::style()->standardIcon(QStyle::SP_DirHomeIcon));
+        w->enable_toolbar(false);
         return w;
     }
 };
