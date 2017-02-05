@@ -14,10 +14,6 @@ public:
     void set_label(const qstring& );
     void set_actions(const qlist<qaction*>& actions);
 
-
-protected:
-    void paintEvent(QPaintEvent*);
-
 private:
     QLabel* m_label;
 };

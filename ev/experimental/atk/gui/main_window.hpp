@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../qtypes_fwd.hpp"
+#include "../interfaces/system_interface.hpp"
 #include <ev/core/preprocessor.hpp>
 #include <qmainwindow.h>
 #include <qicon.h>
@@ -21,10 +22,10 @@ struct mainview_provider_t {
 };
 
 struct ready_mainview_provider_t : mainview_provider_t {
-    ready_mainview_provider_t(qwidget* left_widget, widget_t* central_widget):
-        _left_widget(left_widget),
-        _central_widget(central_widget)
-    {}
+    ready_mainview_provider_t(qwidget* left_widget, widget_t* central_widget)
+        : _left_widget(left_widget), _central_widget(central_widget)
+    {
+    }
     qwidget* _left_widget;
     widget_t* _central_widget;
 
@@ -38,7 +39,8 @@ struct ready_mainview_provider_t : mainview_provider_t {
     }
 };
 
-inline mainview_provider_t* make_ready_mainview_provider(qwidget* left_widget, widget_t* central_widget)
+inline mainview_provider_t* make_ready_mainview_provider(qwidget* left_widget,
+                                                         widget_t* central_widget)
 {
     return new ready_mainview_provider_t{left_widget, central_widget};
 }
@@ -53,21 +55,51 @@ struct window_palette_t {
 };
 
 struct window_sizes_t {
-    int header_height = 27;
-    int tab_bar_width = 70;
+    int toolbar_height     = 25;
+    int io_pane_height     = 35;
+    int main_tab_bar_width = 70;
 };
 
 struct main_window_settings_t {
-    qstring icons_path = ":/";
+    qstring icons_path = ":/icons";
     window_palette_t palette;
     window_sizes_t sizes;
 };
 
 enum class standard_icon_e {
+    add,
+    clear,
+    close,
+    copy,
+    cut,
+    database,
+    down_indicator,
+    edit,
+    error,
+    export_,
+    home,
+    import,
+    information,
+    left_indicator,
+    lock,
+    play,
+    redo,
+    refresh,
+    remove,
+    right_arrow,
+    right_indicator,
+    search,
+    settings,
+    stop,
+    trash,
+    undo,
+    unlock,
+    up_indicator,
+    warning,
 
 };
 
-class main_window_t : public qmainwindow {
+class main_window_t : public qmainwindow, public system_interface_t {
     Q_OBJECT
 public:
     main_window_t(const main_window_settings_t& settings = main_window_settings_t());
@@ -81,10 +113,15 @@ public:
     const qicon& std_icon(standard_icon_e) const;
 
     void add_view(mainview_provider_t*);
-    void add_pane(widget_t*iopane);
+    void add_pane(widget_t* iopane);
     void add_status_widget(qwidget*);
 
     void set_current_view(int index);
+
+public:
+    void info(const qstring&) override;
+    void warning(const qstring&) override;
+    void error(const qstring&) override;
 
 protected Q_SLOTS:
     void on_io_pane_show_request(widget_t*);
@@ -93,6 +130,7 @@ protected Q_SLOTS:
 
 protected:
     void load_icons();
+    void load_icon(standard_icon_e, const char*);
 
 private:
     EV_IMPL(main_window_t)

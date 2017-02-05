@@ -1,10 +1,6 @@
 #pragma once
 
-
-#define ATK_ALIAS_QTYPE(qtype,type) \
-class qtype; \
-namespace ev { namespace atk { using type = qtype; }  }
-
+#include "preprocessor.hpp"
 
 ATK_ALIAS_QTYPE(QObject,qobject)
 ATK_ALIAS_QTYPE(QApplication,qapplication)

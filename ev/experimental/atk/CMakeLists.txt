@@ -4,31 +4,30 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 
-file (GLOB CORE_HEADERS
+file (GLOB HEADERS
     *.hpp
+    ./interfaces/*.hpp
     ./core/*.hpp
-    )
-
-file (GLOB GUI_HEADERS
     ./gui/*.hpp
     ./gui/main_window/*.hpp
     ./gui/widgets/*.hpp
 
     )
 
-file (GLOB CORE_SOURCES
+
+
+file (GLOB SOURCES
     ./core/*.cpp
-    )
-file (GLOB GUI_SOURCES
     ./gui/*.cpp
     ./gui/main_window/*.cpp
     ./gui/widgets/*.cpp
     )
 
+
 file (GLOB RESSOURCES
     ./resources/*.qrc)
 
-add_library(ev_atk SHARED ${CORE_HEADERS} ${GUI_HEADERS} ${GUI_SOURCES} ${CORE_SOURCES} ${RESSOURCES})
+add_library(ev_atk SHARED ${HEADERS} ${HEADERS} ${SOURCES} ${RESSOURCES})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Core)

@@ -1,30 +1,32 @@
 #include "tool_bar.hpp"
 #include "../main_window.hpp"
-
+#include "../style.hpp"
 #include <qpainter.h>
 #include <qaction.h>
 #include <qlabel.h>
+#include <qlineedit.h>
 
 #include <qdebug.h>
 
 using namespace ev::atk;
 
-tool_bar_t::tool_bar_t(QWidget* parent) : QToolBar(parent), m_label(nullptr)
+tool_bar_t::tool_bar_t(QWidget* parent) : QToolBar(parent)
 {
-    setStyleSheet(QString("QToolBar { background-color: %0;} "
-                          "QToolButton{color: rgba(255,255,255,200);} "
-                          "QToolButton:hover{background: rgba(255,255,255,40);}")
-                      .arg(atk_main_window->window_palette().dark_gray.name()));
+    apply_style(this);
+
     setOrientation(Qt::Horizontal);
 
     m_label = new QLabel(this);
     m_label->setAlignment(Qt::AlignCenter);
 
-    QPalette palette = m_label->palette();
-    palette.setColor(m_label->foregroundRole(), atk_main_window->window_palette().light.name());
-    m_label->setPalette(palette);
+//    QPalette palette = m_label->palette();
+//    palette.setColor(m_label->backgroundRole(), atk_main_window->window_palette().dark_gray.name());
+//    palette.setColor(m_label->foregroundRole(), atk_main_window->window_palette().light.name());
+//    m_label->setPalette(palette);
 
-    addWidget(m_label);
+    addWidget(m_label)->setVisible(true);
+    m_label->setVisible(true);
+    addWidget(new QLineEdit("**************",this))->setVisible(true);
 }
 
 void tool_bar_t::set_label(const qstring& label)
@@ -42,13 +44,4 @@ void tool_bar_t::set_actions(const qlist<qaction*>& actions)
         addWidget(spacer);
         addAction(actions[i]);
     }
-}
-
-void tool_bar_t::paintEvent(QPaintEvent* event)
-{
-    QPainter painter(this);
-    painter.fillRect(rect(), atk_main_window->window_palette().dark_gray);
-    painter.setPen(atk_main_window->window_palette().dark);
-    painter.drawRect(rect());
-    QToolBar::paintEvent(event);
 }

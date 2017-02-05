@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../preprocessor.hpp"
-#include "../attribute_interface.hpp"
 #include "../qtypes_fwd.hpp"
+#include "../interfaces/attribute_interface.hpp"
 
 #include <ev/core/preprocessor.hpp>
 #include <ev/core/flags.hpp>

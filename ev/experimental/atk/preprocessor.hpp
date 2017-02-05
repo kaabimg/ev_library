@@ -25,3 +25,9 @@ struct connection_object_trait {
 
 #define ATK_SIGNAL(obj, fn) ATK_CONNECTION_METHOD(obj, fn)
 #define ATK_SLOT(obj, fn) ATK_CONNECTION_METHOD(obj, fn)
+
+
+
+#define ATK_ALIAS_QTYPE(qtype,type) \
+class qtype; \
+namespace ev { namespace atk { using type = qtype; }  }

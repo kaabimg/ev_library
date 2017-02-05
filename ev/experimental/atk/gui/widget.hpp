@@ -1,7 +1,9 @@
 #pragma once
 
-#include "../attribute_interface.hpp"
+#include "../interfaces/attribute_interface.hpp"
+
 #include <ev/core/preprocessor.hpp>
+
 #include <qwidget.h>
 #include <qicon.h>
 

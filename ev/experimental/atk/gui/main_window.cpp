@@ -1,9 +1,11 @@
 #include "main_window.hpp"
 #include "main_window/io_bar.hpp"
 #include "main_window/tab_bar.hpp"
+#include "main_window/message_pane.hpp"
 #include "widgets/splitter.hpp"
 #include "widget.hpp"
 #include "../preprocessor.hpp"
+#include "../core/application.hpp"
 
 #include <qlayout.h>
 #include <qtextedit.h>
@@ -34,6 +36,7 @@ struct main_window_t::impl_t {
     splitter_t *horizontal_splitter, *vertical_splitter;
 
     QStackedWidget *left_side_widget_container, *content_widget_container, *io_pane_container;
+    message_pane_t* message_pane;
 
     qvector<view_container_t> views;
     qvector<widget_t*> io_panes;
@@ -53,7 +56,7 @@ main_window_t::main_window_t(const main_window_settings_t& settings)
     load_icons();
 
     qwidget* central_widget = new qwidget(this);
-    d->main_layout    = new QHBoxLayout(central_widget);
+    d->main_layout          = new QHBoxLayout(central_widget);
     setCentralWidget(central_widget);
 
     d->content_layout = new QVBoxLayout;
@@ -83,7 +86,6 @@ main_window_t::main_window_t(const main_window_settings_t& settings)
     d->content_layout->addWidget(d->horizontal_splitter);
 
     //// io_bar
-    d->io_bar->setFixedHeight(window_sizes().header_height);
     d->content_layout->addWidget(d->io_bar);
 
     ////
@@ -97,30 +99,35 @@ main_window_t::main_window_t(const main_window_settings_t& settings)
 
     ////
 
-//    QFile style_file(":/main_style.qss");
-//    style_file.open(QFile::ReadOnly);
+    //    QFile style_file(":/main_style.qss");
+    //    style_file.open(QFile::ReadOnly);
 
-//    qstring ss          = style_file.readAll();
-//    const auto& palette = d->settings.palette;
+    //    qstring ss          = style_file.readAll();
+    //    const auto& palette = d->settings.palette;
 
-//    ss = ss.arg(palette.dark.name(), palette.dark_gray.name(), palette.light_gray.name(),
-//                palette.light.name(), palette.primary.name(), palette.secondary.name());
+    //    ss = ss.arg(palette.dark.name(), palette.dark_gray.name(), palette.light_gray.name(),
+    //                palette.light.name(), palette.primary.name(), palette.secondary.name());
 
-//    qApp->setStyleSheet(ss);
-//    style_file.close();
+    //    qApp->setStyleSheet(ss);
+    //    style_file.close();
     ////
     connect(ATK_SIGNAL(d->io_bar, show_request), ATK_SLOT(this, on_io_pane_show_request));
     connect(ATK_SIGNAL(d->io_bar, hide_request), ATK_SLOT(this, on_io_pane_hide_request));
     connect(ATK_SIGNAL(d->tab_bar, show_request), ATK_SLOT(this, on_view_show_request));
+
+    ////
+    d->message_pane = new message_pane_t;
+
+    auto pane = widget_t::make_from(d->message_pane);
+    pane->set_title("Messages");
+    add_pane(pane);
+
+    atk_app->set_system_interface(this);
 }
 
 main_window_t::~main_window_t()
 {
     delete d;
-}
-
-void main_window_t::load_icons()
-{
 }
 
 main_window_t* main_window_t::instance()
@@ -159,7 +166,7 @@ void main_window_t::add_view(mainview_provider_t* provider)
     d->content_widget_container->addWidget(view.central_widget);
     d->tab_bar->add_tab(view.central_widget);
 
-    set_current_view(d->views.size()-1);
+    set_current_view(d->views.size() - 1);
 }
 
 void main_window_t::add_pane(widget_t* iopane)
@@ -195,10 +202,10 @@ void main_window_t::on_io_pane_hide_request()
 void main_window_t::on_view_show_request(widget_t* w)
 {
     auto iter = std::find_if(d->views.begin(), d->views.end(),
-              [w](const view_container_t& c) { return c.central_widget == w; });
+                             [w](const view_container_t& c) { return c.central_widget == w; });
 
-    if(iter != d->views.end()){
-        if(iter->left_widget) {
+    if (iter != d->views.end()) {
+        if (iter->left_widget) {
             d->left_side_widget_container->setVisible(true);
             d->left_side_widget_container->setCurrentWidget(iter->left_widget);
         }
@@ -206,5 +213,66 @@ void main_window_t::on_view_show_request(widget_t* w)
             d->left_side_widget_container->setVisible(false);
 
         d->content_widget_container->setCurrentWidget(w);
+    }
+}
+
+void main_window_t::info(const qstring& message)
+{
+    d->message_pane->add_info(message);
+}
+
+void main_window_t::warning(const qstring& message)
+{
+    d->message_pane->add_warning(message);
+}
+
+void main_window_t::error(const qstring& message)
+{
+    d->message_pane->add_error(message);
+}
+
+
+#define LOAD_ICON(name) load_icon(standard_icon_e::name, #name ".png" )
+
+void main_window_t::load_icons()
+{
+    LOAD_ICON(add);
+    LOAD_ICON(clear);
+    LOAD_ICON(close);
+    LOAD_ICON(copy);
+    LOAD_ICON(cut);
+    LOAD_ICON(database);
+    LOAD_ICON(down_indicator);
+    LOAD_ICON(edit);
+    LOAD_ICON(error);
+    load_icon(standard_icon_e::export_,"export.png");
+    LOAD_ICON(home);
+    LOAD_ICON(import);
+    LOAD_ICON(information);
+    LOAD_ICON(left_indicator);
+    LOAD_ICON(lock);
+    LOAD_ICON(play);
+    LOAD_ICON(redo);
+    LOAD_ICON(refresh);
+    LOAD_ICON(remove);
+    LOAD_ICON(right_arrow);
+    LOAD_ICON(right_indicator);
+    LOAD_ICON(search);
+    LOAD_ICON(settings);
+    LOAD_ICON(stop);
+    LOAD_ICON(trash);
+    LOAD_ICON(undo);
+    LOAD_ICON(unlock);
+    LOAD_ICON(up_indicator);
+    LOAD_ICON(warning);
+}
+
+void main_window_t::load_icon(standard_icon_e type, const char* file_name)
+{
+    QFile file (d->settings.icons_path + "/" + file_name);
+
+    if(file.exists())
+    {
+        d->icons.insert(type,QIcon(file.fileName()));
     }
 }

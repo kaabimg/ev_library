@@ -5,14 +5,13 @@
 
 #include <qobject.h>
 
-
 #define atk_app ::ev::atk::application_t::instance()
 
 namespace ev {
 namespace atk {
 
 class session_t;
-
+class system_interface_t;
 
 enum class application_setting_e {
 
@@ -28,6 +27,9 @@ public:
     static application_t* instance();
 
     session_t* session() const;
+
+    system_interface_t* system_interface() const;
+    void set_system_interface(system_interface_t*);
 
 private:
     EV_IMPL(application_t)

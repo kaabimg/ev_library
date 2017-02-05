@@ -101,6 +101,9 @@ struct io_bar_t::impl_t {
 
 io_bar_t::io_bar_t(qwidget* parent) : qwidget(parent), d(new impl_t)
 {
+
+    setFixedHeight(atk_main_window->window_sizes().io_pane_height);
+
     d->current_selection_index = -1;
 
     d->layout = new QHBoxLayout;

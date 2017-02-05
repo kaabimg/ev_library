@@ -20,7 +20,10 @@ int tab = 1;
 struct view_t : atk::mainview_provider_t {
     QWidget* left_widget() const override
     {
-        auto view = new atk::object_tree_view_t(atk_app->session());
+        auto view = atk::widget_t::make_from(new atk::object_tree_view_t(atk_app->session()));
+        view->set_title("Objects");
+        view->enable_toolbar(true);
+
         return view;
     }
 
@@ -29,7 +32,7 @@ struct view_t : atk::mainview_provider_t {
         auto w = atk::widget_t::make_from(new QTextEdit("Content1"));
         w->set_title("tab" + QString::number(tab++));
         w->set_icon(QApplication::style()->standardIcon(QStyle::SP_DirHomeIcon));
-        w->enable_toolbar(false);
+        w->enable_toolbar(true);
         return w;
     }
 };
@@ -64,6 +67,13 @@ int main(int argc, char* argv[])
     pane->set_title("console");
     main_window.add_pane(pane);
 
-    main_window.add_status_widget(new QLineEdit);
+
+    app.system_interface()->info("info");
+    app.system_interface()->warning("warning");
+    app.system_interface()->error("error");
+
+
+
+
     return app.exec();
 }
