@@ -26,10 +26,10 @@ tab_element_t::tab_element_t(widget_t* widget, qwidget* parent) : qwidget(parent
     setFocusPolicy(Qt::ClickFocus);
     setMouseTracking(true);
 
-    d->widget    = widget;
-    d->selected  = false;
+    d->widget     = widget;
+    d->selected   = false;
     d->fade_value = 0;
-    d->animator  = new QPropertyAnimation(this, "fade_value", this);
+    d->animator   = new QPropertyAnimation(this, "fade_value", this);
 }
 
 tab_element_t::~tab_element_t()
@@ -64,11 +64,11 @@ void tab_element_t::set_preferred_size(const QSize& size)
 
 QRect tab_element_t::icon_rect() const
 {
-    QRect rect = QRect(this->rect().topLeft(),QSize(width(),height()*0.7));
-    int adjust = rect.width()-rect.height();
-    adjust/=2;
-    rect.adjust(adjust,0,-adjust,0);
-    adjust_rect(rect,2);
+    QRect rect = QRect(this->rect().topLeft(), QSize(width(), height() * 0.7));
+    int adjust = rect.width() - rect.height();
+    adjust /= 2;
+    rect.adjust(adjust, 0, -adjust, 0);
+    adjust_rect(rect, 2);
     return rect;
 }
 
@@ -116,7 +116,7 @@ void tab_element_t::fade_in()
 {
     d->animator->stop();
     d->animator->setDuration(80);
-    d->animator->setEndValue(40);
+    d->animator->setEndValue(255);
     d->animator->start();
 }
 
@@ -132,38 +132,32 @@ void tab_element_t::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
 
-    QRect backgroundRect = rect();
+    QRect background_rect = rect();
 
     if (d->selected) {
         painter.save();
-        painter.fillRect(backgroundRect, atk_window_palette.dark_gray.darker());
+        painter.fillRect(background_rect, atk_window_palette.selected_color());
         painter.restore();
     }
 
-    if (!d->selected) {
+    else {
         int value      = int(fade_value());
-        QColor bgColor = atk_main_window->window_palette().light_gray;
-        bgColor.setAlpha(value);
-        painter.fillRect(backgroundRect, bgColor);
-        painter.setPen(QColor(255, 255, 255, value).darker());
-        painter.drawLine(backgroundRect.topLeft(), backgroundRect.topRight());
-        painter.drawLine(backgroundRect.bottomLeft(), backgroundRect.bottomRight());
+        auto col = atk_window_palette.highlight_color();
+        col.setAlpha(value);
+        painter.fillRect(background_rect, col);
     }
 
     auto icon = d->widget->icon();
-    if(!icon.isNull())
-    {
+    if (!icon.isNull()) {
         QRect iconRect = this->icon_rect();
         QPixmap pixmap = icon.pixmap(iconRect.size());
         painter.drawPixmap(iconRect, pixmap);
     }
 
-    painter.setPen(atk_main_window->window_palette().light);
-
     QFont font;
     font.setBold(true);
     painter.setFont(font);
-    painter.setPen(atk_main_window->window_palette().light);
+    painter.setPen(atk_window_palette.text_color());
 
     painter.drawText(text_rect(), Qt::AlignCenter, d->widget->title());
 }
@@ -190,7 +184,7 @@ struct tab_bar_t::impl_t {
     Qt::Orientation orientation;
     QBoxLayout *main_layout, *tabs_layout, *widgets_layout, *spacer_layout;
     QWidget* spacer;
-    QList<tab_element_t*> tabs;  
+    QList<tab_element_t*> tabs;
     QSize tab_size;
 };
 
@@ -276,14 +270,14 @@ tab_element_t* tab_bar_t::create_tab_element(widget_t* widget)
 
     d->tabs << tab_element;
     tab_element->set_preferred_size(d->tab_size);
-    connect(ATK_SIGNAL(tab_element,selected), ATK_SLOT(this,on_tab_selected));
+    connect(ATK_SIGNAL(tab_element, selected), ATK_SLOT(this, on_tab_selected));
     return tab_element;
 }
 
 void tab_bar_t::add_tab(widget_t* widget, int position)
 {
     tab_element_t* tab_element = create_tab_element(widget);
-    if(position == -1)
+    if (position == -1)
         d->tabs_layout->addWidget(tab_element);
     else
         d->tabs_layout->insertWidget(position, tab_element);
@@ -342,7 +336,6 @@ void tab_bar_t::set_current_index(int index)
     }
 }
 
-
 void tab_bar_t::on_tab_selected(widget_t* widget, bool mouse_event)
 {
     for (int i = 0; i < d->tabs.size(); ++i) {
@@ -350,8 +343,7 @@ void tab_bar_t::on_tab_selected(widget_t* widget, bool mouse_event)
             d->tabs[i]->set_selected(false);
         }
     }
-    if(mouse_event)
-    Q_EMIT show_request(widget);
+    if (mouse_event) Q_EMIT show_request(widget);
 }
 
 void tab_bar_t::paintEvent(QPaintEvent* event)

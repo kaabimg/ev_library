@@ -22,6 +22,43 @@ ATK_DECLARE_ENUM_QHASH(standard_icon_e)
 
 using namespace ev::atk;
 
+
+window_sizes_t::window_sizes_t()
+{
+    toolbar_height     = 25;
+    io_pane_height     = 35;
+    main_tab_bar_width = 70;
+}
+
+window_palette_t::window_palette_t()
+{
+    dark       = "#050505";
+    dark_gray  = "#404244";
+    light      = "#FFFFFF";
+    primary    = "#00415A";
+    secondary  = "#951C37";
+}
+
+qcolor window_palette_t::background_color() const
+{
+    return dark_gray;
+}
+
+qcolor window_palette_t::highlight_color() const
+{
+    return dark_gray.lighter();
+}
+
+qcolor window_palette_t::selected_color() const
+{
+    return dark_gray.darker();
+}
+
+qcolor window_palette_t::text_color() const
+{
+    return light;
+}
+
 struct view_container_t {
     mainview_provider_t* provider = nullptr;
     qwidget* left_widget          = nullptr;
@@ -231,8 +268,7 @@ void main_window_t::error(const qstring& message)
     d->message_pane->add_error(message);
 }
 
-
-#define LOAD_ICON(name) load_icon(standard_icon_e::name, #name ".png" )
+#define LOAD_ICON(name) load_icon(standard_icon_e::name, #name ".png")
 
 void main_window_t::load_icons()
 {
@@ -245,7 +281,7 @@ void main_window_t::load_icons()
     LOAD_ICON(down_indicator);
     LOAD_ICON(edit);
     LOAD_ICON(error);
-    load_icon(standard_icon_e::export_,"export.png");
+    load_icon(standard_icon_e::export_, "export.png");
     LOAD_ICON(home);
     LOAD_ICON(import);
     LOAD_ICON(information);
@@ -269,10 +305,9 @@ void main_window_t::load_icons()
 
 void main_window_t::load_icon(standard_icon_e type, const char* file_name)
 {
-    QFile file (d->settings.icons_path + "/" + file_name);
+    QFile file(d->settings.icons_path + "/" + file_name);
 
-    if(file.exists())
-    {
-        d->icons.insert(type,QIcon(file.fileName()));
+    if (file.exists()) {
+        d->icons.insert(type, QIcon(file.fileName()));
     }
 }

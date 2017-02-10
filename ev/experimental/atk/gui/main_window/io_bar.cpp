@@ -54,20 +54,13 @@ void io_bar_button_t::paintEvent(QPaintEvent*)
     }
     else {
         if (isChecked())
-            p.fillPath(path, atk_main_window->window_palette().dark_gray.darker());
+            p.fillPath(path, atk_main_window->window_palette().selected_color());
         else if (m_hover) {
-            qcolor c = atk_main_window->window_palette().light;
-            c.setAlpha(50);
-            p.fillPath(path, c);
+            p.fillPath(path, atk_main_window->window_palette().highlight_color());
         }
     }
     QFont f = font();
-    if (isChecked() || m_is_animated) {
-        p.setPen(atk_main_window->window_palette().light);
-    }
-    else {
-        p.setPen(atk_main_window->window_palette().light_gray.lighter(250));
-    }
+    p.setPen(atk_main_window->window_palette().text_color());
 
     p.setFont(f);
     p.drawText((20 - numberWidth) / 2, baseLine, m_number);
@@ -191,7 +184,7 @@ void io_bar_t::animate_pane(widget_t* pane)
 void io_bar_t::paintEvent(QPaintEvent* event)
 {
     QPainter painter(this);
-    painter.fillRect(rect(), atk_main_window->window_palette().dark_gray);
+    painter.fillRect(rect(), atk_main_window->window_palette().background_color());
     painter.setPen(atk_main_window->window_palette().dark);
     painter.drawRect(rect());
     QWidget::paintEvent(event);

@@ -1,3 +1,6 @@
+
+#include <ev/core/logging.hpp>
+
 #include <ev/experimental/atk/core/application.hpp>
 #include <ev/experimental/atk/core/session.hpp>
 
@@ -67,13 +70,9 @@ int main(int argc, char* argv[])
     pane->set_title("console");
     main_window.add_pane(pane);
 
-
     app.system_interface()->info("info");
     app.system_interface()->warning("warning");
     app.system_interface()->error("error");
-
-
-
 
     return app.exec();
 }

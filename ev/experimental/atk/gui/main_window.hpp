@@ -46,18 +46,26 @@ inline mainview_provider_t* make_ready_mainview_provider(qwidget* left_widget,
 }
 
 struct window_palette_t {
-    qcolor dark       = "#050505";
-    qcolor dark_gray  = "#404244";
-    qcolor light_gray = "#BFC1C2";
-    qcolor light      = "#FFFFFF";
-    qcolor primary    = "#00415A";
-    qcolor secondary  = "#951C37";
+    window_palette_t();
+
+    qcolor dark;
+    qcolor dark_gray;
+    qcolor light;
+    qcolor primary;
+    qcolor secondary;
+
+    qcolor background_color() const;
+    qcolor highlight_color() const;
+    qcolor selected_color() const;
+    qcolor text_color() const;
 };
 
 struct window_sizes_t {
-    int toolbar_height     = 25;
-    int io_pane_height     = 35;
-    int main_tab_bar_width = 70;
+    window_sizes_t();
+
+    int toolbar_height;
+    int io_pane_height;
+    int main_tab_bar_width;
 };
 
 struct main_window_settings_t {
