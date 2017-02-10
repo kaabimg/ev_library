@@ -11,6 +11,7 @@ set(HEADER_FILES
     flags.hpp
     basic_types.hpp
     property.hpp
+    lru_cache.hpp
 )
 
 add_library(ev_core STATIC ${HEADER_FILES})

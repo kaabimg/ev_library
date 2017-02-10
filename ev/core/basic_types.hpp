@@ -1,28 +1,25 @@
 #pragma once
 #include <vector>
 
-namespace ev
-{
+namespace ev {
 using address_t    = void*;
 using byte_t       = unsigned char;
 using byte_array_t = std::vector<byte_t>;
 
-struct mem_block_t
-{
-    address_t data;
-    unsigned int size;
+struct mem_block_t {
+    address_t data   = nullptr;
+    std::size_t size = 0;
 };
 
-struct construct_inplace_t
-{
+struct construct_inplace_t {
 };
+
 static const construct_inplace_t construct_inplace;
-struct empty_t
-{
+
+struct empty_t {
 };
 
-class non_copyable_t
-{
+class non_copyable_t {
 protected:
     non_copyable_t()                      = default;
     ~non_copyable_t()                     = default;
@@ -31,13 +28,15 @@ protected:
 };
 
 template <typename T = empty_t, bool cond = true>
-struct loop_scoped_variable_t
-{
+struct loop_scoped_variable_t {
     template <typename... A>
     loop_scoped_variable_t(A&&... d) : data(std::forward<A>(d)...)
     {
     }
-    operator bool() const { return cond; }
+    operator bool() const
+    {
+        return cond;
+    }
     T data;
 };
 }

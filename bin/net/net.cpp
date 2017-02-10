@@ -1,9 +1,6 @@
 #include <ev/core/logging_helpers.hpp>
 #include <ev/core/executor.hpp>
-
 #include <zmq.hpp>
-
-#include <tuple>
 
 ev::executor_t printer{1};
 
@@ -92,17 +89,6 @@ void subscriber(size_t id)
         std::string str((char*)message.data(), message.size());
         printer << [str, id] { ev::debug() << "Received" << str << "in suscriber" << id; };
     }
-}
-
-void foo(int& i)
-{
-    ev::debug() << __PRETTY_FUNCTION__ << &i;
-}
-
-int foo_ret(int i)
-{
-    ev::debug() << __PRETTY_FUNCTION__ << std::this_thread::get_id();
-    return i * 2;
 }
 
 int main()
