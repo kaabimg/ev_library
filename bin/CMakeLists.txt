@@ -13,8 +13,13 @@ if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
-add_executable (proto_bin proto.cpp)
-target_link_libraries(proto_bin ev_ocl)
+
+find_package(OpenCL)
+if (OpenCL_FOUND)
+    add_executable (proto_bin proto.cpp)
+    target_link_libraries(proto_bin ev_ocl)
+endif()
+
 
 
 ######################################################################################
@@ -59,3 +64,25 @@ find_package(Qt5Core)
 find_package(Qt5Widgets)
 qt5_use_modules(atk Core Widgets)
 target_link_libraries(atk ev_atk ${QT_LIBRARIES})
+
+
+#################################################################################
+
+#FIND_PACKAGE(CUDA REQUIRED)
+#INCLUDE(FindCUDA)
+#FILE(GLOB SOURCES  "*.cu" "cuda.cpp" "*.c" "*.h")
+#cuda_add_executable(cuda ${SOURCES})
+
+##LIST(APPEND CMAKE_CXX_FLAGS "-O3 -ffast-math -Wall")
+
+##LIST(APPEND CUDA_NVCC_FLAGS --compiler-options -fno-strict-aliasing -lineinfo -use_fast_math -Xptxas -dlcm=cg)
+##LIST(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_20,code=sm_20)
+##LIST(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_30,code=sm_30)
+##LIST(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_35,code=sm_35)
+
+##TARGET_LINK_LIBRARIES(cuda /usr/local/cuda/lib64/libcudart.so)
+
+
+add_subdirectory( net )
+
+

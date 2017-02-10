@@ -24,9 +24,11 @@ set (HEADERS
     ogl.hpp
     )
 
-FIND_PACKAGE(OpenGL 2.0 REQUIRED)
-LINK_DIRECTORIES(${OPENGL_INCLUDE_DIR})
+FIND_PACKAGE(OpenGL 2.0)
 
-add_library(ev_ogl SHARED ${SOURCES} ${HEADERS})
-target_link_libraries (ev_ogl GLESv2 glfw)
+if(OpenGL_FOUND)
+    LINK_DIRECTORIES(${OPENGL_INCLUDE_DIR})
+    add_library(ev_ogl SHARED ${SOURCES} ${HEADERS})
+    target_link_libraries (ev_ogl GLESv2 glfw)
+endif()
 

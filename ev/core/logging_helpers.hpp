@@ -28,6 +28,14 @@
     void ev::print_impl_t<type<T>>::print(std::ostream& out,              \
                                           const type<T>& val)
 
+
+///////////////////////////////////////////////
+///
+EV_CUSTOM_PRINTER(bool, ostream, data)
+{
+    ostream << (data ? "true" : "false");
+}
+
 ///////////////////////////////////////////////
 ///
 EV_CUSTOM_PRINTER(std::string, ostream, data)

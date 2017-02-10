@@ -3,51 +3,56 @@
 
 #include <ev/core/scope_exit.hpp>
 #include <ev/core/logging.hpp>
+#include <ev/core/synchronized_data.hpp>
+#include <ev/core/executor.hpp>
 
 TEST_CASE("scope_exit_tc")
 {
     int i = 0;
     {
-        on_scope_exit { i = 4; };
+        on_scope_exit
+        {
+            i = 4;
+        };
     }
     REQUIRE(i == 4);
 
     int j = 0;
-    try
-    {
-        on_scope_exit_with_exception { j = 4; };
+    try {
+        on_scope_exit_with_exception
+        {
+            j = 4;
+        };
         throw 2;
     }
-    catch (...)
-    {
+    catch (...) {
     }
     REQUIRE(j == 4);
 
     int k = 0;
-    try
-    {
-        on_scope_exit_without_exception { k = 4; };
+    try {
+        on_scope_exit_without_exception
+        {
+            k = 4;
+        };
     }
-    catch (...)
-    {
+    catch (...) {
     }
     REQUIRE(k == 4);
 
     int l = 0;
-    try
-    {
+    try {
         int g = 45;
 
-        conditional_scope_exit(g % 2) { l = 4; };
+        conditional_scope_exit(g % 2)
+        {
+            l = 4;
+        };
     }
-    catch (...)
-    {
+    catch (...) {
     }
     REQUIRE(l == 4);
 }
-
-#include <ev/core/synchronized_data.hpp>
-#include <ev/core/thread_pool.hpp>
 
 TEST_CASE("synchronized_data_tc")
 {
@@ -81,12 +86,12 @@ TEST_CASE("synchronized_data_tc")
     REQUIRE(sv->empty());
 }
 
-TEST_CASE("thread_pool_tc")
+TEST_CASE("executor_tc")
 {
     ev::synchronized_data_t<std::vector<int>> sv;
     ev::synchronized_data_t<double, std::mutex> sn(10.4);
     {
-        ev::thread_pool_t th_p{4};
+        ev::executor_t executor{4};
         int size           = 100;
         auto producer_task = [&]() mutable { sv->push_back(rand()); };
         auto consumer_task = [&]() mutable {
@@ -101,19 +106,19 @@ TEST_CASE("thread_pool_tc")
                         exit = true;
                     }
                 }
-                synchronized(sn) { sn = 12.; }
+                synchronized(sn)
+                {
+                    sn = 12.;
+                }
             }
         };
 
         for (int i = 0; i < size; ++i) {
-            th_p.async_detached(producer_task);
-            th_p.async_detached(consumer_task);
-            th_p.async_detached(consumer_task);
-            th_p.async_detached(producer_task);
+            executor.async_detached(producer_task);
+            executor.async_detached(consumer_task);
+            executor.async_detached(consumer_task);
+            executor.async_detached(producer_task);
         }
-
-        std::future<void> last = th_p.async([] {});
-        last.wait();
     }
 
     REQUIRE(sv->empty());
@@ -122,13 +127,7 @@ TEST_CASE("thread_pool_tc")
 
 #include <ev/core/flags.hpp>
 
-enum class flags_tc_e
-{
-    zero = 0,
-    one  = 1,
-    two  = 2,
-    foor = 4
-};
+enum class flags_tc_e { zero = 0, one = 1, two = 2, foor = 4 };
 EV_FLAGS(flags_tc_e)
 
 TEST_CASE("flags_tc")

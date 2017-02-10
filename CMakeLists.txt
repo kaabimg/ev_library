@@ -22,7 +22,7 @@ set(LIBRARY_OUTPUT_PATH ${LIB_DIR})
 
 ## boost
 
-SET(BOOST_DIR         /home/ghaith/data/development/install/boost/install)
+SET(BOOST_DIR         /media/ghaith/data/development/installs/boost/install)
 SET(BOOST_INCLUDE_DIR ${BOOST_DIR}/include)
 SET(BOOST_LIB_DIR     ${BOOST_DIR}/lib)
 

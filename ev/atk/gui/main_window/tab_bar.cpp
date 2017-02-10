@@ -68,7 +68,7 @@ QRect tab_element_t::icon_rect() const
     int adjust = rect.width() - rect.height();
     adjust /= 2;
     rect.adjust(adjust, 0, -adjust, 0);
-    adjust_rect(rect, 2);
+    adjust_rect(rect, 5);
     return rect;
 }
 

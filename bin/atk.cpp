@@ -34,7 +34,7 @@ struct view_t : atk::mainview_provider_t {
     {
         auto w = atk::widget_t::make_from(new QTextEdit("Content1"));
         w->set_title("tab" + QString::number(tab++));
-        w->set_icon(QApplication::style()->standardIcon(QStyle::SP_DirHomeIcon));
+        w->set_icon(atk_main_window->std_icon(atk::standard_icon_e::home));
         w->enable_toolbar(true);
         return w;
     }

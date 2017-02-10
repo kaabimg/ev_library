@@ -32,8 +32,10 @@ set (HEADERS
 )
 
 
-FIND_PACKAGE(OpenCL REQUIRED)
-LINK_DIRECTORIES(${OpenCL_LIBRARY})
+FIND_PACKAGE(OpenCL)
+if(OpenCL_FOUND)
+    LINK_DIRECTORIES(${OpenCL_LIBRARY})
+    add_library(ev_ocl SHARED ${SOURCES} ${HEADERS})
+    target_link_libraries (ev_ocl OpenCL)
+endif()
 
-add_library(ev_ocl SHARED ${SOURCES} ${HEADERS})
-target_link_libraries (ev_ocl OpenCL)
