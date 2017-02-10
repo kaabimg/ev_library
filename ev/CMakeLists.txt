@@ -1,3 +1,5 @@
-
 add_subdirectory( core )
-add_subdirectory( experimental )
+add_subdirectory( vm )
+add_subdirectory( ocl )
+add_subdirectory( ogl )
+add_subdirectory( atk )

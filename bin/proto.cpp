@@ -3,7 +3,7 @@
 #include <cmath>
 
 #define EV_OCL_DEBUG_HEADER
-#include <ev/experimental/ocl/ocl.hpp>
+#include <ev/ocl/ocl.hpp>
 
 using namespace ev;
 
