@@ -27,10 +27,6 @@ target_link_libraries(mem_c memcached)
 add_executable (ogl ogl.cpp)
 target_link_libraries(ogl ev_ogl GLESv2)
 
-##################################################################################
-
-add_executable (vr vr.cpp)
-target_link_libraries(vr ev_vlr ev_ogl GLESv2)
 
 ##################################################################################
 #add_library(compute_cpp lm")
