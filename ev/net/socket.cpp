@@ -1,9 +1,9 @@
 #include "socket.hpp"
 #include "context.hpp"
+#include "message.hpp"
 #include "zmq_p.hpp"
 
 using namespace ev::net;
-
 
 ///////////////////////////////////////////////////////////////
 
@@ -80,6 +80,18 @@ void socket_t::disconnect(const char* addr)
     detail::throw_if_eror(ret);
 }
 
+void socket_t::send(const message_t& msg, int flags)
+{
+    zmq_msg_send(msg.d, d, flags);
+}
+
+message_t socket_t::receive(int flags)
+{
+    message_t msg;
+    zmq_msg_recv(msg.d, d, flags);
+    return msg;
+}
+
 ///////////////////////////////////////////////////////////////
 
 client_t::client_t(context_t& context) : socket_t(context, ZMQ_REQ)
@@ -96,4 +108,14 @@ publisher_t::publisher_t(context_t& context) : socket_t(context, ZMQ_PUB)
 
 subscriber_t::subscriber_t(context_t& context) : socket_t(context, ZMQ_SUB)
 {
+}
+
+void subscriber_t::start()
+{
+    zmq_setsockopt(socket(),ZMQ_SUBSCRIBE,nullptr,0);
+}
+
+void subscriber_t::stop()
+{
+
 }

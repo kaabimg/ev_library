@@ -108,32 +108,28 @@ int main()
     //    sub2.get();
     //    sub3.get();
 
-//    auto pub_f = std::async([] {
-//        ev::net::context_t context;
-//        ev::net::publisher_t publisher = context.make_publisher();
-//        publisher.bind("tcp://*:5555");
+    auto pub_f = std::async([] {
+        ev::net::context_t context;
+        ev::net::publisher_t publisher = context.make_publisher();
+        publisher.bind("tcp://*:5555");
 
-//    });
+    });
 
-//    auto sub_f = std::async([] {
-//        ev::net::context_t context;
-//        ev::net::subscriber_t subscriber = context.make_subscriber();
-//        subscriber.connect("tcp://localhost:5555");
-
-
-//    });
-
-//    pub_f.get();
-//    sub_f.get();
+    auto sub_f = std::async([] {
+        ev::net::context_t context;
+        ev::net::subscriber_t subscriber = context.make_subscriber();
+        subscriber.connect("tcp://localhost:5555");
+        subscriber.start();
 
 
-    message_t message;
 
-    message.write("hello",5);
-    ev::debug() << "Data :" << std::string(message.data_as<char>(),message.size()) << message.size();
+    });
 
-    message.write("hello 55",8);
-    ev::debug() << "Data :" << std::string(message.data_as<char>(),message.size()) << message.size();
+    pub_f.get();
+    sub_f.get();
+
+
+
 
 
 }

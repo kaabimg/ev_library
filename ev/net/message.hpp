@@ -27,11 +27,11 @@ public:
     template<typename T>
     T* data_as();
 
-
     void write(const void* data,std::size_t size);
 
 private:
     zmq_msg_t* d = nullptr;
+    friend class socket_t;
 };
 
 template<typename T>

@@ -7,6 +7,8 @@ namespace ev {
 namespace net {
 
 class context_t;
+class message_t;
+
 namespace socket_id {
 static const char* localhost = "localhost";
 std::string tcp(const char* host, uint16_t port);
@@ -33,6 +35,9 @@ public:
     void unbind(const char*);
 
     /////
+
+    void send(const message_t&, int flags = 0);
+    message_t receive(int flags = 0);
 
 protected:
     void* socket() const;
@@ -71,6 +76,12 @@ public:
     subscriber_t(context_t&);
     subscriber_t(subscriber_t&&) = default;
     subscriber_t& operator=(subscriber_t&&) = default;
+
+    /////////
+
+    void start();
+    void stop();
+
 };
 
 class pusher_t : public socket_t {
