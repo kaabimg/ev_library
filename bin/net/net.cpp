@@ -1,105 +1,139 @@
-#include <ev/core/logging_helpers.hpp>
+//#include <ev/core/logging_helpers.hpp>
+#include <ev/core/logging.hpp>
+
 #include <ev/core/executor.hpp>
+
+#include <ev/net/context.hpp>
+#include <ev/net/socket.hpp>
+#include <ev/net/message.hpp>
+
 #include <zmq.hpp>
 
-ev::executor_t printer{1};
+using namespace ev::net;
 
-void server()
-{
-    zmq::context_t context;
+//ev::executor_t printer{1};
 
-    zmq::socket_t socket{context, zmq::socket_type::rep};
-    socket.bind("tcp://*:5555");
+//void server()
+//{
+//    zmq::context_t context;
 
-    zmq::message_t message;
-    socket.recv(&message);
+//    zmq::socket_t socket{context, zmq::socket_type::rep};
+//    socket.bind("tcp://*:5555");
 
-    std::string str((char*)message.data(), message.size());
+//    zmq::message_t message;
+//    socket.recv(&message);
 
-    ev::debug() << "Server received " << str;
+//    std::string str((char*)message.data(), message.size());
 
-    zmq::message_t reply(str.size());
+//    ev::debug() << "Server received " << str;
 
-    std::copy(str.begin(), str.end(), (char*)reply.data());
+//    zmq::message_t reply(str.size());
 
-    socket.send(reply);
-}
+//    std::copy(str.begin(), str.end(), (char*)reply.data());
 
-void client()
-{
-    zmq::context_t context;
-    zmq::socket_t socket{context, zmq::socket_type::req};
-    socket.connect("tcp://localhost:5555");
+//    socket.send(reply);
+//}
 
-    std::string str = "hello";
+//void client()
+//{
+//    zmq::context_t context;
+//    zmq::socket_t socket{context, zmq::socket_type::req};
+//    socket.connect("tcp://localhost:5555");
 
-    zmq::message_t message(str.size());
-    std::copy(str.begin(), str.end(), (char*)message.data());
+//    std::string str = "hello";
 
-    ev::debug() << "Client sending" << str;
-    socket.send(message);
+//    zmq::message_t message(str.size());
+//    std::copy(str.begin(), str.end(), (char*)message.data());
 
-    socket.recv(&message);
+//    ev::debug() << "Client sending" << str;
+//    socket.send(message);
 
-    str = std::string((char*)message.data(), message.size());
+//    socket.recv(&message);
 
-    ev::debug() << "Client received " << str;
-}
+//    str = std::string((char*)message.data(), message.size());
 
-void publisher()
-{
-    printer << []{
-      ev::debug()   << "Publisher will start in 5 seconds ...";
-    };
+//    ev::debug() << "Client received " << str;
+//}
 
-    std::this_thread::sleep_for(std::chrono::seconds(5));
-    zmq::context_t context;
+//void publisher()
+//{
+//    printer << [] { ev::debug() << "Publisher will start in 5 seconds ..."; };
 
-    zmq::socket_t socket{context, zmq::socket_type::pub};
-    socket.bind("tcp://*:5555");
+//    std::this_thread::sleep_for(std::chrono::seconds(5));
+//    zmq::context_t context;
 
-    int i = 0;
-    std::string str;
+//    zmq::socket_t socket{context, zmq::socket_type::pub};
+//    socket.bind("tcp://*:5555");
 
-    printer << []{
-      ev::debug()   << "Publisher started";
-    };
+//    int i = 0;
+//    std::string str;
 
-    ev_forever
-    {
-        str = "message_" + std::to_string(i++);
-        socket.send(str.data(), str.size());
+//    printer << [] { ev::debug() << "Publisher started"; };
 
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-}
+//    ev_forever
+//    {
+//        str = "message_" + std::to_string(i++);
+//        socket.send(str.data(), str.size());
 
-void subscriber(size_t id)
-{
-    zmq::context_t context;
+//        std::this_thread::sleep_for(std::chrono::seconds(1));
+//    }
+//}
 
-    zmq::socket_t socket{context, zmq::socket_type::sub};
-    socket.connect("tcp://localhost:5555");
-    socket.setsockopt(ZMQ_SUBSCRIBE, nullptr, 0);
+//void subscriber(size_t id)
+//{
+//    zmq::context_t context;
 
-    ev_forever
-    {
-        zmq::message_t message;
-        socket.recv(&message);
-        std::string str((char*)message.data(), message.size());
-        printer << [str, id] { ev::debug() << "Received" << str << "in suscriber" << id; };
-    }
-}
+//    zmq::socket_t socket{context, zmq::socket_type::sub};
+//    socket.connect("tcp://localhost:5555");
+//    socket.setsockopt(ZMQ_SUBSCRIBE, nullptr, 0);
+
+//    ev_forever
+//    {
+//        zmq::message_t message;
+//        socket.recv(&message);
+//        std::string str((char*)message.data(), message.size());
+//        printer << [str, id] { ev::debug() << "Received" << str << "in suscriber" << id; };
+//    }
+//}
 
 int main()
 {
-    auto pub  = std::async(publisher);
-    auto sub1 = std::async(subscriber, 1);
-    auto sub2 = std::async(subscriber, 2);
-    auto sub3 = std::async(subscriber, 3);
+    //    auto pub  = std::async(publisher);
+    //    auto sub1 = std::async(subscriber, 1);
+    //    auto sub2 = std::async(subscriber, 2);
+    //    auto sub3 = std::async(subscriber, 3);
 
-    pub.get();
-    sub1.get();
-    sub2.get();
-    sub3.get();
+    //    pub.get();
+    //    sub1.get();
+    //    sub2.get();
+    //    sub3.get();
+
+//    auto pub_f = std::async([] {
+//        ev::net::context_t context;
+//        ev::net::publisher_t publisher = context.make_publisher();
+//        publisher.bind("tcp://*:5555");
+
+//    });
+
+//    auto sub_f = std::async([] {
+//        ev::net::context_t context;
+//        ev::net::subscriber_t subscriber = context.make_subscriber();
+//        subscriber.connect("tcp://localhost:5555");
+
+
+//    });
+
+//    pub_f.get();
+//    sub_f.get();
+
+
+    message_t message;
+
+    message.write("hello",5);
+    ev::debug() << "Data :" << std::string(message.data_as<char>(),message.size()) << message.size();
+
+    message.write("hello 55",8);
+    ev::debug() << "Data :" << std::string(message.data_as<char>(),message.size()) << message.size();
+
+
 }
