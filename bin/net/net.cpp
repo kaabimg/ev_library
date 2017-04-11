@@ -11,9 +11,9 @@
 
 using namespace ev::net;
 
-//ev::executor_t printer{1};
+// ev::executor_t printer{1};
 
-//void server()
+// void server()
 //{
 //    zmq::context_t context;
 
@@ -34,7 +34,7 @@ using namespace ev::net;
 //    socket.send(reply);
 //}
 
-//void client()
+// void client()
 //{
 //    zmq::context_t context;
 //    zmq::socket_t socket{context, zmq::socket_type::req};
@@ -55,7 +55,7 @@ using namespace ev::net;
 //    ev::debug() << "Client received " << str;
 //}
 
-//void publisher()
+// void publisher()
 //{
 //    printer << [] { ev::debug() << "Publisher will start in 5 seconds ..."; };
 
@@ -79,7 +79,7 @@ using namespace ev::net;
 //    }
 //}
 
-//void subscriber(size_t id)
+// void subscriber(size_t id)
 //{
 //    zmq::context_t context;
 
@@ -108,28 +108,44 @@ int main()
     //    sub2.get();
     //    sub3.get();
 
-    auto pub_f = std::async([] {
+    auto ser_f = std::async([] {
         ev::net::context_t context;
-        ev::net::publisher_t publisher = context.make_publisher();
-        publisher.bind("tcp://*:5555");
+        ev::net::server_t server{context};
+        server.bind("tcp://*:5555");
+
+        int i = 0;
+        ev_forever
+        {
+            message_t msg;
+            server.receive(msg);
+            ev::debug() << "Server received" << msg.data_as<char>();
+            msg.write(&i, sizeof(int));
+            server.send(msg);
+            i++;
+        }
 
     });
 
-    auto sub_f = std::async([] {
-        ev::net::context_t context;
-        ev::net::subscriber_t subscriber = context.make_subscriber();
-        subscriber.connect("tcp://localhost:5555");
-        subscriber.start();
+    auto client = [](int id) {
+        context_t context;
+        client_t client{context};
+        client.connect("tcp://localhost:5555");
 
+        message_t msg;
+        msg.write("request", 8);
+        client.send(msg);
 
+        ev::debug()  << "reveive_timeout"  << client.reveive_timeout() ;
 
-    });
+        client.receive(msg);
+        ev::debug() << "Client received" << id << ":" << (*msg.data_as<int>());
 
-    pub_f.get();
-    sub_f.get();
+    };
 
+    auto c1_f = std::async(client, 1);
+    auto c2_f = std::async(client, 2);
 
-
-
-
+    ser_f.get();
+    c1_f.get();
+    c2_f.get();
 }

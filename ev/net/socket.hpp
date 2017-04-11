@@ -23,9 +23,6 @@ public:
     socket_t(socket_t&&);
     socket_t& operator=(socket_t&&);
 
-    socket_t(const socket_t&) = delete;
-    socket_t& operator=(const socket_t&) = delete;
-
     /////
 
     void connect(const char*);
@@ -37,8 +34,10 @@ public:
     /////
 
     void send(const message_t&, int flags = 0);
-    message_t receive(int flags = 0);
+    bool receive(message_t&,int flags = 0);
 
+    void set_receive_timeout(int timepout_ms);
+    int reveive_timeout()const;
 protected:
     void* socket() const;
 
@@ -57,7 +56,7 @@ public:
 
 class server_t : public socket_t {
 public:
-    server_t(server_t&);
+    server_t(context_t&);
     server_t(server_t&&) = default;
     server_t& operator=(server_t&&) = default;
 };

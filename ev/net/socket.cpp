@@ -85,16 +85,42 @@ void socket_t::send(const message_t& msg, int flags)
     zmq_msg_send(msg.d, d, flags);
 }
 
-message_t socket_t::receive(int flags)
+bool socket_t::receive(message_t& msg, int flags)
 {
-    message_t msg;
-    zmq_msg_recv(msg.d, d, flags);
-    return msg;
+    int ret = zmq_msg_recv(msg.d, d, flags);
+    if (ret != -1) return true;
+
+    int error = zmq_errno();
+    if (error == EAGAIN) return false;
+
+    detail::throw_if_eror(-1);
+}
+
+void socket_t::set_receive_timeout(int timeout)
+{
+    int rc = zmq_setsockopt(d, ZMQ_RCVTIMEO, &timeout, sizeof(int));
+    detail::throw_if_eror(rc);
+}
+
+int socket_t::reveive_timeout() const
+{
+    int timeout;
+    size_t optlen = sizeof(int);
+    int rc = zmq_getsockopt(d, ZMQ_RCVTIMEO, &timeout, &optlen);
+    detail::throw_if_eror(rc);
+
+    return timeout;
 }
 
 ///////////////////////////////////////////////////////////////
 
 client_t::client_t(context_t& context) : socket_t(context, ZMQ_REQ)
+{
+}
+
+///////////////////////////////////////////////////////////////
+
+server_t::server_t(context_t& context) : socket_t(context, ZMQ_REP)
 {
 }
 
@@ -112,10 +138,9 @@ subscriber_t::subscriber_t(context_t& context) : socket_t(context, ZMQ_SUB)
 
 void subscriber_t::start()
 {
-    zmq_setsockopt(socket(),ZMQ_SUBSCRIBE,nullptr,0);
+    zmq_setsockopt(socket(), ZMQ_SUBSCRIBE, nullptr, 0);
 }
 
 void subscriber_t::stop()
 {
-
 }
