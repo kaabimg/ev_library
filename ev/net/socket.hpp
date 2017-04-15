@@ -96,6 +96,8 @@ public:
     /////////
 
     void accept(const void *filter = nullptr, size_t size = 0);
+    void unaccept(const void *filter = nullptr, size_t size = 0);
+
 };
 
 class pusher_t : public socket_t {

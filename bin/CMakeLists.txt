@@ -28,12 +28,6 @@ add_executable (mem_c mem_c.cpp)
 target_link_libraries(mem_c memcached)
 
 ##################################################################################
-
-add_executable (ogl ogl.cpp)
-target_link_libraries(ogl ev_ogl GLESv2)
-
-
-##################################################################################
 #add_library(compute_cpp lm")
 
 #set(COMPUTECPP_PACKAGE_ROOT_DIR "/home/ghaith/data/development/install/sycl/ComputeCpp-CE-0.1.1-Linux/")

@@ -154,3 +154,9 @@ void subscriber_t::accept(const void* filter, size_t size)
 {
     detail::zmq_call(zmq_setsockopt, socket(), ZMQ_SUBSCRIBE, filter, size);
 }
+
+void subscriber_t::unaccept(const void *filter, size_t size)
+{
+    detail::zmq_call(zmq_setsockopt, socket(), ZMQ_UNSUBSCRIBE, filter, size);
+
+}
