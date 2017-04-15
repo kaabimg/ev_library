@@ -1,5 +1,4 @@
 #include "context.hpp"
-#include "socket.hpp"
 #include "zmq_p.hpp"
 
 using namespace ev::net;
@@ -36,12 +35,3 @@ void context_t::set_io_thread_count(std::size_t count)
     zmq_ctx_set(d, ZMQ_IO_THREADS, count);
 }
 
-publisher_t context_t::make_publisher()
-{
-    return publisher_t(*this);
-}
-
-subscriber_t context_t::make_subscriber()
-{
-    return subscriber_t(*this);
-}

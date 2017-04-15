@@ -3,8 +3,7 @@
 
 namespace ev {
 namespace net {
-class publisher_t;
-class subscriber_t;
+
 class context_t : non_copyable_t {
 public:
     context_t();
@@ -18,11 +17,6 @@ public:
     void set_io_thread_count(std::size_t count);
 
     //////
-
-
-    publisher_t make_publisher();
-    subscriber_t make_subscriber();
-
 
 private:
     void* d = nullptr;

@@ -7,145 +7,144 @@
 #include <ev/net/socket.hpp>
 #include <ev/net/message.hpp>
 
-#include <zmq.hpp>
 
 using namespace ev::net;
 
-// ev::executor_t printer{1};
+ev::executor_t printer{1};
 
-// void server()
-//{
-//    zmq::context_t context;
+void server()
+{
+    context_t context;
 
-//    zmq::socket_t socket{context, zmq::socket_type::rep};
-//    socket.bind("tcp://*:5555");
+    server_t server{context};
+    server.bind(socket_id::tcp("*", 5555).c_str());
 
-//    zmq::message_t message;
-//    socket.recv(&message);
+    message_t message = server.receive();
 
-//    std::string str((char*)message.data(), message.size());
+    std::string str((char*)message.data(), message.size());
 
-//    ev::debug() << "Server received " << str;
+    ev::debug() << "Server received " << str;
 
-//    zmq::message_t reply(str.size());
+    message.write(str.c_str(), str.size());
 
-//    std::copy(str.begin(), str.end(), (char*)reply.data());
+    server.send(message);
+}
 
-//    socket.send(reply);
-//}
+void client()
+{
+    context_t context;
+    client_t client{context};
+    client.connect(socket_id::tcp("localhost", 5555).c_str());
 
-// void client()
-//{
-//    zmq::context_t context;
-//    zmq::socket_t socket{context, zmq::socket_type::req};
-//    socket.connect("tcp://localhost:5555");
+    std::string str = "hello";
 
-//    std::string str = "hello";
+    message_t message(str.size());
+    message.write(str.c_str(), str.size());
 
-//    zmq::message_t message(str.size());
-//    std::copy(str.begin(), str.end(), (char*)message.data());
+    ev::debug() << "Client sending" << str;
+    client.send(message);
 
-//    ev::debug() << "Client sending" << str;
-//    socket.send(message);
+    message = client.receive();
 
-//    socket.recv(&message);
+    str = std::string((char*)message.data(), message.size());
 
-//    str = std::string((char*)message.data(), message.size());
+    ev::debug() << "Client received " << str;
+}
+void publisher()
+{
+    context_t context;
+    publisher_t publisher{context};
+    publisher.bind(socket_id::tcp("*", 5555).c_str());
 
-//    ev::debug() << "Client received " << str;
-//}
+    printer << [] { ev::debug() << "Publisher will start in 2 seconds ..."; };
 
-// void publisher()
-//{
-//    printer << [] { ev::debug() << "Publisher will start in 5 seconds ..."; };
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
-//    std::this_thread::sleep_for(std::chrono::seconds(5));
-//    zmq::context_t context;
+    std::string str;
 
-//    zmq::socket_t socket{context, zmq::socket_type::pub};
-//    socket.bind("tcp://*:5555");
+    printer << [] { ev::debug() << "Publisher started"; };
 
-//    int i = 0;
-//    std::string str;
+    message_t message;
 
-//    printer << [] { ev::debug() << "Publisher started"; };
+    for (int i = 0; i < 10; ++i) {
+        str = "message_" + std::to_string(i);
+        printer << [str] { ev::debug() << "Sending" << str << "..."; };
 
-//    ev_forever
-//    {
-//        str = "message_" + std::to_string(i++);
-//        socket.send(str.data(), str.size());
+        message.write(str.c_str(), str.size());
+        publisher.send(message);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
 
-//        std::this_thread::sleep_for(std::chrono::seconds(1));
-//    }
-//}
+void subscriber(size_t id)
+{
+    context_t context;
 
-// void subscriber(size_t id)
-//{
-//    zmq::context_t context;
+    subscriber_t subscriber{context};
+    subscriber.connect(socket_id::tcp("localhost", 5555).c_str());
+    subscriber.accept();
 
-//    zmq::socket_t socket{context, zmq::socket_type::sub};
-//    socket.connect("tcp://localhost:5555");
-//    socket.setsockopt(ZMQ_SUBSCRIBE, nullptr, 0);
+    message_t message;
+    for (int i = 0; i < 10; ++i) {
+        message = subscriber.receive();
 
-//    ev_forever
-//    {
-//        zmq::message_t message;
-//        socket.recv(&message);
-//        std::string str((char*)message.data(), message.size());
-//        printer << [str, id] { ev::debug() << "Received" << str << "in suscriber" << id; };
-//    }
-//}
+        message_t copy;
+        copy = std::move(message);
+        std::string str((char*)copy.data(), copy.size());
+        printer << [str, id] { ev::debug() << "Received" << str << "in suscriber" << id; };
+    }
+}
 
 int main()
 {
-    //    auto pub  = std::async(publisher);
-    //    auto sub1 = std::async(subscriber, 1);
-    //    auto sub2 = std::async(subscriber, 2);
-    //    auto sub3 = std::async(subscriber, 3);
+    auto pub = std::async(publisher);
+    auto sub1 = std::async(subscriber, 1);
+    auto sub2 = std::async(subscriber, 2);
+    auto sub3 = std::async(subscriber, 3);
 
-    //    pub.get();
-    //    sub1.get();
-    //    sub2.get();
-    //    sub3.get();
+    pub.get();
+    sub1.get();
+    sub2.get();
+    sub3.get();
 
-    auto ser_f = std::async([] {
-        ev::net::context_t context;
-        ev::net::server_t server{context};
-        server.bind("tcp://*:5555");
+    //    auto ser_f = std::async([] {
+    //        ev::net::context_t context;
+    //        ev::net::server_t server{context};
+    //        server.bind("tcp://*:5555");
 
-        int i = 0;
-        ev_forever
-        {
-            message_t msg;
-            server.receive(msg);
-            ev::debug() << "Server received" << msg.data_as<char>();
-            msg.write(&i, sizeof(int));
-            server.send(msg);
-            i++;
-        }
+    //        int i = 0;
+    //        ev_forever
+    //        {
+    //            message_t msg;
+    //            server.receive(msg);
+    //            ev::debug() << "Server received" << msg.data_as<char>();
+    //            msg.write(&i, sizeof(int));
+    //            server.send(msg);
+    //            i++;
+    //        }
 
-    });
+    //    });
 
-    auto client = [](int id) {
-        context_t context;
-        client_t client{context};
-        client.connect("tcp://localhost:5555");
+    //    auto client = [](int id) {
+    //        context_t context;
+    //        client_t client{context};
+    //        client.connect("tcp://localhost:5555");
 
-        message_t msg;
-        msg.write("request", 8);
-        client.send(msg);
+    //        message_t msg;
+    //        msg.write("request", 8);
+    //        client.send(msg);
 
-        ev::debug()  << "reveive_timeout"  << client.reveive_timeout() ;
+    //        ev::debug() << "reveive_timeout" << client.reveive_timeout();
 
-        client.receive(msg);
-        ev::debug() << "Client received" << id << ":" << (*msg.data_as<int>());
+    //        client.receive(msg);
+    //        ev::debug() << "Client received" << id << ":" << (*msg.data_as<int>());
 
-    };
+    //    };
 
-    auto c1_f = std::async(client, 1);
-    auto c2_f = std::async(client, 2);
+    //    auto c1_f = std::async(client, 1);
+    //    auto c2_f = std::async(client, 2);
 
-    ser_f.get();
-    c1_f.get();
-    c2_f.get();
+    //    ser_f.get();
+    //    c1_f.get();
+    //    c2_f.get();
 }
