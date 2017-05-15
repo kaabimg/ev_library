@@ -3,6 +3,7 @@
 #include "preprocessor.hpp"
 #include "basic_types.hpp"
 #include "property.hpp"
+
 #include <vector>
 #include <algorithm>
 #include <functional>
@@ -46,7 +47,7 @@ public:
     inline std::string name()const;
     inline void set_name(const std::string &);
 
-    inline virtual property_value_t property(const std::string&) const;
+    inline virtual dynamic_property_t property(const std::string&) const;
     inline virtual void set_property(const std::string&, const any_t&);
     inline virtual std::vector<std::string> properties_names() const;
 
@@ -60,7 +61,7 @@ private:
     object_t* m_parent = nullptr;
     std::string m_name;
     std::vector<object_t*> m_children;
-    std::unordered_map<std::string, property_value_t> m_dynamic_properties;
+    std::unordered_map<std::string, dynamic_property_t> m_dynamic_properties;
 };
 
 object_t::object_t(object_t* parent)
@@ -102,11 +103,11 @@ void object_t::remove_child(object_t* c)
     if (it != m_children.end()) m_children.erase(it);
 }
 
-property_value_t object_t::property(const std::string& name) const
+dynamic_property_t object_t::property(const std::string& name) const
 {
     auto iter = m_dynamic_properties.find(name);
     if (iter != m_dynamic_properties.end()) return iter->second;
-    return property_value_t();
+    return dynamic_property_t();
 }
 void object_t::set_property(const std::string& name, const any_t& value)
 {

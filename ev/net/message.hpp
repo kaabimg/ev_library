@@ -23,7 +23,7 @@ typedef struct zmq_msg_base_t {
 
 class message_t : non_copyable_t {
 public:
-    message_t(std::size_t size = 0);
+    explicit message_t(std::size_t size = 0);
 
     message_t(const message_t&);
     message_t(message_t&&);

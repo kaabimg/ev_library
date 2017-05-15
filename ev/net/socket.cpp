@@ -3,6 +3,8 @@
 #include "message.hpp"
 #include "zmq_p.hpp"
 
+#include <ev/core/logging.hpp>
+
 using namespace ev::net;
 
 static_assert(ev::as_int(socket_opts_e::dont_wait) == ZMQ_DONTWAIT, "Invalid socket options");
@@ -87,19 +89,24 @@ void socket_t::send(const message_t& msg, flags_t<socket_opts_e> flags)
     detail::zmq_call(zmq_msg_send, msg.msg(), m_socket, flags.data());
 }
 
+void socket_t::send(const void* d, size_t size, flags_t<socket_opts_e> flags)
+{
+    detail::zmq_call(zmq_send, m_socket, d, size, flags.data());
+}
+
 bool socket_t::receive(flags_t<socket_opts_e> flags)
 {
     message_t msg;
     int ret = zmq_msg_recv(msg.msg(), m_socket, flags.data());
-    if (ret == 0) {
-        m_receive_handler(std::move(msg));
-        return true;
+
+    if (ret == -1) {
+        int error = zmq_errno();
+        if (error == EAGAIN) return false;
+
+        detail::throw_error(error);
     }
-
-    int error = zmq_errno();
-    if (error == EAGAIN) return false;
-
-    detail::throw_error(error);
+    m_receive_handler(std::move(msg));
+    return true;
 }
 
 void socket_t::set_receive_handler(const socket_t::receive_handler_type& handler)
@@ -155,8 +162,17 @@ void subscriber_t::accept(const void* filter, size_t size)
     detail::zmq_call(zmq_setsockopt, socket(), ZMQ_SUBSCRIBE, filter, size);
 }
 
-void subscriber_t::unaccept(const void *filter, size_t size)
+void subscriber_t::unaccept(const void* filter, size_t size)
 {
     detail::zmq_call(zmq_setsockopt, socket(), ZMQ_UNSUBSCRIBE, filter, size);
+}
+///////////////////////////////////////////////////////////////
 
+pusher_t::pusher_t(context_t& context) : socket_t(context, ZMQ_PUSH)
+{
+}
+///////////////////////////////////////////////////////////////
+
+puller_t::puller_t(context_t& context) : socket_t(context, ZMQ_PULL)
+{
 }

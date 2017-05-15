@@ -3,4 +3,4 @@ add_subdirectory( vm )
 add_subdirectory( ocl )
 add_subdirectory( atk )
 add_subdirectory( net )
-
+add_subdirectory( vk )
