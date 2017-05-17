@@ -1,4 +1,3 @@
-
 file (GLOB HEADERS *.hpp)
 file (GLOB SOURCES *.cpp)
 

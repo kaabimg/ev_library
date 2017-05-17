@@ -79,4 +79,6 @@ target_link_libraries(atk ev_atk ${QT_LIBRARIES})
 
 add_subdirectory( net )
 
-
+################################################################################
+add_executable (vk vk.cpp)
+target_link_libraries(vk ev_vk vulkan)
