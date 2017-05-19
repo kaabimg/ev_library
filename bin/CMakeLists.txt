@@ -24,8 +24,8 @@ endif()
 
 ######################################################################################
 
-add_executable (mem_c mem_c.cpp)
-target_link_libraries(mem_c memcached)
+#add_executable (mem_c mem_c.cpp)
+#target_link_libraries(mem_c memcached)
 
 ##################################################################################
 #add_library(compute_cpp lm")
@@ -81,4 +81,5 @@ add_subdirectory( net )
 
 ################################################################################
 add_executable (vk vk.cpp)
-target_link_libraries(vk ev_vk vulkan)
+
+target_link_libraries(vk ev_vk vulkan glfw3 rt m dl Xrandr Xinerama Xext Xcursor Xrender Xfixes X11 pthread xcb Xau Xdmcp )

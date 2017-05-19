@@ -11,22 +11,36 @@ struct ApplicationInfo : VkApplicationInfo {
     {
         sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
         pNext = nullptr;
-        pApplicationName = "";
-        applicationVersion = makeVersion(1, 0);
-        pEngineName = "";
-        engineVersion = makeVersion(1, 0);
-        apiVersion = makeVersion(1, 0);
+        pApplicationName = nullptr;
+        pEngineName = nullptr;
+        applicationVersion = Version(0, 0);
+        engineVersion = Version(0, 0);
+        apiVersion = Version(0, 0);
     }
 
-    void setApplicationName(const std::string& name)
+    void setApplicationName(const char* name)
     {
-        m_appName = name;
-        pApplicationName = m_appName.c_str();
+        pApplicationName = name;
     }
 
+    void setEngineName(const char* name)
+    {
+        pEngineName = name;
+    }
 
+    void setVersion(Version version)
+    {
+        applicationVersion = version;
+    }
 
-private:
-    std::string m_appName, m_engineName;
+    void setEngineVersion(Version version)
+    {
+        engineVersion = version;
+    }
+
+    void setApiVersion(Version version)
+    {
+        apiVersion = version;
+    }
 };
 }
