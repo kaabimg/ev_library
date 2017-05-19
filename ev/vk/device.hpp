@@ -17,7 +17,8 @@ public:
         return deviceProperties;
     }
 
-    VkPhysicalDeviceFeatures features() const {
+    VkPhysicalDeviceFeatures features() const
+    {
         VkPhysicalDeviceFeatures deviceFeatures;
         vkGetPhysicalDeviceFeatures(m_handle, &deviceFeatures);
         return deviceFeatures;
@@ -26,7 +27,8 @@ public:
 
 class Device : HandleWrapper<VkDevice> {
 public:
-    Device()
+    Device():Super(){}
+    Device(VkDevice device) : Super(device)
     {
     }
 

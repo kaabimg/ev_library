@@ -39,7 +39,7 @@ struct InstanceCreateInfo : VkInstanceCreateInfo {
 
 class Instance : HandleWrapper<VkInstance> {
 public:
-    Instance()
+    Instance() : Super()
     {
     }
     Instance(const InstanceCreateInfo& createInfo)
@@ -61,13 +61,19 @@ public:
         return deviceCount;
     }
 
-    std::vector<VkPhysicalDevice> physiclDevices() const
+    std::vector<PhysicalDevice> physiclDevices() const
     {
         uint32_t deviceCount = physicalDeviceCount();
-        std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(m_handle, &deviceCount, devices.data());
+        std::vector<VkPhysicalDevice> vkDevices(deviceCount);
+        vkEnumeratePhysicalDevices(m_handle, &deviceCount, vkDevices.data());
+
+        std::vector<PhysicalDevice>  devices;
+        devices.reserve(deviceCount);
+
+        for(auto handle : vkDevices)
+            devices.emplace_back(handle);
+
         return devices;
     }
-
 };
 }
