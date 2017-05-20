@@ -11,24 +11,22 @@ int main()
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensionNames = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-    ev::debug() << "Extension count" << glfwExtensionCount << "Available"<< Vk::availableExtensionCount();
+    ev::debug() << "Extension count" << glfwExtensionCount << "Available"
+                << Vk::availableExtensionCount();
     for (uint32_t i = 0; i < glfwExtensionCount; ++i) {
         ev::debug() << "Extension" << i << glfwExtensionNames[i];
     }
 
     ev::debug() << "Available extensions";
 
-    for(const VkExtensionProperties & extension : Vk::availableExtensionProperties())
-    {
+    for (const VkExtensionProperties& extension : Vk::availableExtensionProperties()) {
         ev::debug() << extension.extensionName << extension.specVersion;
     }
 
     auto window = glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
-
 
     ////
     Vk::ApplicationInfo appInfo;
@@ -43,19 +41,24 @@ int main()
 
     Vk::Instance instance{instanceCreateInfo};
 
-    ev::debug() << "physicalDeviceCount" << instance.physicalDeviceCount();
+    for (const Vk::PhysicalDevice& device : instance.physiclDevices()) {
+        auto properties = device.properties();
+        ev::debug() << "Device" << properties.deviceName;
+        ev::debug() << "    Type" << std::to_string(properties.deviceType);
 
-
+        for(const VkQueueFamilyProperties & qp : device.queueFamilies())
+        {
+            ev::debug() << "    Queue count" << qp.queueCount;
+            ev::debug() << "    Queue flags" << qp.queueFlags;
+        }
+    }
 
     //// Main loop
-//    while (!glfwWindowShouldClose(window)) {
-//        glfwPollEvents();
-//    }
-
+    //    while (!glfwWindowShouldClose(window)) {
+    //        glfwPollEvents();
+    //    }
 
     //// Clean
     glfwDestroyWindow(window);
     glfwTerminate();
-
-
 }

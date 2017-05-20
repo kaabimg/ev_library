@@ -6,7 +6,7 @@ namespace Vk {
 
 class PhysicalDevice : HandleWrapper<VkPhysicalDevice> {
 public:
-    PhysicalDevice(VkPhysicalDevice device) : Super(device)
+    PhysicalDevice(VkPhysicalDevice device) : WrapperType(device)
     {
     }
 
@@ -23,21 +23,37 @@ public:
         vkGetPhysicalDeviceFeatures(m_handle, &deviceFeatures);
         return deviceFeatures;
     }
+
+    uint32_t queueFamilyCount() const
+    {
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(m_handle, &queueFamilyCount, nullptr);
+        return queueFamilyCount;
+    }
+    std::vector<VkQueueFamilyProperties> queueFamilies() const
+    {
+        uint32_t count = queueFamilyCount();
+        std::vector<VkQueueFamilyProperties> queueFamilies(count);
+        vkGetPhysicalDeviceQueueFamilyProperties(m_handle, &count, queueFamilies.data());
+        return queueFamilies;
+    }
 };
 
-class Device : HandleWrapper<VkDevice> {
+class LogicalDevice : HandleWrapper<VkDevice> {
 public:
-    Device():Super(){}
-    Device(VkDevice device) : Super(device)
+    LogicalDevice() : WrapperType()
+    {
+    }
+    LogicalDevice(VkDevice device) : WrapperType(device)
     {
     }
 
-    ~Device()
+    ~LogicalDevice()
     {
         if (m_handle) vkDestroyDevice(m_handle, nullptr);
     }
 
-    Device(Device&& rhs) = default;
-    Device& operator=(Device&& rhs) = default;
+    LogicalDevice(LogicalDevice&& rhs) = default;
+    LogicalDevice& operator=(LogicalDevice&& rhs) = default;
 };
 }

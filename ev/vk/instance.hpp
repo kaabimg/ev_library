@@ -39,7 +39,7 @@ struct InstanceCreateInfo : VkInstanceCreateInfo {
 
 class Instance : HandleWrapper<VkInstance> {
 public:
-    Instance() : Super()
+    Instance() : WrapperType()
     {
     }
     Instance(const InstanceCreateInfo& createInfo)
