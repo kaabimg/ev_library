@@ -3,7 +3,7 @@
 #include <ev/vk/application.hpp>
 #include <ev/vk/instance.hpp>
 
-#include <ev/core/logging.hpp>
+#include <ev/core/logging_helpers.hpp>
 
 int main()
 {
@@ -45,11 +45,18 @@ int main()
         auto properties = device.properties();
         ev::debug() << "Device" << properties.deviceName;
         ev::debug() << "    Type" << std::to_string(properties.deviceType);
+        ev::debug() << "    QFCt" << device.queueFamilyCount();
 
-        for(const VkQueueFamilyProperties & qp : device.queueFamilies())
-        {
-            ev::debug() << "    Queue count" << qp.queueCount;
-            ev::debug() << "    Queue flags" << qp.queueFlags;
+        //        for (const VkQueueFamilyProperties& qp : device.queueFamilies()) {
+        for (auto & [ index, qp ] :
+             device.findQueueFamily([](const VkQueueFamilyProperties& f) { return true; })) {
+            ev::debug() << "    *** Queue" << index;
+            ev::debug() << "        Count" << qp.queueCount;
+            ev::debug() << "        Flags" << qp.queueFlags;
+            ev::debug() << "        Graph" << ((qp.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0);
+            ev::debug() << "        Compu" << ((qp.queueFlags & VK_QUEUE_COMPUTE_BIT) != 0);
+            ev::debug() << "        Trans" << ((qp.queueFlags & VK_QUEUE_TRANSFER_BIT) != 0);
+            ev::debug() << "        Sp.B." << ((qp.queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) != 0);
         }
     }
 
