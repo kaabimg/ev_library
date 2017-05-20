@@ -60,6 +60,14 @@ int main()
         }
     }
 
+
+
+    VkSurfaceKHR surface;
+
+    if (glfwCreateWindowSurface(instance.handle(), window, nullptr, &surface) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create window surface!");
+    }
+
     //// Main loop
     //    while (!glfwWindowShouldClose(window)) {
     //        glfwPollEvents();

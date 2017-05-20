@@ -37,7 +37,7 @@ struct InstanceCreateInfo : VkInstanceCreateInfo {
     }
 };
 
-class Instance : HandleWrapper<VkInstance> {
+class Instance : public HandleWrapper<VkInstance> {
 public:
     Instance() : WrapperType()
     {

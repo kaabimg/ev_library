@@ -40,7 +40,7 @@ struct DeviceCreateInfo : VkDeviceCreateInfo {
     }
 };
 
-class LogicalDevice : HandleWrapper<VkDevice> {
+class LogicalDevice : public HandleWrapper<VkDevice> {
 public:
     LogicalDevice(VkDevice device) : WrapperType(device)
     {
@@ -55,7 +55,7 @@ public:
     LogicalDevice& operator=(LogicalDevice&& rhs) = default;
 };
 
-class PhysicalDevice : HandleWrapper<VkPhysicalDevice> {
+class PhysicalDevice : public HandleWrapper<VkPhysicalDevice> {
 public:
     PhysicalDevice(VkPhysicalDevice device) : WrapperType(device)
     {

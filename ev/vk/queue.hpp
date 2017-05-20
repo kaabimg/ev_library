@@ -19,7 +19,7 @@ struct DeviceQueueCreateInfo : VkDeviceQueueCreateInfo {
 };
 
 
-class Queue : HandleWrapper<VkQueue>
+class Queue : public HandleWrapper<VkQueue>
 {
 public:
     Queue(VkQueue handle):Super(handle){}
