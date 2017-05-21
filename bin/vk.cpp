@@ -41,7 +41,8 @@ int main()
 
     Vk::Instance instance{instanceCreateInfo};
 
-    for (const Vk::PhysicalDevice& device : instance.physiclDevices()) {
+    for (const Vk::PhysicalDevice& device :
+         instance.findPhysicalDevices([](Vk::PhysicalDevice&) { return true; })) {
         auto properties = device.properties();
         ev::debug() << "Device" << properties.deviceName;
         ev::debug() << "    Type" << std::to_string(properties.deviceType);
@@ -59,8 +60,6 @@ int main()
             ev::debug() << "        Sp.B." << ((qp.queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) != 0);
         }
     }
-
-
 
     VkSurfaceKHR surface;
 

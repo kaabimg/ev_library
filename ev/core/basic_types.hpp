@@ -1,13 +1,13 @@
 #pragma once
 #include <vector>
+#include <cstddef>
 
 namespace ev {
-using address_t    = void*;
-using byte_t       = unsigned char;
-using byte_array_t = std::vector<byte_t>;
+using address_t = void*;
+using byte_array_t = std::vector<std::byte>;
 
 struct mem_block_t {
-    address_t data   = nullptr;
+    address_t data = nullptr;
     std::size_t size = 0;
 };
 
@@ -24,8 +24,8 @@ struct type_debugger_t;
 
 class non_copyable_t {
 protected:
-    non_copyable_t()                      = default;
-    ~non_copyable_t()                     = default;
+    non_copyable_t() = default;
+    ~non_copyable_t() = default;
     non_copyable_t(const non_copyable_t&) = delete;
     non_copyable_t& operator=(const non_copyable_t&) = delete;
 };

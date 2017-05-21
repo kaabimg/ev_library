@@ -54,7 +54,7 @@ void message_t::resize(std::size_t size)
 
 std::size_t message_t::size() const
 {
-    return zmq_msg_size(msg());
+    return zmq_msg_byte_size(msg());
 }
 
 void* message_t::data()
@@ -66,12 +66,12 @@ const void* message_t::data() const
 {
     return zmq_msg_data(msg());
 }
-
+byte_t
 void message_t::write(const void* data, std::size_t size)
 {
     if (this->size() != size) resize(size);
 
-    std::copy((byte_t*)data, ((byte_t*)data) + size, (byte_t*)this->data());
+    std::copy((std::byte*)data, ((std::byte*)data) + size, (std::byte*)this->data());
 }
 
 zmq_msg_t* message_t::msg() const

@@ -61,6 +61,9 @@ public:
     {
     }
 
+    PhysicalDevice(PhysicalDevice&&) = default;
+    PhysicalDevice& operator=(PhysicalDevice&&) = default;
+
     VkPhysicalDeviceProperties properties() const
     {
         VkPhysicalDeviceProperties deviceProperties;
@@ -73,6 +76,13 @@ public:
         VkPhysicalDeviceFeatures deviceFeatures;
         vkGetPhysicalDeviceFeatures(m_handle, &deviceFeatures);
         return deviceFeatures;
+    }
+
+    VkPhysicalDeviceMemoryProperties memoryProperties() const
+    {
+        VkPhysicalDeviceMemoryProperties result;
+        vkGetPhysicalDeviceMemoryProperties(m_handle, &result);
+        return result;
     }
 
     uint32_t queueFamilyCount() const

@@ -61,7 +61,7 @@ public:
         return deviceCount;
     }
 
-    std::vector<PhysicalDevice> physiclDevices() const
+    std::vector<PhysicalDevice> physicalDevices() const
     {
         uint32_t deviceCount = physicalDeviceCount();
         std::vector<VkPhysicalDevice> vkDevices(deviceCount);
@@ -75,5 +75,21 @@ public:
 
         return devices;
     }
+
+    template <typename F>
+    std::vector<PhysicalDevice> findPhysicalDevices(F && f)
+    {
+        std::vector<PhysicalDevice> result;
+
+        for(auto & device : physicalDevices())
+        {
+            if(f(device))
+            {
+                result.push_back(std::move(device));
+            }
+        }
+        return result;
+    }
+
 };
 }
