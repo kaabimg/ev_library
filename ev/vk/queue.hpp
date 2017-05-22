@@ -4,9 +4,7 @@
 
 namespace Vk {
 
-
 struct DeviceQueueCreateInfo : VkDeviceQueueCreateInfo {
-
     DeviceQueueCreateInfo()
     {
         sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -18,14 +16,10 @@ struct DeviceQueueCreateInfo : VkDeviceQueueCreateInfo {
     }
 };
 
-
-class Queue : public HandleWrapper<VkQueue>
-{
+class Queue : public HandleWrapper<VkQueue> {
 public:
-    Queue(VkQueue handle):Super(handle){}
-
-
-
+    Queue(VkQueue handle) : WrapperType(handle)
+    {
+    }
 };
-
 }

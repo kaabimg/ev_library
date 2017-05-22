@@ -67,29 +67,25 @@ public:
         std::vector<VkPhysicalDevice> vkDevices(deviceCount);
         vkEnumeratePhysicalDevices(m_handle, &deviceCount, vkDevices.data());
 
-        std::vector<PhysicalDevice>  devices;
+        std::vector<PhysicalDevice> devices;
         devices.reserve(deviceCount);
 
-        for(auto handle : vkDevices)
-            devices.emplace_back(handle);
+        for (auto handle : vkDevices) devices.emplace_back(handle);
 
         return devices;
     }
 
     template <typename F>
-    std::vector<PhysicalDevice> findPhysicalDevices(F && f)
+    std::vector<PhysicalDevice> findPhysicalDevices(F&& f)
     {
         std::vector<PhysicalDevice> result;
 
-        for(auto & device : physicalDevices())
-        {
-            if(f(device))
-            {
+        for (auto& device : physicalDevices()) {
+            if (f(device)) {
                 result.push_back(std::move(device));
             }
         }
         return result;
     }
-
 };
 }

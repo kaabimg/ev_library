@@ -49,7 +49,7 @@ message_t::~message_t()
 
 void message_t::resize(std::size_t size)
 {
-    detail::zmq_call(zmq_msg_init_size,msg(), size);
+    detail::zmq_call(zmq_msg_init_size, msg(), size);
 }
 
 std::size_t message_t::size() const

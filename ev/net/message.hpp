@@ -28,8 +28,8 @@ public:
     message_t(const message_t&);
     message_t(message_t&&);
 
-    message_t& operator =(const message_t&);
-    message_t& operator =(message_t&&);
+    message_t& operator=(const message_t&);
+    message_t& operator=(message_t&&);
 
     ~message_t();
 
