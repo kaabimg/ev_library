@@ -7,6 +7,77 @@
 
 namespace Vk {
 
+struct Version {
+    Version(uint32_t val) : m_value(val)
+    {
+    }
+    Version(uint32_t maj, uint32_t min, uint32_t patch = 0)
+        : m_value(VK_MAKE_VERSION(maj, min, patch))
+    {
+    }
+
+    uint32_t majorVersion() const
+    {
+        return VK_VERSION_MAJOR(m_value);
+    }
+
+    uint32_t minorVersion() const
+    {
+        return VK_VERSION_MINOR(m_value);
+    }
+
+    uint32_t patchVersion() const
+    {
+        return VK_VERSION_PATCH(m_value);
+    }
+
+    operator uint32_t() const
+    {
+        return m_value;
+    }
+
+private:
+    uint32_t m_value = 0;
+};
+
+struct ApplicationInfo : VkApplicationInfo {
+    ApplicationInfo()
+    {
+        sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+        pNext = nullptr;
+        pApplicationName = nullptr;
+        pEngineName = nullptr;
+        applicationVersion = Version(0, 0);
+        engineVersion = Version(0, 0);
+        apiVersion = Version(0, 0);
+    }
+
+    void setApplicationName(const char* name)
+    {
+        pApplicationName = name;
+    }
+
+    void setEngineName(const char* name)
+    {
+        pEngineName = name;
+    }
+
+    void setVersion(Version version)
+    {
+        applicationVersion = version;
+    }
+
+    void setEngineVersion(Version version)
+    {
+        engineVersion = version;
+    }
+
+    void setApiVersion(Version version)
+    {
+        apiVersion = version;
+    }
+};
+
 template <typename H>
 class HandleWrapper : ev::non_copyable_t {
 public:
@@ -42,39 +113,6 @@ public:
 
 protected:
     H m_handle = nullptr;
-};
-
-struct Version {
-    Version(uint32_t val) : m_value(val)
-    {
-    }
-    Version(uint32_t maj, uint32_t min, uint32_t patch = 0)
-        : m_value(VK_MAKE_VERSION(maj, min, patch))
-    {
-    }
-
-    uint32_t majorVersion() const
-    {
-        return VK_VERSION_MAJOR(m_value);
-    }
-
-    uint32_t minorVersion() const
-    {
-        return VK_VERSION_MINOR(m_value);
-    }
-
-    uint32_t patchVersion() const
-    {
-        return VK_VERSION_PATCH(m_value);
-    }
-
-    operator uint32_t() const
-    {
-        return m_value;
-    }
-
-private:
-    uint32_t m_value = 0;
 };
 
 template <typename F, typename... Args>
