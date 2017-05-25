@@ -56,11 +56,11 @@ public:
     LogicalDevice createDevice(const DeviceCreateInfo& createInfo);
 
     template <typename F>
-    std::vector<std::pair<uint32_t, VkQueueFamilyProperties>> findQueueFamily(F&& filter) const;
+    std::vector<std::pair<uint32_t, VkQueueFamilyProperties>> findQueueFamilies(F&& filter) const;
 };
 
 template <typename F>
-inline std::vector<std::pair<uint32_t, VkQueueFamilyProperties>> PhysicalDevice::findQueueFamily(
+inline std::vector<std::pair<uint32_t, VkQueueFamilyProperties>> PhysicalDevice::findQueueFamilies(
     F&& filter) const
 {
     std::vector<std::pair<uint32_t, VkQueueFamilyProperties>> result;

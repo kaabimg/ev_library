@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ev/vk/application.hpp>
 #include <ev/vk/device.hpp>
 
 namespace Vk {

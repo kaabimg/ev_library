@@ -1,8 +1,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#include <ev/vk/application.hpp>
-#include <ev/vk/instance.hpp>
 
+#include <ev/vk/instance.hpp>
 #include <ev/core/logging_helpers.hpp>
 
 int main()
@@ -42,7 +41,7 @@ int main()
     Vk::Instance instance{instanceCreateInfo};
 
     for (const Vk::PhysicalDevice& device :
-         instance.findPhysicalDevices([](Vk::PhysicalDevice&) { return true; })) {
+         instance.findPhysicalDevices( [](Vk::PhysicalDevice&) { return true; })) {
         auto properties = device.properties();
         ev::debug() << "Device" << properties.deviceName;
         ev::debug() << "    Type" << std::to_string(properties.deviceType);
@@ -50,7 +49,7 @@ int main()
 
         //        for (const VkQueueFamilyProperties& qp : device.queueFamilies()) {
         for (auto & [ index, qp ] :
-             device.findQueueFamily([](const VkQueueFamilyProperties& f) { return true; })) {
+             device.findQueueFamilies([](const VkQueueFamilyProperties& f) { return true; })) {
             ev::debug() << "    *** Queue" << index;
             ev::debug() << "        Count" << qp.queueCount;
             ev::debug() << "        Flags" << qp.queueFlags;
