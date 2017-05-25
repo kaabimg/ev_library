@@ -93,7 +93,7 @@ inline uint32_t availableExtensionCount()
     return extensionCount;
 }
 
-std::vector<VkExtensionProperties> availableExtensionProperties()
+inline std::vector<VkExtensionProperties> availableExtensionProperties()
 {
     uint32_t count = availableExtensionCount();
     std::vector<VkExtensionProperties> result(count);
