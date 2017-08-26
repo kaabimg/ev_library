@@ -6,7 +6,7 @@ set(HEADER_FILES
     logging_helpers.hpp
     synchronized_data.hpp
     preprocessor.hpp
-    scope_exit.hpp
+    scope_guard.hpp
     object.hpp
     flags.hpp
     basic_types.hpp

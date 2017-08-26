@@ -1,12 +1,12 @@
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
-#include <ev/core/scope_exit.hpp>
+#include <ev/core/scope_guard.hpp>
 
-TEST_CASE("scope_exit_tc")
+TEST_CASE("scope_guard_tc")
 {
     int i = 0;
     {
-        on_scope_exit
+        on_scope(exit)
         {
             i = 4;
         };
@@ -15,7 +15,7 @@ TEST_CASE("scope_exit_tc")
 
     int j = 0;
     try {
-        on_scope_exit_with_exception
+        on_scope(failure)
         {
             j = 4;
         };
@@ -27,7 +27,7 @@ TEST_CASE("scope_exit_tc")
 
     int k = 0;
     try {
-        on_scope_exit_without_exception
+        on_scope(success)
         {
             k = 4;
         };

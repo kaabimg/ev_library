@@ -127,18 +127,23 @@ struct exception_proactor_builder_t
 #endif
 
 // ev_on_scope_exit_with_exception
-#define ev_on_scope_exit_with_exception          \
+#define ev_on_scope_failure          \
     auto EV_ANONYMOUS_VARIABLE(_ev_scope_exit) = \
         ev::detail::exception_proactor_builder_t<true>() << [&]() noexcept
 
-#ifndef on_scope_exit_with_exception
-#define on_scope_exit_with_exception ev_on_scope_exit_with_exception
+#ifndef on_scope_failure
+#define on_scope_failure ev_on_scope_failure
 #endif
 
-#define ev_on_scope_exit_without_exception       \
+#define ev_on_scope_success       \
     auto EV_ANONYMOUS_VARIABLE(_ev_scope_exit) = \
         ev::detail::exception_proactor_builder_t<false>() << [&]() noexcept
 
-#ifndef on_scope_exit_without_exception
-#define on_scope_exit_without_exception ev_on_scope_exit_without_exception
+#ifndef on_scope_success
+#define on_scope_success ev_on_scope_success
 #endif
+
+#ifndef on_scope
+#define on_scope(how) on_scope_##how
+#endif
+

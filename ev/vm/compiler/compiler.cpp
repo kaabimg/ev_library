@@ -4,7 +4,7 @@
 #include <sstream>
 
 #include <ev/core/logging.hpp>
-#include <ev/core/scope_exit.hpp>
+#include <ev/core/scope_guard.hpp>
 
 #include "../parser/ast.hpp"
 #include "../jit/context.hpp"
@@ -199,7 +199,7 @@ jit::function_t compiler_t::build(
 
     jit::function_t function = m_context.main_module().new_function(info);
 
-    on_scope_exit_with_exception
+    on_scope(success)
     {
         m_context.main_module().remove_function(function);
     };
