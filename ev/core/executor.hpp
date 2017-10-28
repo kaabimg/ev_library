@@ -73,7 +73,7 @@ template <typename F, typename... Args>
 inline std::future<executor_t::result_of<F, Args...>> executor_t::async(F&& f, Args&&... args)
 {
     using return_type = result_of<F, Args...>;
-    using task_type   = std::packaged_task<return_type()>;
+    using task_type = std::packaged_task<return_type()>;
 
     auto task =
         std::make_shared<task_type>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));

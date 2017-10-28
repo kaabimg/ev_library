@@ -3,9 +3,8 @@ set(EXECUTABLE_OUTPUT_PATH ${BIN_DIR})
 
 include_directories(${BOOST_INCLUDE_DIR})
 
-
 add_executable (virtual_machine "vm.cpp")
-target_link_libraries(virtual_machine ev_vm LLVM-3.9 rt dl pthread z m pthread)
+target_link_libraries(virtual_machine ev_vm LLVM-3.9 rt dl pthread z m)
 
 ##################################################################################
 find_package(OpenMP)
@@ -19,7 +18,11 @@ if (OpenCL_FOUND)
     add_executable (proto_bin proto.cpp)
     target_link_libraries(proto_bin ev_ocl)
 endif()
+######################################################################################
 
+find_package(Boost REQUIRED system)
+add_executable (test_bin test.cpp)
+target_link_libraries(test_bin pthread ${Boost_LIBRARIES})
 
 
 ######################################################################################

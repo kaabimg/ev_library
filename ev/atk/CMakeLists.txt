@@ -27,7 +27,7 @@ file (GLOB SOURCES
 file (GLOB RESSOURCES
     ./resources/*.qrc)
 
-add_library(ev_atk SHARED ${HEADERS} ${HEADERS} ${SOURCES} ${RESSOURCES})
+add_library(ev_atk SHARED ${HEADERS} ${SOURCES} ${RESSOURCES})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Core)
