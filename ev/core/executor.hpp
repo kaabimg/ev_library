@@ -46,8 +46,7 @@ private:
 // the constructor just launches some amount of workers
 inline executor::executor(size_t thread_count)
 {
-    for (size_t i = 0; i < thread_count; ++i)
-        m_threads.emplace_back([this] { this->work(); });
+    for (size_t i = 0; i < thread_count; ++i) m_threads.emplace_back([this] { this->work(); });
 }
 
 inline size_t executor::thread_count() const
@@ -74,16 +73,14 @@ template <typename F, typename... Args>
 inline future<executor::result_of<F, Args...>> executor::async(F&& f, Args&&... args)
 {
     using return_type = result_of<F, Args...>;
-    using task_type = packaged_task<return_type>;
 
-    auto task =
-        std::make_shared<task_type>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+    packaged_task<return_type> task = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
 
-    future<return_type> res = task->get_future();
+    future<return_type> res = task.get_future();
     {
         std::unique_lock<std::mutex> lock(m_queue_mutex);
         ev_unused(lock);
-        m_tasks.emplace([task]() { (*task)(); });
+        m_tasks.emplace([t = std::move(task)]() { t(); });
     }
     m_wait_condition.notify_one();
     return res;
