@@ -14,23 +14,23 @@ namespace ast
 {
 namespace x3 = boost::spirit::x3;
 
-struct unary_t;
-struct expression_t;
-struct identifier_t;
-struct function_call_t;
+struct unary;
+struct expression;
+struct identifier;
+struct function_call;
 
-struct identifier_t : x3::position_tagged
+struct identifier : x3::position_tagged
 {
-    identifier_t(const std::string& name = "") : value(name) {}
+    identifier(const std::string& name = "") : value(name) {}
     std::string value;
 };
 
-struct variable_t : identifier_t
+struct variable : identifier
 {
-    variable_t(const std::string& name = "") : identifier_t(name) {}
+    variable(const std::string& name = "") : identifier(name) {}
 };
 
-enum class operand_type_e
+enum class operand_type
 {
     number,
     variable,
@@ -39,7 +39,7 @@ enum class operand_type_e
     function_call,
 };
 
-enum class number_type_e
+enum class number_type
 {
     i32,
     i64,
@@ -47,7 +47,7 @@ enum class number_type_e
     r64
 };
 
-struct number_t : x3::position_tagged
+struct number : x3::position_tagged
 {
     boost::variant<int32_t, int64_t, float, double> value;
 
@@ -57,24 +57,24 @@ struct number_t : x3::position_tagged
         return boost::get<T>(value);
     }
 
-    number_type_e type() const
+    number_type type() const
     {
-        return static_cast<number_type_e>(value.which());
+        return static_cast<number_type>(value.which());
     }
 };
 
-struct operand_t : x3::variant<number_t,
-                               variable_t,
-                               x3::forward_ast<unary_t>,
-                               x3::forward_ast<expression_t>,
-                               x3::forward_ast<function_call_t> >
+struct operand : x3::variant<number,
+                               variable,
+                               x3::forward_ast<unary>,
+                               x3::forward_ast<expression>,
+                               x3::forward_ast<function_call> >
 {
     using base_type::base_type;
     using base_type::operator=;
 
-    operand_type_e type() const
+    operand_type type() const
     {
-        return static_cast<operand_type_e>(get().which());
+        return static_cast<operand_type>(get().which());
     }
     template <typename T>
     T& as()
@@ -88,7 +88,7 @@ struct operand_t : x3::variant<number_t,
     }
 };
 
-enum class operator_type_e
+enum class operator_type
 {
     plus,
     minus,
@@ -98,74 +98,74 @@ enum class operator_type_e
     negative,
 };
 
-struct unary_t : x3::position_tagged
+struct unary : x3::position_tagged
 {
-    operator_type_e op;
-    operand_t operand;
+    operator_type op_type;
+    operand op;
 };
 
-struct operation_t : x3::position_tagged
+struct operation : x3::position_tagged
 {
-    operator_type_e op;
-    operand_t operand;
+    operator_type op_type;
+    operand op;
 };
 
-struct expression_t : x3::position_tagged
+struct expression : x3::position_tagged
 {
-    operand_t first;
-    std::vector<operation_t> rest;
+    operand first;
+    std::vector<operation> rest;
 };
 
-struct function_call_t : x3::position_tagged
+struct function_call : x3::position_tagged
 {
-    identifier_t name;
-    std::vector<expression_t> arguments;
+    identifier name;
+    std::vector<expression> arguments;
 };
 
-struct variable_declaration_t : x3::position_tagged
+struct variable_declaration : x3::position_tagged
 {
-    identifier_t type_name;
-    identifier_t variable_name;
+    identifier type_name;
+    identifier variable_name;
 };
 
-struct anonymous_function_declaration_t : x3::position_tagged
+struct anonymous_function_declaration : x3::position_tagged
 {
-    std::vector<variable_declaration_t> arguments;
-    identifier_t return_type;
-    expression_t expression;
+    std::vector<variable_declaration> arguments;
+    identifier return_type;
+    expression expr;
 };
 
-struct function_declaration_t : x3::position_tagged
+struct function_declaration : x3::position_tagged
 {
-    identifier_t name;
-    std::vector<variable_declaration_t> arguments;
-    identifier_t return_type;
-    expression_t expression;
+    identifier name;
+    std::vector<variable_declaration> arguments;
+    identifier return_type;
+    expression expr;
 };
 
-struct struct_t
+struct structure
 {
-    identifier_t name;
-    std::vector<variable_declaration_t> fields;
+    identifier name;
+    std::vector<variable_declaration> fields;
 };
 
-enum class statement_type_e
+enum class statement_type
 {
     function_declaration,
     anonymous_function_declaration,
     expression
 };
 
-struct statement_t : x3::variant<function_declaration_t,
-                                 anonymous_function_declaration_t,
-                                 expression_t>
+struct statement : x3::variant<function_declaration,
+                                 anonymous_function_declaration,
+                                 expression>
 {
     using base_type::base_type;
     using base_type::operator=;
 
-    statement_type_e type() const
+    statement_type type() const
     {
-        return static_cast<statement_type_e>(get().which());
+        return static_cast<statement_type>(get().which());
     }
 
     template <typename T>

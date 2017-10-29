@@ -20,7 +20,7 @@ namespace vm
 {
 struct virtual_machine::data
 {
-    parser_t parser;
+    parser par;
     jit::context context;
     compiler_t compiler{context};
 };
@@ -41,12 +41,12 @@ void virtual_machine::eval(const std::string& line)
     if (line.size() && *line.begin() == '#') {
         return;
     }
-    parser_result_t result   = d->parser.parse(line);
+    parser_result result   = d->par.parse(line);
     jit::function function = d->compiler.compile(*result.statement.get());
     d->context.compile();
 
     if (function &&
-        result.statement->type() == ast::statement_type_e::expression)
+        result.statement->type() == ast::statement_type::expression)
     {
         runtime_function<double()> f{function.d.get()};
         std::cout << f() << std::endl;
@@ -57,9 +57,9 @@ void* virtual_machine::create_function(
     const std::string& str,
     const jit::function_signature& expected_signature)
 {
-    parser_result_t result = d->parser.parse(str);
+    parser_result result = d->par.parse(str);
 
-    if (result.statement->type() != ast::statement_type_e::function_declaration)
+    if (result.statement->type() != ast::statement_type::function_declaration)
     {
         throw syntax_error_t("Expected a function definition");
     }

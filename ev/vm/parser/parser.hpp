@@ -3,28 +3,23 @@
 #include <ev/core/preprocessor.hpp>
 #include <memory>
 
-namespace ev
-{
-namespace vm
-{
-namespace ast
-{
-struct statement_t;
+namespace ev {
+namespace vm {
+namespace ast {
+struct statement;
 }
 
-struct parser_result_t
-{
-    std::shared_ptr<ast::statement_t> statement;
+struct parser_result {
+    std::shared_ptr<ast::statement> statement;
 };
 
-struct parser_t
-{
-    parser_t();
-    ~parser_t();
-    parser_result_t parse(const std::string&);
+struct parser {
+    parser();
+    ~parser();
+    parser_result parse(const std::string&);
 
 private:
-    EV_PRIVATE(parser_t)
+    EV_PRIVATE(parser)
 };
 }
 }

@@ -22,43 +22,43 @@ using x3::alnum;
 
 namespace rules {
 // operators
-x3::symbols<ast::operator_type_e> add_operator, multiply_operator, unary_operator;
+x3::symbols<ast::operator_type> add_operator, multiply_operator, unary_operator;
 
 // rules
 
 const x3::rule<struct id_type, std::string> id = "id";
-const x3::rule<struct identifier_type, ast::identifier_t> identifier = "identifier";
-const x3::rule<struct variable_type, ast::variable_t> variable = "variable";
-const x3::rule<struct number_type, ast::number_t> number = "number";
+const x3::rule<struct identifier_type, ast::identifier> identifier = "identifier";
+const x3::rule<struct variable_type, ast::variable> variable = "variable";
+const x3::rule<struct number_type, ast::number> number = "number";
 
-const x3::rule<struct additive_expression_type, ast::expression_t> additive_expression =
+const x3::rule<struct additive_expression_type, ast::expression> additive_expression =
     "additive_expression";
 
-const x3::rule<struct multiplicative_expression_type, ast::expression_t> multiplicative_expression =
+const x3::rule<struct multiplicative_expression_type, ast::expression> multiplicative_expression =
     "multiplicative_expression";
 
-const x3::rule<struct unary_expression_type, ast::operand_t> unary_expression = "unary_expression";
+const x3::rule<struct unary_expression_type, ast::operand> unary_expression = "unary_expression";
 
-const x3::rule<struct primary_expression_type, ast::operand_t> primary_expression =
+const x3::rule<struct primary_expression_type, ast::operand> primary_expression =
     "primary_expression";
 
-const x3::rule<struct function_call_type, ast::function_call_t> function_call = "function_call";
+const x3::rule<struct function_call_type, ast::function_call> function_call = "function_call";
 
-const x3::rule<struct expression_type, ast::expression_t> expression = "expression";
+const x3::rule<struct expression_type, ast::expression> expression = "expression";
 
-const x3::rule<struct function_declaration_type, ast::function_declaration_t> function_declaration =
+const x3::rule<struct function_declaration_type, ast::function_declaration> function_declaration =
     "function_declaration";
 
-const x3::rule<struct anonymous_function_declaration_type, ast::anonymous_function_declaration_t>
+const x3::rule<struct anonymous_function_declaration_type, ast::anonymous_function_declaration>
     anonymous_function_declaration = "anonymous_function_declaration";
 
-const x3::rule<struct variable_declaration_type, ast::variable_declaration_t> variable_declaration =
+const x3::rule<struct variable_declaration_type, ast::variable_declaration> variable_declaration =
     "variable_declaration";
 
-const x3::rule<struct struct_type, ast::struct_t> structure = "structure";
+const x3::rule<struct struct_type, ast::structure> structure = "structure";
 
 // struct statement_type;
-const x3::rule<struct error_handler_t, ast::statement_t> statement = "statement";
+const x3::rule<struct error_handler_t, ast::statement> statement = "statement";
 
 const auto id_def = raw[lexeme[(alpha | '_') >> *(alnum | '_')]];
 
@@ -137,11 +137,11 @@ struct error_handler_t {
 
 inline bool init_operators()
 {
-    add_operator.add("+", ast::operator_type_e::plus)("-", ast::operator_type_e::minus);
+    add_operator.add("+", ast::operator_type::plus)("-", ast::operator_type::minus);
 
-    multiply_operator.add("*", ast::operator_type_e::times)("/", ast::operator_type_e::divide);
+    multiply_operator.add("*", ast::operator_type::times)("/", ast::operator_type::divide);
 
-    unary_operator.add("+", ast::operator_type_e::positive)("-", ast::operator_type_e::negative);
+    unary_operator.add("+", ast::operator_type::positive)("-", ast::operator_type::negative);
 
     return true;
 }
@@ -155,34 +155,34 @@ inline const auto& main_rule()
 }
 }
 
-struct parser_t::data {
-    const x3::rule<rules::error_handler_t, ast::statement_t>& main_rule = rules::main_rule();
+struct parser::data {
+    const x3::rule<rules::error_handler_t, ast::statement>& main_rule = rules::main_rule();
 };
 }
 }
-parser_t::parser_t() : d(new data)
+parser::parser() : d(new data)
 {
 }
 
-parser_t::~parser_t()
+parser::~parser()
 {
     delete d;
 }
 
-parser_result_t parser_t::parse(const std::string& line)
+parser_result parser::parse(const std::string& line)
 {
-    parser_result_t result;
+    parser_result result;
 
     std::string::const_iterator begin = line.begin();
     std::string::const_iterator end = line.end();
 
     boost::spirit::x3::ascii::space_type space;
 
-    ast::statement_t statement;
+    ast::statement statement;
 
     x3::phrase_parse(begin, end, d->main_rule, space, statement);
     if (begin == end) {
-        result.statement = std::make_shared<ast::statement_t>(std::move(statement));
+        result.statement = std::make_shared<ast::statement>(std::move(statement));
         return result;
     }
     throw syntax_error_t("Syntax error");
