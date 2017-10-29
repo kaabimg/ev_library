@@ -10,9 +10,9 @@ namespace vm
 {
 namespace jit
 {
-struct value_t;
-struct context_t;
-struct function_t;
+struct value;
+struct context;
+struct function;
 }
 
 namespace ast
@@ -26,31 +26,31 @@ struct function_call_t;
 struct function_declaration_t;
 }
 
-struct compiler_t : non_copyable_t
+struct compiler_t : non_copyable
 {
-    compiler_t(jit::context_t& context) : m_context(context) {}
-    jit::function_t compile(const ast::statement_t&);
+    compiler_t(jit::context& context) : m_context(context) {}
+    jit::function compile(const ast::statement_t&);
 
 protected:
-    jit::value_t build(bool v);
-    jit::value_t build(std::int32_t v);
-    jit::value_t build(std::int64_t v);
-    jit::value_t build(float v);
-    jit::value_t build(double v);
-    jit::value_t build(const ast::number_t& n);
+    jit::value build(bool v);
+    jit::value build(std::int32_t v);
+    jit::value build(std::int64_t v);
+    jit::value build(float v);
+    jit::value build(double v);
+    jit::value build(const ast::number_t& n);
 
-    jit::value_t build(const ast::expression_t& expression);
-    jit::value_t build(const ast::operand_t& operand);
-    jit::value_t build(const ast::unary_t& expression);
-    jit::value_t build(const ast::function_call_t& func_call);
+    jit::value build(const ast::expression_t& expression);
+    jit::value build(const ast::operand_t& operand);
+    jit::value build(const ast::unary_t& expression);
+    jit::value build(const ast::function_call_t& func_call);
 
-    jit::function_t build(const ast::function_declaration_t& function_dec);
+    jit::function build(const ast::function_declaration_t& function_dec);
 
-    jit::function_t create_top_level_expression_function(
+    jit::function create_top_level_expression_function(
         const ast::expression_t& expression);
 
 private:
-    jit::context_t& m_context;
+    jit::context& m_context;
 };
 }
 }

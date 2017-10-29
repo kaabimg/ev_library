@@ -4,7 +4,7 @@
 namespace ev {
 namespace net {
 
-class io_thread_t : non_copyable_t {
+class io_thread_t : non_copyable {
 public:
     io_thread_t();
     ~io_thread_t();

@@ -5,7 +5,7 @@
 
 TEST_CASE("lru_cache")
 {
-    ev::lru_cache_t<int, std::string> cache{2};
+    ev::lru_cache<int, std::string> cache{2};
 
     auto d1 = cache.insert(4, "4");
 

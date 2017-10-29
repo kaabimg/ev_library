@@ -18,44 +18,44 @@ namespace ev
 {
 namespace vm
 {
-struct virtual_machine_t::data_t
+struct virtual_machine::data
 {
     parser_t parser;
-    jit::context_t context;
+    jit::context context;
     compiler_t compiler{context};
 };
 }
 }
 
-virtual_machine_t::virtual_machine_t() : d(new virtual_machine_t::data_t)
+virtual_machine::virtual_machine() : d(new virtual_machine::data)
 {
 }
 
-virtual_machine_t::~virtual_machine_t()
+virtual_machine::~virtual_machine()
 {
     delete d;
 }
 
-void virtual_machine_t::eval(const std::string& line)
+void virtual_machine::eval(const std::string& line)
 {
     if (line.size() && *line.begin() == '#') {
         return;
     }
     parser_result_t result   = d->parser.parse(line);
-    jit::function_t function = d->compiler.compile(*result.statement.get());
+    jit::function function = d->compiler.compile(*result.statement.get());
     d->context.compile();
 
     if (function &&
         result.statement->type() == ast::statement_type_e::expression)
     {
-        runtime_function_t<double()> f{function.d.get()};
+        runtime_function<double()> f{function.d.get()};
         std::cout << f() << std::endl;
     }
 }
 
-void* virtual_machine_t::create_function(
+void* virtual_machine::create_function(
     const std::string& str,
-    const jit::function_signature_t& expected_signature)
+    const jit::function_signature& expected_signature)
 {
     parser_result_t result = d->parser.parse(str);
 
@@ -64,7 +64,7 @@ void* virtual_machine_t::create_function(
         throw syntax_error_t("Expected a function definition");
     }
 
-    jit::function_t function = d->compiler.compile(*result.statement.get());
+    jit::function function = d->compiler.compile(*result.statement.get());
 
     if (expected_signature == function.creation_info()) {
         d->context.compile();

@@ -79,7 +79,7 @@ struct ApplicationInfo : VkApplicationInfo {
 };
 
 template <typename H>
-class HandleWrapper : ev::non_copyable_t {
+class HandleWrapper : ev::non_copyable {
 public:
     using WrapperType = HandleWrapper<H>;
 

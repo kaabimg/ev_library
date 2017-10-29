@@ -20,7 +20,7 @@ if (OpenCL_FOUND)
 endif()
 ######################################################################################
 
-find_package(Boost REQUIRED system)
+find_package(Boost REQUIRED system thread)
 add_executable (test_bin test.cpp)
 target_link_libraries(test_bin pthread ${Boost_LIBRARIES})
 

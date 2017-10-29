@@ -4,7 +4,7 @@
 
 namespace ev
 {
-struct time_t
+struct elapsed_time
 {
     void restart() { m_start = current_time_ms(); }
     std::size_t elapsed_ms() const { return current_time_ms() - m_start; }

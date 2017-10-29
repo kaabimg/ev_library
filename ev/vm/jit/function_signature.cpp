@@ -3,7 +3,7 @@
 
 using namespace ev::vm::jit;
 
-bool function_signature_t::operator==(const function_signature_t& another) const
+bool function_signature::operator==(const function_signature& another) const
 {
     if (return_type != another.return_type ||
         arg_types.size() != another.arg_types.size())
@@ -17,12 +17,12 @@ bool function_signature_t::operator==(const function_signature_t& another) const
     return true;
 }
 
-bool function_signature_t::operator!=(const function_signature_t& another) const
+bool function_signature::operator!=(const function_signature& another) const
 {
     return !(*this == another);
 }
 
-std::string function_signature_t::to_string() const
+std::string function_signature::to_string() const
 {
     std::string str;
 
@@ -42,12 +42,12 @@ std::string function_signature_t::to_string() const
     return str;
 }
 
-bool function_id_t::operator==(const function_id_t& another) const
+bool function_id::operator==(const function_id& another) const
 {
-    return name == another.name && function_signature_t::operator==(another);
+    return name == another.name && function_signature::operator==(another);
 }
 
-bool function_id_t::operator!=(const function_id_t& another) const
+bool function_id::operator!=(const function_id& another) const
 {
     return !(*this == another);
 }

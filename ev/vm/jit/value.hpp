@@ -9,38 +9,38 @@ namespace vm
 {
 namespace jit
 {
-struct value_private_t;
-struct type_t;
+struct value_private;
+struct type;
 
-struct value_t : object_t<value_private_t>
+struct value : object<value_private>
 {
-    type_t type() const;
+    type get_type() const;
     bool is_number() const;
 
-    value_data_t data() const;
+    value_data data() const;
 
-    value_t operator+(const value_t& another);
-    value_t operator-(const value_t& another);
-    value_t operator-();
-    value_t operator/(const value_t& another);
-    value_t operator*(const value_t& another);
+    value operator+(const value& another);
+    value operator-(const value& another);
+    value operator-();
+    value operator/(const value& another);
+    value operator*(const value& another);
 
-    value_t cast_to(const type_t&) const;
+    value cast_to(const type&) const;
 
 protected:
-    std::pair<value_t, value_t> cast_types(const value_t& v1,
-                                           const value_t& v2);
+    std::pair<value, value> cast_types(const value& v1,
+                                           const value& v2);
 
-    friend class context_t;
-    friend class function_t;
-    friend class block_t;
-    friend class module_t;
+    friend class context;
+    friend class function;
+    friend class block;
+    friend class module;
 };
 
-struct named_value_t
+struct named_value
 {
     std::string name;
-    value_t value;
+    value val;
 };
 }
 }

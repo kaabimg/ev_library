@@ -6,8 +6,8 @@
 #include <qapplication.h>
 
 using namespace ev::atk;
-struct application_t::impl_t {
-    impl_t(int a, char* argv[]) : argc{a}, qapp{argc, argv}
+struct application_t::impl {
+    impl(int a, char* argv[]) : argc{a}, qapp{argc, argv}
     {
     }
 
@@ -19,11 +19,11 @@ struct application_t::impl_t {
     static application_t* instance;
 };
 
-application_t* application_t::impl_t::instance = nullptr;
+application_t* application_t::impl::instance = nullptr;
 
-application_t::application_t(int argc, char* argv[]) : d(new impl_t(argc, argv))
+application_t::application_t(int argc, char* argv[]) : d(new impl(argc, argv))
 {
-    impl_t::instance = this;
+    impl::instance = this;
 }
 
 application_t::~application_t()
@@ -38,7 +38,7 @@ int application_t::exec()
 
 application_t* application_t::instance()
 {
-    return impl_t::instance;
+    return impl::instance;
 }
 
 session_t* application_t::session() const

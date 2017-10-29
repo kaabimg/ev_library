@@ -4,24 +4,23 @@
 
 using namespace ev::vm::jit;
 
-context_t::context_t() : d(new context_private_t)
+context::context() : d(new context_private)
 {
     d->interface = this;
     new_module("main");
 }
 
-context_t::~context_t()
+context::~context()
 {
     delete d;
 }
 
-void context_t::compile()
+void context::compile()
 {
     if (d->has_compiled_modules) {
-        d->execution_engine.remove(d->added_modules_handle);
+        d->exec_engine.remove(d->added_modules_handle);
     }
-    else
-    {
+    else {
         d->has_compiled_modules = true;
     }
     std::vector<llvm::Module*> modules{d->modules.size()};
@@ -30,102 +29,83 @@ void context_t::compile()
         modules[i++] = &module.second.d->module;
     }
 
-    d->added_modules_handle = d->execution_engine.add(std::move(modules));
+    d->added_modules_handle = d->exec_engine.add(std::move(modules));
 
     for (auto& module : d->modules) {
         ev::debug() << "-------------------------------------";
         module.second->module.dump();
 
-        for (function_t& f : module.second.functions()) {
-            f->function_ptr =
-                d->execution_engine.find_symbol(f.logical_name()).getAddress();
+        for (function& f : module.second.functions()) {
+            f->function_ptr = d->exec_engine.find_symbol(f.logical_name()).getAddress();
         }
     }
 }
 
-type_t context_t::get_builtin_type(type_kind_e kind)
+type context::get_builtin_type(type_kind kind)
 {
-    type_t type;
-    switch (kind)
-    {
-        case type_kind_e::boolean:
-            type.m_data = llvm::Type::getInt1Ty(d->context);
-            break;
-        case type_kind_e::i32:
-            type.m_data = llvm::Type::getInt32Ty(d->context);
-            break;
-        case type_kind_e::i64:
-            type.m_data = llvm::Type::getInt64Ty(d->context);
-            break;
-        case type_kind_e::r32:
-            type.m_data = llvm::Type::getFloatTy(d->context);
-            break;
-        case type_kind_e::r64:
-            type.m_data = llvm::Type::getDoubleTy(d->context);
-            break;
+    type t;
+    switch (kind) {
+        case type_kind::boolean: t.m_data = llvm::Type::getInt1Ty(d->llvm_context); break;
+        case type_kind::i32: t.m_data = llvm::Type::getInt32Ty(d->llvm_context); break;
+        case type_kind::i64: t.m_data = llvm::Type::getInt64Ty(d->llvm_context); break;
+        case type_kind::r32: t.m_data = llvm::Type::getFloatTy(d->llvm_context); break;
+        case type_kind::r64: t.m_data = llvm::Type::getDoubleTy(d->llvm_context); break;
         default: break;
     }
-    return type;
+    return t;
 }
 
-value_t context_t::new_constant(type_kind_e kind, void* val)
+value context::new_constant(type_kind kind, void* v)
 {
-    value_t value  = create_object<value_t>();
-    value->context = d;
+    value val = create_object<value>();
+    val->context = d;
 
-    switch (kind)
-    {
-        case type_kind_e::boolean:
-            value->data =
-                llvm::ConstantInt::get(llvm::Type::getInt8Ty(d->context),
-                                       *reinterpret_cast<bool*>(val));
+    switch (kind) {
+        case type_kind::boolean:
+            val->data = llvm::ConstantInt::get(llvm::Type::getInt8Ty(d->llvm_context),
+                                               *reinterpret_cast<bool*>(v));
             break;
-        case type_kind_e::i32:
-            value->data =
-                llvm::ConstantInt::get(llvm::Type::getInt32Ty(d->context),
-                                       *reinterpret_cast<std::int32_t*>(val));
+        case type_kind::i32:
+            val->data = llvm::ConstantInt::get(llvm::Type::getInt32Ty(d->llvm_context),
+                                               *reinterpret_cast<std::int32_t*>(v));
             break;
-        case type_kind_e::i64:
-            value->data =
-                llvm::ConstantInt::get(llvm::Type::getInt64Ty(d->context),
-                                       *reinterpret_cast<std::int64_t*>(val));
+        case type_kind::i64:
+            val->data = llvm::ConstantInt::get(llvm::Type::getInt64Ty(d->llvm_context),
+                                               *reinterpret_cast<std::int64_t*>(v));
             break;
-        case type_kind_e::r32:
-            value->data = llvm::ConstantFP::get(
-                d->context, llvm::APFloat(*reinterpret_cast<float*>(val)));
+        case type_kind::r32:
+            val->data =
+                llvm::ConstantFP::get(d->llvm_context, llvm::APFloat(*reinterpret_cast<float*>(v)));
 
             break;
-        case type_kind_e::r64:
-            value->data = llvm::ConstantFP::get(
-                d->context, llvm::APFloat(*reinterpret_cast<double*>(val)));
+        case type_kind::r64:
+            val->data = llvm::ConstantFP::get(d->llvm_context,
+                                              llvm::APFloat(*reinterpret_cast<double*>(v)));
             break;
 
         default: break;
     }
 
-    return value;
+    return val;
 }
 
-module_t context_t::new_module(const std::string& name)
+module context::new_module(const std::string& name)
 {
-    if (find_module("name")) return module_t();
-
-    module_t module = create_object<module_t>(name, d);
-    module->context = d;
-
-    d->modules.insert({name, module});
-
-    return module;
+    if (find_module("name")) return module();
+    module m = create_object<module>(name, d);
+    m->context = d;
+    d->modules.insert({name, m});
+    return m;
 }
 
-module_t context_t::find_module(const std::string& name) const
+module context::find_module(const std::string& name) const
 {
     auto iter = d->modules.find(name);
     if (iter != d->modules.end()) return iter->second;
-    return module_t();
+    return module();
 }
 
-module_t context_t::main_module() const
+module context::main_module() const
 {
     return find_module("main");
 }

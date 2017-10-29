@@ -82,7 +82,7 @@ void io_bar_button_t::leaveEvent(QEvent* e)
 
 //////////////////////////////////////////////////////////////////////
 
-struct io_bar_t::impl_t {
+struct io_bar_t::impl {
     QHBoxLayout* layout;
     qvector<io_bar_button_t*> buttons;
     qvector<widget_t*> panes;
@@ -92,7 +92,7 @@ struct io_bar_t::impl_t {
     bool animation_cycle;
 };
 
-io_bar_t::io_bar_t(qwidget* parent) : qwidget(parent), d(new impl_t)
+io_bar_t::io_bar_t(qwidget* parent) : qwidget(parent), d(new impl)
 {
 
     setFixedHeight(atk_main_window->window_sizes().io_pane_height);

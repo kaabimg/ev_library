@@ -6,7 +6,7 @@
 
 int main()
 {
-    ev::vm::virtual_machine_t vm;
+    ev::vm::virtual_machine vm;
 
     std::string statement, input;
     std::cout << ">> ";

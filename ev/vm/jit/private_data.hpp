@@ -25,69 +25,62 @@
 
 #include <unordered_map>
 
-namespace ev
-{
-namespace vm
-{
-namespace jit
-{
-struct context_t;
+namespace ev {
+namespace vm {
+namespace jit {
+struct context;
 
-struct context_private_t
-{
-    context_t* interface;
-    llvm::LLVMContext context;
-    llvm::IRBuilder<> builder{context};
-    std::unordered_map<std::string, module_t> modules;
-    execution_engine_t execution_engine;
-    execution_engine_t::module_handle_t added_modules_handle;
+struct context_private {
+    context* interface;
+    llvm::LLVMContext llvm_context;
+    llvm::IRBuilder<> builder{llvm_context};
+    std::unordered_map<std::string, module> modules;
+    execution_engine exec_engine;
+    execution_engine::module_handle added_modules_handle;
     bool has_compiled_modules = false;
 };
 
-struct module_private_t
-{
-    context_private_t* context = nullptr;
+struct module_private {
+    context_private* context = nullptr;
     llvm::Module module;
-    std::vector<function_t> functions;
-    std::vector<compilation_scope_t*> scope_stack;
-    std::unordered_map<std::string, struct_t> structs;
-    std::unordered_map<struct_data_t, struct_info_t> structs_data;
+    std::vector<function> functions;
+    std::vector<compilation_scope*> scope_stack;
+    std::unordered_map<std::string, structure> structs;
+    std::unordered_map<structure_data, structure_info> structs_data;
 
-    module_private_t(const std::string& name, context_private_t* c)
-        : context(c), module(name, c->context)
+    module_private(const std::string& name, context_private* c)
+        : context(c), module(name, c->llvm_context)
     {
     }
 };
 
-struct function_private_t
-{
-    module_private_t* module = nullptr;
-    function_data_t data     = nullptr;
-    function_creation_info_t creation_info;
+struct function_private {
+    module_private* module = nullptr;
+    function_data data = nullptr;
+    function_creation_info creation_info;
     uintptr_t function_ptr = 0;
 };
 
-struct block_private_t
-{
-    function_private_t* function = nullptr;
-    block_data_t data            = nullptr;
-    std::vector<named_value_t> variables;
+struct block_private {
+    function_private* function = nullptr;
+    block_data data = nullptr;
+    std::vector<named_value> variables;
 };
 
-struct value_private_t
-{
-    value_private_t() {}
-    value_private_t(context_private_t* c, value_data_t d) : context(c), data(d)
+struct value_private {
+    value_private()
     {
     }
-    context_private_t* context = nullptr;
-    value_data_t data          = nullptr;
+    value_private(context_private* c, value_data d) : context(c), data(d)
+    {
+    }
+    context_private* context = nullptr;
+    value_data data = nullptr;
 };
 
-struct struct_private_t
-{
-    struct_data_t data       = nullptr;
-    module_private_t* module = nullptr;
+struct structure_private {
+    structure_data data = nullptr;
+    module_private* module = nullptr;
 };
 }
 }

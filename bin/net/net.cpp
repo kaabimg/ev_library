@@ -8,10 +8,11 @@
 #include <ev/net/serialization.hpp>
 #include <ev/net/message.hpp>
 
+#include <future>
 
 using namespace ev::net;
 
-ev::executor_t printer{1};
+ev::executor printer{1};
 
 void publisher()
 {
@@ -66,72 +67,10 @@ void subscriber(size_t id)
 
 int main()
 {
-    ev::dynamic_property_t p;
+    std::thread pub {publisher};
+    std::thread sub {std::bind(subscriber,1)};
 
-    p = 2.4;
+    pub.join();
+    sub.join();
 
-    ev::debug() << p.as<double>() << p.is<double>();
-
-
-    ev::property_t<std::string> v;
-    v.on_modified([&] {
-        ev::debug() << "propery changed to " << v.read();
-    });
-
-    v = "hello";
-
-    v = "world";
-
-    ev::debug() << (const std::string&)v;
-
-    //    auto pub = std::async(publisher);
-    //    auto sub1 = std::async(subscriber, 1);
-    //    auto sub2 = std::async(subscriber, 2);
-    //    auto sub3 = std::async(subscriber, 3);
-
-    //    pub.get();
-    //    sub1.get();
-    //    sub2.get();
-    //    sub3.get();
-
-    //    auto ser_f = std::async([] {
-    //        ev::net::context_t context;
-    //        ev::net::server_t server{context};
-    //        server.bind("tcp://*:5555");
-
-    //        int i = 0;
-    //        ev_forever
-    //        {
-    //            message_t msg;
-    //            server.receive(msg);
-    //            ev::debug() << "Server received" << msg.data_as<char>();
-    //            msg.write(&i, sizeof(int));
-    //            server.send(msg);
-    //            i++;
-    //        }
-
-    //    });
-
-    //    auto client = [](int id) {
-    //        context_t context;
-    //        client_t client{context};
-    //        client.connect("tcp://localhost:5555");
-
-    //        message_t msg;
-    //        msg.write("request", 8);
-    //        client.send(msg);
-
-    //        ev::debug() << "reveive_timeout" << client.reveive_timeout();
-
-    //        client.receive(msg);
-    //        ev::debug() << "Client received" << id << ":" << (*msg.data_as<int>());
-
-    //    };
-
-    //    auto c1_f = std::async(client, 1);
-    //    auto c2_f = std::async(client, 2);
-
-    //    ser_f.get();
-    //    c1_f.get();
-    //    c2_f.get();
 }

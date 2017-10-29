@@ -65,7 +65,7 @@ struct view_container_t {
     widget_t* central_widget      = nullptr;
 };
 
-struct main_window_t::impl_t {
+struct main_window_t::impl {
     QHBoxLayout* main_layout;
     QVBoxLayout* content_layout;
     tab_bar_t* tab_bar;
@@ -82,12 +82,12 @@ struct main_window_t::impl_t {
     static main_window_t* instance;
 };
 
-main_window_t* main_window_t::impl_t::instance = nullptr;
+main_window_t* main_window_t::impl::instance = nullptr;
 
 main_window_t::main_window_t(const main_window_settings_t& settings)
-    : qmainwindow{nullptr}, d{new impl_t}
+    : qmainwindow{nullptr}, d{new impl}
 {
-    impl_t::instance = this;
+    impl::instance = this;
 
     d->settings = settings;
     load_icons();
@@ -169,7 +169,7 @@ main_window_t::~main_window_t()
 
 main_window_t* main_window_t::instance()
 {
-    return impl_t::instance;
+    return impl::instance;
 }
 
 const window_sizes_t& main_window_t::window_sizes() const

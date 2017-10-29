@@ -13,32 +13,32 @@ static const char* g_error_prefix    = "[error...]";
 static const char* g_critical_prefix = "[critical]";
 }
 template <typename T>
-struct print_impl_t
+struct print_impl
 {
     static inline void print(std::ostream& out, const T& t) { out << t; }
 };
 
-struct printer_t
+struct printer
 {
-    printer_t(std::ostream& out, const char* prefix = nullptr) : stream(out)
+    printer(std::ostream& out, const char* prefix = nullptr) : stream(out)
     {
         if (prefix) stream << prefix;
     }
-    ~printer_t() { stream << std::endl; }
+    ~printer() { stream << std::endl; }
     template <typename T>
-    printer_t& operator[](const T& d)
+    printer& operator[](const T& d)
     {
         stream << '[';
-        print_impl_t<T>::print(stream, d);
+        print_impl<T>::print(stream, d);
         stream << ']';
         return *this;
     }
 
     template <typename T>
-    printer_t& operator<<(const T& d)
+    printer& operator<<(const T& d)
     {
         stream << ' ';
-        print_impl_t<T>::print(stream, d);
+        print_impl<T>::print(stream, d);
         return *this;
     }
 
@@ -46,28 +46,28 @@ private:
     std::ostream& stream;
 };
 
-inline printer_t debug(std::ostream& out = std::cout)
+inline printer debug(std::ostream& out = std::cout)
 {
-    return printer_t(out, detail::g_debug_prefix);
+    return printer(out, detail::g_debug_prefix);
 }
 
-inline printer_t warning(std::ostream& out = std::cout)
+inline printer warning(std::ostream& out = std::cout)
 {
-    return printer_t(out, detail::g_warning_prefix);
+    return printer(out, detail::g_warning_prefix);
 }
-inline printer_t error(std::ostream& out = std::cout)
+inline printer error(std::ostream& out = std::cout)
 {
-    return printer_t(out, detail::g_error_prefix);
-}
-
-inline printer_t critical(std::ostream& out = std::cout)
-{
-    return printer_t(out, detail::g_critical_prefix);
+    return printer(out, detail::g_error_prefix);
 }
 
-inline printer_t info(std::ostream& out = std::cout)
+inline printer critical(std::ostream& out = std::cout)
 {
-    return printer_t(out, detail::g_info_prefix);
+    return printer(out, detail::g_critical_prefix);
+}
+
+inline printer info(std::ostream& out = std::cout)
+{
+    return printer(out, detail::g_info_prefix);
 }
 
 }  // ev

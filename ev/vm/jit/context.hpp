@@ -15,44 +15,44 @@ namespace vm
 {
 namespace jit
 {
-class context_private_t;
-class function_t;
-class value_t;
-class module_t;
-class compilation_scope_t;
-class function_id_t;
-class type_t;
-class struct_t;
-class struct_info_t;
+class context_private;
+class function;
+class value;
+class module;
+class compilation_scope;
+class function_id;
+class type;
+class structure;
+class structure_info;
 
-struct context_t : non_copyable_t
+struct context : non_copyable
 {
-    context_t();
-    ~context_t();
+    context();
+    ~context();
 
     template <typename T>
-    value_t new_constant(T value);
+    value new_constant(T value);
 
-    type_t get_builtin_type(type_kind_e kind);
+    type get_builtin_type(type_kind kind);
 
-    module_t new_module(const std::string& name);
-    module_t find_module(const std::string& name) const;
-    module_t main_module() const;
+    module new_module(const std::string& name);
+    module find_module(const std::string& name) const;
+    module main_module() const;
 
     void compile();
 
 protected:
-    value_t new_constant(type_kind_e kind, void* val);
+    value new_constant(type_kind kind, void* val);
 
 private:
-    context_private_t* d;
-    friend class function_t;
-    friend class value_t;
-    friend class block_t;
+    context_private* d;
+    friend class function;
+    friend class value;
+    friend class block;
 };
 
 template <typename T>
-value_t context_t::new_constant(T value)
+value context::new_constant(T value)
 {
     return new_constant(get_type_kind<T>(), &value);
 }

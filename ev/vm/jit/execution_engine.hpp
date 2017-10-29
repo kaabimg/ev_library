@@ -28,23 +28,19 @@
 #include <string>
 #include <vector>
 
-namespace ev
-{
-namespace vm
-{
-namespace jit
-{
+namespace ev {
+namespace vm {
+namespace jit {
 using namespace llvm;
 using namespace llvm::orc;
 
-struct execution_engine_t
-{
-    using obj_linking_layer_t = ObjectLinkingLayer<>;
-    using ir_compile_layer_t  = IRCompileLayer<obj_linking_layer_t>;
-    using module_handle_t     = ir_compile_layer_t::ModuleSetHandleT;
-    using optimize_function_t = std::function<Module*(Module*)>;
+struct execution_engine {
+    using obj_linking_layer = ObjectLinkingLayer<>;
+    using ir_compile_layer = IRCompileLayer<obj_linking_layer>;
+    using module_handle = ir_compile_layer::ModuleSetHandleT;
+    using optimize_function = std::function<Module*(Module*)>;
 
-    execution_engine_t()
+    execution_engine()
         : m_target_machine(EngineBuilder().selectTarget()),
           m_data_layout(m_target_machine->createDataLayout()),
           m_compile_layer(m_object_layer, SimpleCompiler(*m_target_machine)),
@@ -56,8 +52,11 @@ struct execution_engine_t
         llvm::sys::DynamicLibrary::LoadLibraryPermanently(nullptr);
     }
 
-    TargetMachine& target_machine() { return *m_target_machine; }
-    module_handle_t add(std::vector<Module*>&& modules)
+    TargetMachine& target_machine()
+    {
+        return *m_target_machine;
+    }
+    module_handle add(std::vector<Module*>&& modules)
     {
         auto resolver = createLambdaResolver(
             // Look back into the JIT itself to find symbols that are part of
@@ -70,21 +69,18 @@ struct execution_engine_t
             },
             // Search for external symbols in the host process.
             [](const std::string& name) {
-                if (auto sym_addr =
-                        RTDyldMemoryManager::getSymbolAddressInProcess(name))
-                    return RuntimeDyld::SymbolInfo(sym_addr,
-                                                   JITSymbolFlags::Exported);
+                if (auto sym_addr = RTDyldMemoryManager::getSymbolAddressInProcess(name))
+                    return RuntimeDyld::SymbolInfo(sym_addr, JITSymbolFlags::Exported);
                 return RuntimeDyld::SymbolInfo(nullptr);
             });
 
         // Add the set to the JIT with the resolver we created above and a newly
         // created SectionMemoryManager.
         return m_optimize_layer.addModuleSet(
-            std::move(modules), make_unique<SectionMemoryManager>(),
-            std::move(resolver));
+            std::move(modules), make_unique<SectionMemoryManager>(), std::move(resolver));
     }
 
-    void remove(module_handle_t handle)
+    void remove(module_handle handle)
     {
         m_optimize_layer.removeModuleSet(handle);
     }
@@ -106,8 +102,7 @@ private:
     static Module* optimize_module(Module* module)
     {
         // Create a function pass manager.
-        auto function_pass_manager =
-            std::make_unique<legacy::FunctionPassManager>(module);
+        auto function_pass_manager = std::make_unique<legacy::FunctionPassManager>(module);
 
         // Add some optimizations.
         function_pass_manager->add(createInstructionCombiningPass());
@@ -137,9 +132,9 @@ private:
     bool m_init = init();
     std::unique_ptr<TargetMachine> m_target_machine;
     const DataLayout m_data_layout;
-    obj_linking_layer_t m_object_layer;
-    ir_compile_layer_t m_compile_layer;
-    IRTransformLayer<ir_compile_layer_t, optimize_function_t> m_optimize_layer;
+    obj_linking_layer m_object_layer;
+    ir_compile_layer m_compile_layer;
+    IRTransformLayer<ir_compile_layer, optimize_function> m_optimize_layer;
 };
 }
 }

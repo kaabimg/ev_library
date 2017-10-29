@@ -1,35 +1,35 @@
 #pragma once
 
 #include "preprocessor.hpp"
+#include "thread.hpp"
 
 #include <condition_variable>
 #include <functional>
-#include <future>
 #include <memory>
 #include <queue>
-#include <thread>
 #include <vector>
+#include <thread>
 
 namespace ev {
-class executor_t {
+class executor {
     template <typename F, typename... Args>
     using result_of = typename std::result_of_t<std::decay_t<F>(std::decay_t<Args>...)>;
 
 public:
-    executor_t(size_t thread_count = std::max(1u, std::thread::hardware_concurrency()));
+    executor(size_t thread_count = std::max(1u, boost::thread::hardware_concurrency()));
 
     size_t thread_count() const;
 
     template <typename F, typename... Args>
-    inline std::future<result_of<F, Args...>> async(F&& f, Args&&... args);
+    inline future<result_of<F, Args...>> async(F&& f, Args&&... args);
 
     template <typename F, typename... Args>
     inline void async_detached(F&& f, Args&&... args);
 
     template <class F>
-    inline executor_t& operator<<(F&& f);
+    inline executor& operator<<(F&& f);
 
-    ~executor_t();
+    ~executor();
 
 protected:
     void work();
@@ -44,17 +44,18 @@ private:
 };
 
 // the constructor just launches some amount of workers
-inline executor_t::executor_t(size_t thread_count)
+inline executor::executor(size_t thread_count)
 {
-    for (size_t i = 0; i < thread_count; ++i) m_threads.emplace_back([this] { this->work(); });
+    for (size_t i = 0; i < thread_count; ++i)
+        m_threads.emplace_back([this] { this->work(); });
 }
 
-inline size_t executor_t::thread_count() const
+inline size_t executor::thread_count() const
 {
     return m_threads.size();
 }
 
-inline void executor_t::work()
+inline void executor::work()
 {
     while (!m_done) {
         std::function<void()> task;
@@ -70,15 +71,15 @@ inline void executor_t::work()
 }
 
 template <typename F, typename... Args>
-inline std::future<executor_t::result_of<F, Args...>> executor_t::async(F&& f, Args&&... args)
+inline future<executor::result_of<F, Args...>> executor::async(F&& f, Args&&... args)
 {
     using return_type = result_of<F, Args...>;
-    using task_type = std::packaged_task<return_type()>;
+    using task_type = packaged_task<return_type>;
 
     auto task =
         std::make_shared<task_type>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
 
-    std::future<return_type> res = task->get_future();
+    future<return_type> res = task->get_future();
     {
         std::unique_lock<std::mutex> lock(m_queue_mutex);
         ev_unused(lock);
@@ -89,7 +90,7 @@ inline std::future<executor_t::result_of<F, Args...>> executor_t::async(F&& f, A
 }
 
 template <typename F, typename... Args>
-inline void executor_t::async_detached(F&& f, Args&&... args)
+inline void executor::async_detached(F&& f, Args&&... args)
 {
     {
         std::unique_lock<std::mutex> lock(m_queue_mutex);
@@ -101,18 +102,18 @@ inline void executor_t::async_detached(F&& f, Args&&... args)
 }
 
 template <class F>
-inline executor_t& executor_t::operator<<(F&& f)
+inline executor& executor::operator<<(F&& f)
 {
     async_detached(std::forward<F>(f));
     return *this;
 }
 
-inline void executor_t::join_all()
+inline void executor::join_all()
 {
-    for (std::thread& worker : m_threads) worker.join();
+    for (auto& worker : m_threads) worker.join();
 }
 
-inline executor_t::~executor_t()
+inline executor::~executor()
 {
     {
         std::unique_lock<std::mutex> lock(m_queue_mutex);

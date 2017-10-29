@@ -13,45 +13,45 @@ namespace vm
 {
 namespace jit
 {
-class module_private_t;
-class function_t;
-class function_id_t;
-class compilation_scope_t;
-class function_creation_info_t;
-class value_t;
-class type_t;
-class struct_t;
-class struct_info_t;
+class module_private;
+class function;
+class function_id;
+class compilation_scope;
+class function_creation_info;
+class value;
+class type;
+class structure;
+class structure_info;
 
-struct module_t : object_t<module_private_t>
+struct module : object<module_private>
 {
     void dump();
     std::string name() const;
 
-    function_t new_function(const function_creation_info_t&);
-    void remove_function(function_t&);
-    function_t find_function(const function_id_t&) const;
-    function_t find_function(const std::string& name, unsigned arg_count) const;
+    function new_function(const function_creation_info&);
+    void remove_function(function&);
+    function find_function(const function_id&) const;
+    function find_function(const std::string& name, unsigned arg_count) const;
 
-    const std::vector<function_t>& functions() const;
-    std::vector<function_t>& functions();
+    const std::vector<function>& functions() const;
+    std::vector<function>& functions();
 
-    struct_t new_struct(struct_info_t&&);
-    struct_t find_struct(const std::string& name) const;
+    structure new_struct(structure_info&&);
+    structure find_struct(const std::string& name) const;
 
-    value_t new_call(const function_t&, std::vector<value_data_t>&& args);
+    value new_call(const function&, std::vector<value_data>&& args);
 
-    value_t find_variable(const std::string& name) const;
-    void push_scope(compilation_scope_t&);
+    value find_variable(const std::string& name) const;
+    void push_scope(compilation_scope&);
     void pop_scope();
-    compilation_scope_t& current_scope();
+    compilation_scope& current_scope();
 
-    type_kind_e type_kind(const std::string& name) const;
+    type_kind kind_of (const std::string& name) const;
 
-    type_t find_type(const std::string& name) const;
+    type find_type(const std::string& name) const;
 
 private:
-    friend class context_t;
+    friend class context;
 };
 }
 }

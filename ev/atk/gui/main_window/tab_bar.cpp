@@ -11,7 +11,7 @@
 
 using namespace ev::atk;
 
-struct tab_element_t::impl_t {
+struct tab_element_t::impl {
     widget_t* widget;
     QPropertyAnimation* animator;
     bool selected;
@@ -19,7 +19,7 @@ struct tab_element_t::impl_t {
     QSize preferred_size;
 };
 
-tab_element_t::tab_element_t(widget_t* widget, qwidget* parent) : qwidget(parent), d(new impl_t)
+tab_element_t::tab_element_t(widget_t* widget, qwidget* parent) : qwidget(parent), d(new impl)
 
 {
     setAttribute(Qt::WA_Hover, true);
@@ -180,7 +180,7 @@ void tab_element_t::mousePressEvent(QMouseEvent* e)
 
 //////////////////////////////////////////
 
-struct tab_bar_t::impl_t {
+struct tab_bar_t::impl {
     Qt::Orientation orientation;
     QBoxLayout *main_layout, *tabs_layout, *widgets_layout, *spacer_layout;
     QWidget* spacer;
@@ -188,7 +188,7 @@ struct tab_bar_t::impl_t {
     QSize tab_size;
 };
 
-tab_bar_t::tab_bar_t(qwidget* parent) : qwidget(parent), d(new impl_t)
+tab_bar_t::tab_bar_t(qwidget* parent) : qwidget(parent), d(new impl)
 {
     d->main_layout    = new QVBoxLayout;
     d->tabs_layout    = new QVBoxLayout;

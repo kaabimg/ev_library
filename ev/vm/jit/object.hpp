@@ -9,7 +9,7 @@ namespace vm
 namespace jit
 {
 template <typename PrivateData>
-struct object_t
+struct object
 {
     using data_type = PrivateData;
 
@@ -18,7 +18,7 @@ struct object_t
     operator PrivateData() const { return d.get(); }
     PrivateData data() const { return d.get(); }
 protected:
-    object_t() {}
+    object() {}
     std::shared_ptr<PrivateData> d{nullptr};
 
     PrivateData* operator->() { return d.get(); }
@@ -36,10 +36,10 @@ inline T create_object(Arg&&... args)
     return instance;
 }
 
-struct value_t;
-struct compilation_scope_t
+struct value;
+struct compilation_scope
 {
-    virtual value_t find_variable(const std::string& name) const = 0;
+    virtual value find_variable(const std::string& name) const = 0;
 };
 }
 }

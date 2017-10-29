@@ -1,31 +1,29 @@
 #pragma once
 
-#include <experimental/any>
+#include <any>
 
 namespace ev {
 
-using any_t = std::experimental::any;
-
-class dynamic_property_t {
+class dynamic_property {
 public:
-    dynamic_property_t() = default;
-    dynamic_property_t(const dynamic_property_t&) = default;
-    dynamic_property_t(dynamic_property_t&&) = default;
-    dynamic_property_t& operator=(const dynamic_property_t&) = default;
-    dynamic_property_t& operator=(dynamic_property_t&&) = default;
+    dynamic_property() = default;
+    dynamic_property(const dynamic_property&) = default;
+    dynamic_property(dynamic_property&&) = default;
+    dynamic_property& operator=(const dynamic_property&) = default;
+    dynamic_property& operator=(dynamic_property&&) = default;
 
-    dynamic_property_t(const any_t& any)
+    dynamic_property(const std::any& any)
     {
         m_value = any;
     }
 
     operator bool() const
     {
-        return !m_value.empty();
+        return m_value.has_value();
     }
 
     template <typename T>
-    dynamic_property_t& operator=(T&& val)
+    dynamic_property& operator=(T&& val)
     {
         m_value = std::forward<T>(val);
         return *this;
@@ -34,28 +32,28 @@ public:
     template <typename T>
     const T as() const
     {
-        return std::experimental::any_cast<const T>(m_value);
+        return std::any_cast<const T>(m_value);
     }
 
     template <typename T>
     T as()
     {
-        return std::experimental::any_cast<T>(m_value);
+        return std::any_cast<T>(m_value);
     }
 
     template <typename T>
     bool is() const
     {
-        return std::experimental::any_cast<T>(&m_value);
+        return std::any_cast<T>(&m_value);
     }
 
-    any_t value() const
+    std::any value() const
     {
         return m_value;
     }
 
 private:
-    any_t m_value;
+    std::any m_value;
 };
 
 template <typename T, std::size_t max_size = sizeof(double) * 2>
@@ -66,15 +64,15 @@ struct property_trait {
 };
 
 template <typename T, typename AccessType = typename property_trait<T>::access_type>
-class property_t {
+class property {
 public:
     using property_type = T;
     using access_type = AccessType;
 
-    property_t()
+    property()
     {
     }
-    property_t(AccessType v) : m_value(v)
+    property(AccessType v) : m_value(v)
     {
     }
 
@@ -90,7 +88,7 @@ public:
     }
 
     template <typename V>
-    property_t& operator=(V&& v)
+    property& operator=(V&& v)
     {
         m_value = std::forward<V>(v);
         notify_changed();

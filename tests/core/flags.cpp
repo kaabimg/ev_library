@@ -8,7 +8,7 @@ EV_FLAGS(flags_tc_e)
 
 TEST_CASE("flags_tc")
 {
-    ev::flags_t<flags_tc_e> res = flags_tc_e::one | flags_tc_e::two;
+    ev::flags<flags_tc_e> res = flags_tc_e::one | flags_tc_e::two;
 
     REQUIRE(res.test(flags_tc_e::one));
     REQUIRE(res.test(flags_tc_e::two));

@@ -13,7 +13,7 @@ ATK_DECLARE_ENUM_QHASH(widget_attribute_e)
 
 using namespace ev::atk;
 
-struct widget_t::impl_t {
+struct widget_t::impl {
     qhash<widget_attribute_e, qvariant> attributes;
     QVBoxLayout* layout;
     tool_bar_t* tool_bar;
@@ -21,7 +21,7 @@ struct widget_t::impl_t {
     object_t* obj = nullptr;
 };
 
-widget_t::widget_t(qwidget* parent) : qwidget(parent), d(new impl_t)
+widget_t::widget_t(qwidget* parent) : qwidget(parent), d(new impl)
 {
     d->layout   = new QVBoxLayout(this);
     d->tool_bar = new tool_bar_t(this);

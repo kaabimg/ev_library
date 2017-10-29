@@ -4,10 +4,10 @@
 using namespace ev::vm;
 using namespace ev::vm::jit;
 
-std::string type_t::to_string() const
+std::string type::to_string() const
 {
     if (is_struct()) {
-        struct_data_t s_data = (struct_data_t)m_data;
+        structure_data s_data = (structure_data)m_data;
         return s_data->getName();
     }
     else
@@ -20,19 +20,19 @@ std::string type_t::to_string() const
     return "unknwon";
 }
 
-type_kind_e type_t::kind() const
+type_kind type::kind() const
 {
     switch (m_data->getTypeID())
     {
-        case Type::FloatTyID: return type_kind_e::r32;
-        case Type::DoubleTyID: return type_kind_e::r64;
+        case Type::FloatTyID: return type_kind::r32;
+        case Type::DoubleTyID: return type_kind::r64;
         case Type::IntegerTyID: return int_kind();
-        case Type::StructTyID: return type_kind_e::structure;
-        default: return type_kind_e::unknown;
+        case Type::StructTyID: return type_kind::structure;
+        default: return type_kind::unknown;
     }
 }
 
-bool type_t::is_number() const
+bool type::is_number() const
 {
     switch (m_data->getTypeID())
     {
@@ -43,12 +43,12 @@ bool type_t::is_number() const
     }
 }
 
-bool type_t::is_integer() const
+bool type::is_integer() const
 {
     return m_data->getTypeID() == Type::IntegerTyID;
 }
 
-bool type_t::is_floating_point() const
+bool type::is_floating_point() const
 {
     switch (m_data->getTypeID())
     {
@@ -58,45 +58,45 @@ bool type_t::is_floating_point() const
     }
 }
 
-bool type_t::is_struct() const
+bool type::is_struct() const
 {
     return m_data->getTypeID() == Type::StructTyID;
 }
 
-type_kind_e type_t::int_kind() const
+type_kind type::int_kind() const
 {
     llvm::IntegerType* type = static_cast<llvm::IntegerType*>(m_data);
     switch (type->getBitWidth())
     {
-        case 32: return type_kind_e::i32;
-        case 64: return type_kind_e::i64;
-        default: return type_kind_e::unknown;
+        case 32: return type_kind::i32;
+        case 64: return type_kind::i64;
+        default: return type_kind::unknown;
     }
 }
 
-struct_info_t& struct_info_t::operator<<(std::pair<type_t, std::string>&& field)
+structure_info& structure_info::operator<<(std::pair<type, std::string>&& field)
 {
     field_types.push_back(std::move(field.first));
     field_names.push_back(std::move(field.second));
     return *this;
 }
 
-const std::string& struct_t::name() const
+const std::string& structure::name() const
 {
     return d->module->structs_data[d->data].name;
 }
 
-const std::vector<std::string>& struct_t::field_names() const
+const std::vector<std::string>& structure::field_names() const
 {
     return d->module->structs_data[d->data].field_names;
 }
 
-const std::vector<type_t>& struct_t::field_types() const
+const std::vector<type>& structure::field_types() const
 {
     return d->module->structs_data[d->data].field_types;
 }
 
-int struct_t::field_index(const std::string& name) const
+int structure::field_index(const std::string& name) const
 {
     int i = 0;
     for (auto& f : field_names()) {
@@ -109,7 +109,7 @@ int struct_t::field_index(const std::string& name) const
     return -1;
 }
 
-type_t struct_t::to_type() const
+type structure::to_type() const
 {
-    return type_t(d->data);
+    return type(d->data);
 }

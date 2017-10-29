@@ -3,13 +3,6 @@
 #include <cstddef>
 
 namespace ev {
-using address_t = void*;
-using byte_array_t = std::vector<std::byte>;
-
-struct mem_block_t {
-    address_t data = nullptr;
-    std::size_t size = 0;
-};
 
 struct construct_inplace_t {
 };
@@ -20,20 +13,20 @@ struct empty_t {
 };
 
 template <typename T>
-struct type_debugger_t;
+struct type_debugger;
 
-class non_copyable_t {
+class non_copyable {
 protected:
-    non_copyable_t() = default;
-    ~non_copyable_t() = default;
-    non_copyable_t(const non_copyable_t&) = delete;
-    non_copyable_t& operator=(const non_copyable_t&) = delete;
+    non_copyable() = default;
+    ~non_copyable() = default;
+    non_copyable(const non_copyable&) = delete;
+    non_copyable& operator=(const non_copyable&) = delete;
 };
 
 template <typename T = empty_t, bool cond = true>
-struct loop_scoped_variable_t {
+struct loop_scoped_variable {
     template <typename... A>
-    loop_scoped_variable_t(A&&... d) : data(std::forward<A>(d)...)
+    loop_scoped_variable(A&&... d) : data(std::forward<A>(d)...)
     {
     }
     operator bool() const

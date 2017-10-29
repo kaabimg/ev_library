@@ -4,50 +4,50 @@
 
 #define EV_PRIVATE(type_name)                        \
 private:                                             \
-    struct data_t;                                   \
-    data_t* d                   = nullptr;           \
+    struct data;                                     \
+    data* d = nullptr;                               \
     type_name(const type_name&) = delete;            \
     type_name& operator=(const type_name&) = delete; \
                                                      \
 public:                                              \
     type_name(type_name&& another)                   \
     {                                                \
-        data_t* tmp = d;                             \
-        d           = another.d;                     \
-        another.d   = tmp;                           \
+        data* tmp = d;                               \
+        d = another.d;                               \
+        another.d = tmp;                             \
     }                                                \
     type_name& operator=(type_name&& another)        \
     {                                                \
-        data_t* tmp = d;                             \
-        d           = another.d;                     \
-        another.d   = tmp;                           \
+        data* tmp = d;                               \
+        d = another.d;                               \
+        another.d = tmp;                             \
         return *this;                                \
     }
 
 #define EV_IMPL(type_name) \
 private:                   \
-    struct impl_t;         \
-    impl_t* d = nullptr;
+    struct impl;           \
+    impl* d = nullptr;
 
 #define EV_IMPL_MOVE_OP(type_name)            \
 public:                                       \
     type_name(type_name&& another)            \
     {                                         \
-        impl_t* tmp = d;                      \
-        d           = another.d;              \
-        another.d   = tmp;                    \
+        impl* tmp = d;                        \
+        d = another.d;                        \
+        another.d = tmp;                      \
     }                                         \
     type_name& operator=(type_name&& another) \
     {                                         \
-        impl_t* tmp = d;                      \
-        d           = another.d;              \
-        another.d   = tmp;                    \
+        impl* tmp = d;                        \
+        d = another.d;                        \
+        another.d = tmp;                      \
         return *this;                         \
     }
 
 #define EV_DEFAULT_CONSTRUCTORS(cls) \
     cls(const cls&) = default;       \
-    cls(cls&&)      = default;
+    cls(cls&&) = default;
 
 #define EV_DEFAULT_OPERATORS(cls)         \
     cls& operator=(const cls&) = default; \

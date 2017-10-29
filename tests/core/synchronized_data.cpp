@@ -6,7 +6,7 @@
 
 TEST_CASE("synchronized_data_tc")
 {
-    ev::synchronized_data_t<std::vector<int>> sv;
+    ev::synchronized_data<std::vector<int>> sv;
     const int size     = 100;
     auto producer_task = [&]() mutable {
 

@@ -8,9 +8,9 @@
 namespace ev {
 
 template <typename Key, typename T>
-class lru_cache_t {
+class lru_cache {
 public:
-    lru_cache_t(std::size_t capacity);
+    lru_cache(std::size_t capacity);
 
     std::shared_ptr<T> insert(const Key&, T*);
     std::shared_ptr<T> insert(const Key&, const T&);
@@ -33,7 +33,7 @@ private:
 private:
     using key_type = Key;
 
-    using list_type     = typename std::list<key_type>;
+    using list_type = typename std::list<key_type>;
     using list_iterator = typename list_type::iterator;
 
     struct node_t {
@@ -49,30 +49,31 @@ private:
 };
 
 template <typename Key, typename T>
-lru_cache_t<Key, T>::lru_cache_t(std::size_t capacity) : m_capacity(std::max<size_t>(capacity, 1))
+inline lru_cache<Key, T>::lru_cache(std::size_t capacity)
+    : m_capacity(std::max<size_t>(capacity, 1))
 {
 }
 
 template <typename Key, typename T>
-std::shared_ptr<T> lru_cache_t<Key, T>::insert(const Key& key, T* d)
+inline std::shared_ptr<T> lru_cache<Key, T>::insert(const Key& key, T* d)
 {
     return insert(key, std::shared_ptr<T>{d});
 }
 
 template <typename Key, typename T>
-std::shared_ptr<T> lru_cache_t<Key, T>::insert(const Key& key, const T& d)
+inline std::shared_ptr<T> lru_cache<Key, T>::insert(const Key& key, const T& d)
 {
     return insert(key, std::make_shared<T>(d));
 }
 
 template <typename Key, typename T>
-std::shared_ptr<T> lru_cache_t<Key, T>::insert(const Key& key, T&& d)
+inline std::shared_ptr<T> lru_cache<Key, T>::insert(const Key& key, T&& d)
 {
     return insert(key, std::make_shared<T>(std::move(d)));
 }
 
 template <typename Key, typename T>
-std::shared_ptr<T> lru_cache_t<Key, T>::insert(const Key& key, std::shared_ptr<T> dptr)
+inline std::shared_ptr<T> lru_cache<Key, T>::insert(const Key& key, std::shared_ptr<T> dptr)
 {
     typename map_type::iterator i = m_data_map.find(key);
 
@@ -94,7 +95,7 @@ std::shared_ptr<T> lru_cache_t<Key, T>::insert(const Key& key, std::shared_ptr<T
 }
 
 template <typename Key, typename T>
-std::shared_ptr<T> lru_cache_t<Key, T>::get(const Key& key) const
+inline std::shared_ptr<T> lru_cache<Key, T>::get(const Key& key) const
 {
     auto iter = m_data_map.find(key);
     if (iter != m_data_map.end()) {
@@ -108,7 +109,7 @@ std::shared_ptr<T> lru_cache_t<Key, T>::get(const Key& key) const
 }
 
 template <typename Key, typename T>
-bool lru_cache_t<Key, T>::remove(const Key& key)
+inline bool lru_cache<Key, T>::remove(const Key& key)
 {
     auto pos = m_data_map.find(key);
     if (pos) {
@@ -120,31 +121,31 @@ bool lru_cache_t<Key, T>::remove(const Key& key)
 }
 
 template <typename Key, typename T>
-size_t lru_cache_t<Key, T>::size() const
+inline size_t lru_cache<Key, T>::size() const
 {
     return m_data_list.size();
 }
 
 template <typename Key, typename T>
-size_t lru_cache_t<Key, T>::capacity() const
+inline size_t lru_cache<Key, T>::capacity() const
 {
     return m_capacity;
 }
 
 template <typename Key, typename T>
-bool lru_cache_t<Key, T>::empty() const
+inline bool lru_cache<Key, T>::empty() const
 {
     return m_data_list.empty();
 }
 
 template <typename Key, typename T>
-bool lru_cache_t<Key, T>::contains(const Key& key) const
+inline bool lru_cache<Key, T>::contains(const Key& key) const
 {
     return m_data_map.find(key) != m_data_map.end();
 }
 
 template <typename Key, typename T>
-void lru_cache_t<Key, T>::set_capacity(std::size_t capacity)
+inline void lru_cache<Key, T>::set_capacity(std::size_t capacity)
 {
     m_capacity = capacity;
     while (size() > m_capacity) {
@@ -153,7 +154,7 @@ void lru_cache_t<Key, T>::set_capacity(std::size_t capacity)
 }
 
 template <typename Key, typename T>
-void lru_cache_t<Key, T>::evict_if_full()
+inline void lru_cache<Key, T>::evict_if_full()
 {
     if (size() > m_capacity) {
         m_data_map.erase(m_data_list.back());

@@ -22,7 +22,7 @@ enum class socket_opts_e : int { none = 0, dont_wait = 1, send_more = 2 };
 
 EV_FLAGS(socket_opts_e)
 
-class socket_t : non_copyable_t {
+class socket_t : non_copyable {
 public:
     using receive_handler_type = std::function<void(message_t&&)>;
     socket_t(context_t&, int type);
@@ -40,10 +40,10 @@ public:
 
     /////
 
-    void send(const message_t&, flags_t<socket_opts_e> flags = socket_opts_e::none);
-    void send(const void* d, size_t size, flags_t<socket_opts_e> flags = socket_opts_e::none);
+    void send(const message_t&, flags<socket_opts_e> flags = socket_opts_e::none);
+    void send(const void* d, size_t size, flags<socket_opts_e> flags = socket_opts_e::none);
 
-    bool receive(flags_t<socket_opts_e> flags = socket_opts_e::none);
+    bool receive(flags<socket_opts_e> flags = socket_opts_e::none);
 
     void set_receive_handler(const receive_handler_type&);
     void set_receive_handler(receive_handler_type&&);

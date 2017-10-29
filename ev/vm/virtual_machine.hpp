@@ -12,27 +12,27 @@ namespace ev
 {
 namespace vm
 {
-struct virtual_machine_t
+struct virtual_machine
 {
-    virtual_machine_t();
-    ~virtual_machine_t();
+    virtual_machine();
+    ~virtual_machine();
     void eval(const std::string&);
 
     template <typename Sig>
-    runtime_function_t<Sig> build(const std::string&);
+    runtime_function<Sig> build(const std::string&);
 
 protected:
     void* create_function(const std::string& str,
-                          const jit::function_signature_t& expected_signature);
+                          const jit::function_signature& expected_signature);
 
 private:
-    EV_PRIVATE(virtual_machine_t)
+    EV_PRIVATE(virtual_machine)
 };
 
 template <typename Sig>
-runtime_function_t<Sig> virtual_machine_t::build(const std::string& line)
+runtime_function<Sig> virtual_machine::build(const std::string& line)
 {
-    return runtime_function_t<Sig>{
+    return runtime_function<Sig>{
         create_function(line, jit::create_function_signature<Sig>())};
 }
 }

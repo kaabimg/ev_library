@@ -12,13 +12,13 @@ ATK_DECLARE_ENUM_QHASH(object_attribute_e)
 
 using namespace ev::atk;
 
-struct object_t::impl_t {
+struct object_t::impl {
     qvector<object_t*> chilren;
     qhash<object_attribute_e, qvariant> attributes;
-    ev::flags_t<object_state_f> state;
+    ev::flags<object_state_f> state;
 };
 
-object_t::object_t(object_t* parent) : qobject(parent), d(new impl_t)
+object_t::object_t(object_t* parent) : qobject(parent), d(new impl)
 {
     if (parent) parent->add(this);
 }
@@ -36,7 +36,7 @@ void object_t::set_state(object_state_f s, bool enabled)
     Q_EMIT state_changed();
 }
 
-ev::flags_t<object_state_f> object_t::state() const
+ev::flags<object_state_f> object_t::state() const
 {
     return d->state;
 }

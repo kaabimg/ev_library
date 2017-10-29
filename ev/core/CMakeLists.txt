@@ -13,6 +13,8 @@ set(HEADER_FILES
     property.hpp
     lru_cache.hpp
     visitor.hpp
+    string_utils.hpp
+    thread.hpp
 )
 
 add_library(ev_core STATIC ${HEADER_FILES})

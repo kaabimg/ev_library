@@ -4,7 +4,7 @@
 namespace ev {
 namespace net {
 
-class context_t : non_copyable_t {
+class context_t : non_copyable {
 public:
     context_t();
     ~context_t();

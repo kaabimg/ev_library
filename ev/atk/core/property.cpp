@@ -33,7 +33,7 @@ QByteArray notify_signal_signature(const qobject* object, const qbytearray& prop
 
 using namespace ev::atk;
 
-struct property_t::impl_t {
+struct property_t::impl {
     boost::variant<qvariant, std::pair<qobject*, qbytearray>> data;
     qhash<property_attribute_e, qvariant> attributes;
 
@@ -42,7 +42,7 @@ struct property_t::impl_t {
 };
 
 property_t::property_t(property_data_type_e type, qobject* obj, const qbytearray& name)
-    : d(new impl_t)
+    : d(new impl)
 {
     d->type      = property_type_e::object_property;
     d->data_type = type;
@@ -52,7 +52,7 @@ property_t::property_t(property_data_type_e type, qobject* obj, const qbytearray
     if (nss.size()) connect(obj, nss.constData(), this, SIGNAL(value_changed()));
 }
 
-property_t::property_t(property_data_type_e type, const qvariant& value) : d(new impl_t)
+property_t::property_t(property_data_type_e type, const qvariant& value) : d(new impl)
 {
     d->type      = property_type_e::standalone;
     d->data_type = type;
@@ -107,13 +107,13 @@ void property_t::set_attribute(property_attribute_e a, const qvariant& val)
 ///////////////////////////////////////
 ///////////////////////////////////////
 
-struct property_group_t::impl_t {
+struct property_group_t::impl {
     qvector<property_t*> properties;
     qvector<property_group_t*> subgroups;
     qhash<property_attribute_e, qvariant> attributes;
 };
 
-property_group_t::property_group_t(qobject* parent) : qobject{parent}, d(new impl_t)
+property_group_t::property_group_t(qobject* parent) : qobject{parent}, d(new impl)
 {
 }
 

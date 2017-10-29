@@ -30,7 +30,7 @@ public:
     ~object_t();
 
     void set_state(object_state_f s, bool enabled);
-    flags_t<object_state_f> state() const;
+    flags<object_state_f> state() const;
 
     inline qstring name() const;
     inline void set_name(const qstring&);

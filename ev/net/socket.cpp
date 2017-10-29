@@ -84,17 +84,17 @@ void socket_t::disconnect(const char* addr)
     detail::zmq_call(zmq_disconnect, m_socket, addr);
 }
 
-void socket_t::send(const message_t& msg, flags_t<socket_opts_e> flags)
+void socket_t::send(const message_t& msg, flags<socket_opts_e> flags)
 {
     detail::zmq_call(zmq_msg_send, msg.msg(), m_socket, flags.data());
 }
 
-void socket_t::send(const void* d, size_t size, flags_t<socket_opts_e> flags)
+void socket_t::send(const void* d, size_t size, flags<socket_opts_e> flags)
 {
     detail::zmq_call(zmq_send, m_socket, d, size, flags.data());
 }
 
-bool socket_t::receive(flags_t<socket_opts_e> flags)
+bool socket_t::receive(flags<socket_opts_e> flags)
 {
     message_t msg;
     int ret = zmq_msg_recv(msg.msg(), m_socket, flags.data());
@@ -109,12 +109,12 @@ bool socket_t::receive(flags_t<socket_opts_e> flags)
     return true;
 }
 
-void socket_t::set_receive_handler(const socket_t::receive_handler_type& handler)
+void socket_t::set_receive_handler(const receive_handler_type& handler)
 {
     m_receive_handler = handler;
 }
 
-void socket_t::set_receive_handler(socket_t::receive_handler_type&& handler)
+void socket_t::set_receive_handler(receive_handler_type&& handler)
 {
     m_receive_handler = std::move(handler);
 }

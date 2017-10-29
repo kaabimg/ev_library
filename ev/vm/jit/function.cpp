@@ -4,77 +4,75 @@
 
 using namespace ev::vm::jit;
 
-void block_t::set_as_insert_point()
+void block::set_as_insert_point()
 {
     d->function->module->context->builder.SetInsertPoint(d->data);
 }
 
-void block_t::set_return(const value_t& val)
+void block::set_return(const value& val)
 {
     d->function->module->context->builder.CreateRet(val.data());
 }
 
-value_t block_t::new_variable(const type_t& type, const std::string& name)
+value block::new_variable(const type& type, const std::string& name)
 {
 }
 
-bool block_t::has_variable(const std::string& name) const
+bool block::has_variable(const std::string& name) const
 {
     auto iter = std::find_if(d->variables.begin(), d->variables.end(),
                              [&](auto& i) { return i.name == name; });
     return iter != d->variables.end();
 }
 
-value_t block_t::find_variable(const std::string& name) const
+value block::find_variable(const std::string& name) const
 {
-    value_t res;
+    value res;
     auto iter = std::find_if(d->variables.rbegin(), d->variables.rend(),
                              [&](auto& i) { return i.name == name; });
 
-    if (iter != d->variables.rend()) res = iter->value;
+    if (iter != d->variables.rend()) res = iter->val;
     return res;
 }
 
-std::string function_t::logical_name() const
+std::string function::logical_name() const
 {
     return d->data->getName();
 }
 
-const function_creation_info_t& function_t::creation_info() const
+const function_creation_info& function::creation_info() const
 {
     return d->creation_info;
 }
 
-type_t function_t::return_type() const
+type function::return_type() const
 {
-    return type_t{d->data->getReturnType()};
+    return type{d->data->getReturnType()};
 }
 
-size_t function_t::arg_count() const
+size_t function::arg_count() const
 {
     return d->creation_info.arg_names.size();
 }
 
-type_t function_t::arg_type_at(size_t i) const
+type function::arg_type_at(size_t i) const
 {
     auto arg_iterator = d->data->arg_begin();
     while (i--) {
         ++arg_iterator;
     }
-    return type_t(arg_iterator->getType());
+    return type(arg_iterator->getType());
 }
 
-block_t function_t::new_block(const std::string& name)
+block function::new_block(const std::string& name)
 {
-    block_t block     = create_object<block_t>();
-    block.d->function = d.get();
-    block.d->data =
-        llvm::BasicBlock::Create(d->module->context->context, name, d->data);
-
-    return block;
+    block blk = create_object<block>();
+    blk.d->function = d.get();
+    blk.d->data = llvm::BasicBlock::Create(d->module->context->llvm_context, name, d->data);
+    return blk;
 }
 
-bool function_t::finalize(std::string* error_str)
+bool function::finalize(std::string* error_str)
 {
     if (error_str) {
         llvm::raw_string_ostream error_stream(*error_str);
@@ -84,29 +82,28 @@ bool function_t::finalize(std::string* error_str)
         }
         return true;
     }
-    else
-    {
+    else {
         return !llvm::verifyFunction(*d->data);
     }
 }
 
-function_t::operator function_data_t() const
+function::operator function_data() const
 {
     return d->data;
 }
 
-value_t function_t::find_variable(const std::string& name) const
+value function::find_variable(const std::string& name) const
 {
     auto iter = std::find_if(d->data->arg_begin(), d->data->arg_end(),
                              [&](auto& arg) { return arg.getName() == name; });
 
     if (iter != d->data->arg_end()) {
-        return create_object<value_t>(d->module->context, &(*iter));
+        return create_object<value>(d->module->context, &(*iter));
     }
-    return value_t();
+    return value();
 }
 
-bool function_t::has_parameter(const std::string& name) const
+bool function::has_parameter(const std::string& name) const
 {
     auto iter = std::find_if(d->data->arg_begin(), d->data->arg_end(),
                              [&](auto& arg) { return arg.getName() == name; });
@@ -114,13 +111,12 @@ bool function_t::has_parameter(const std::string& name) const
     return iter != d->data->arg_end();
 }
 
-uintptr_t function_t::compiled_function() const
+uintptr_t function::compiled_function() const
 {
     return d->function_ptr;
 }
 
-bool function_t::operator==(const function_t& another) const
+bool function::operator==(const function& another) const
 {
-    return d->creation_info == another->creation_info &&
-           d->module == another->module;
+    return d->creation_info == another->creation_info && d->module == another->module;
 }
