@@ -3,6 +3,7 @@
 #include <ev/vk/string_helpers.hpp>
 #include <ev/core/basic_types.hpp>
 
+#include <vector>
 #include <stdexcept>
 
 namespace Vk {

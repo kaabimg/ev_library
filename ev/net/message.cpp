@@ -1,5 +1,6 @@
 #include "message.hpp"
 #include "zmq_p.hpp"
+#include <cstddef>
 
 using namespace ev::net;
 

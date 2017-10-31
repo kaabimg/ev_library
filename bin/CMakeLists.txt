@@ -23,7 +23,9 @@ endif()
 find_package(Boost REQUIRED system thread)
 add_executable (test_bin test.cpp)
 target_link_libraries(test_bin pthread ${Boost_LIBRARIES})
+######################################################################################
 
+add_executable (meta meta.cpp)
 
 ######################################################################################
 

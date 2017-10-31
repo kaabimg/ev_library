@@ -42,6 +42,12 @@ struct printer
         return *this;
     }
 
+    printer& write(const char* data,size_t size)
+    {
+        stream.write(data,size);
+        return *this;
+    }
+
 private:
     std::ostream& stream;
 };

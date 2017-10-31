@@ -12,7 +12,7 @@ set(HEADER_FILES
     basic_types.hpp
     property.hpp
     lru_cache.hpp
-    visitor.hpp
+    overloaded.hpp
     string_utils.hpp
     thread.hpp
 )
