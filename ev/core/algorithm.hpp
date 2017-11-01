@@ -23,10 +23,7 @@ template<typename ...Ts,typename F>
 inline constexpr void for_each(std::tuple<Ts...>& tuple, F&& f)
 {
     constexpr size_t tuple_size =
-            std::tuple_size
-                <
-                    typename std::decay<std::tuple<Ts...>>::type
-                >::value;
+            std::tuple_size<typename std::decay<std::tuple<Ts...>>::type>::value;
     if constexpr(tuple_size > 0)
     {
         detail::for_each_tuple<0,tuple_size>(
