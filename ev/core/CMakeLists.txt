@@ -1,4 +1,5 @@
 set(HEADER_FILES
+    algorithm.hpp
     utils.hpp
     file_utils.hpp
     executor.hpp

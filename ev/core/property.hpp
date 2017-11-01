@@ -1,16 +1,14 @@
 #pragma once
 
+#include "algorithm.hpp"
 #include <functional>
 #include <vector>
 #include <type_traits>
 
-#define static_if \
-    if            \
-    constexpr
-
+// clang-format off
 namespace ev {
 template <typename P>
-using property_observer_signature = void(P&);
+using property_observer_signature = void(const P&);
 
 template <typename T>
 struct property_trait {
@@ -91,10 +89,10 @@ private:
     observer _observer;
 };
 
-#define __EV_PROPERTY_FORWARD_OPERATOR(op)              \
+#define EV_PROPERTY_FORWARD_OPERATOR(op)                \
     inline constexpr bool operator op(auto&& val) const \
     {                                                   \
-        static_if(is_property_value(val))               \
+        if constexpr(is_property_value(val))            \
         {                                               \
             return _value op val._value;                \
         }                                               \
@@ -113,7 +111,7 @@ struct property_value {
 
     inline constexpr property_value()
     {
-        static_if(std::is_pointer<T>::value)
+        if constexpr(std::is_pointer<T>::value)
         {
             _value = nullptr;
         }
@@ -121,7 +119,7 @@ struct property_value {
 
     inline constexpr property_value(auto&& val)
     {
-        static_if(is_property_value(val))
+        if constexpr(is_property_value(val))
         {
             if (std::is_rvalue_reference<decltype(val)>::value) {
                 _value = std::move(val._value);
@@ -138,7 +136,7 @@ struct property_value {
 
     inline ~property_value()
     {
-        static_if(std::is_pointer<T>::value)
+        if constexpr(std::is_pointer<T>::value)
         {
             delete _value;
         }
@@ -162,12 +160,12 @@ struct property_value {
         return _value;
     }
 
-    __EV_PROPERTY_FORWARD_OPERATOR(==)
-    __EV_PROPERTY_FORWARD_OPERATOR(!=)
-    __EV_PROPERTY_FORWARD_OPERATOR(<=)
-    __EV_PROPERTY_FORWARD_OPERATOR(<)
-    __EV_PROPERTY_FORWARD_OPERATOR(>=)
-    __EV_PROPERTY_FORWARD_OPERATOR(>)
+    EV_PROPERTY_FORWARD_OPERATOR(==)
+    EV_PROPERTY_FORWARD_OPERATOR(!=)
+    EV_PROPERTY_FORWARD_OPERATOR(<=)
+    EV_PROPERTY_FORWARD_OPERATOR(<)
+    EV_PROPERTY_FORWARD_OPERATOR(>=)
+    EV_PROPERTY_FORWARD_OPERATOR(>)
 
 protected:
     T _value;
@@ -263,20 +261,11 @@ struct observer_pack {
     }
 
     template <typename P>
-    constexpr void operator()(P& p)
+    constexpr void operator()(const P& p)
     {
-        static_if(std::tuple_size<std::tuple<Fs...>>::value)
-        {
-            notify_observer<P, 0, std::tuple_size<std::tuple<Fs...>>::value>(p);
-        }
-    }
-
-private:
-    template <typename P, size_t index, size_t max>
-    constexpr void notify_observer(P& p)
-    {
-        std::get<index>(_observers)(p);
-        static_if(index + 1 < max) notify_observer<P, index + 1, max>(p);
+        ev::for_each(_observers,[&p](auto& observer){
+            observer(p);
+        });
     }
 
 private:
@@ -289,3 +278,4 @@ inline constexpr observer_pack<Fs...> make_observer_pack(Fs&&... fs)
     return observer_pack<Fs...>(std::forward<Fs>(fs)...);
 }
 }
+// clang-format on

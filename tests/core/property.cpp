@@ -54,7 +54,6 @@ TEST_CASE("property")
 
     REQUIRE(vp->data() == data);
 
-
     ev::property<std::vector<int>> vp1;
     vp1->push_back(1);
     vp1->push_back(2);
@@ -126,4 +125,26 @@ TEST_CASE("property_comparison")
 
     REQUIRE(!(f1 == f2));
     REQUIRE(f1->entred);
+}
+
+TEST_CASE("state_machine")
+{
+    ev::property<int> s0, s1, s2, s3;
+
+    s0.add_observer([&](auto& p) {
+        if (p < 0)
+            s1 = 1;
+        else
+            s2 = 1;
+    });
+
+    s1.add_observer([&](auto&) { s3 = -1; });
+    s2.add_observer([&](auto&) { s3 = 1; });
+
+    s0 = -1;
+
+    REQUIRE(*s3 == -1);
+
+    s0 = 1;
+    REQUIRE(*s3 == 1);
 }
