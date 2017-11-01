@@ -1,12 +1,16 @@
 #pragma once
 
-#include "basic_types.hpp"
-
 #include <functional>
 #include <vector>
 #include <type_traits>
 
+#define static_if \
+    if            \
+    constexpr
+
 namespace ev {
+template <typename P>
+using property_observer_signature = void(P&);
 
 template <typename T>
 struct property_trait {
@@ -19,8 +23,7 @@ struct property_trait {
 
 template <class P>
 struct property_notifier {
-    using ObserverSignature = void(P&);
-    using Observer = std::function<ObserverSignature>;
+    using observer = std::function<property_observer_signature<P>>;
 
     inline ~property_notifier()
     {
@@ -29,10 +32,10 @@ struct property_notifier {
         }
     }
 
-    inline constexpr size_t add_observer(auto&& observer)
+    inline constexpr size_t add_observer(auto&& obs)
     {
-        if (!_observers) _observers = new std::vector<Observer>(1);
-        _observers->emplace_back(std::forward<decltype(observer)>(observer));
+        if (!_observers) _observers = new std::vector<observer>(1);
+        _observers->emplace_back(std::forward<decltype(obs)>(obs));
         return _observers->size() - 1;
     }
     inline constexpr void remove_observer(size_t index)
@@ -53,11 +56,11 @@ protected:
             }
         }
     }
-    std::vector<Observer>* _observers = nullptr;
+    std::vector<observer>* _observers = nullptr;
 };
 
 template <typename P>
-struct empty_property_notifier {
+struct no_property_notifier {
 protected:
     inline constexpr void on_changed(P&)
     {
@@ -66,15 +69,14 @@ protected:
 
 template <typename P>
 struct single_property_notifier {
-    using ObserverSignature = void(P&);
-    using Observer = std::function<ObserverSignature>;
+    using observer = std::function<property_observer_signature<P>>;
 
-    inline void set_observer(auto&& obs)
+    inline constexpr void set_observer(auto&& obs)
     {
         _observer = std::forward<decltype(obs)>(obs);
     }
 
-    inline void clear_observer()
+    inline constexpr void clear_observer()
     {
         _observer = {};
     }
@@ -86,32 +88,32 @@ protected:
     }
 
 private:
-    Observer _observer;
+    observer _observer;
 };
 
-#define __EV_PROPERTY_FORWARD_OPERATOR(op)    \
-    inline bool operator op(auto&& val) const \
-    {                                         \
-        if                                    \
-            constexpr(is_property_value(val)) \
-            {                                 \
-                return _value op val._value;  \
-            }                                 \
-        else {                                \
-            return _value op val;             \
-        }                                     \
+#define __EV_PROPERTY_FORWARD_OPERATOR(op)              \
+    inline constexpr bool operator op(auto&& val) const \
+    {                                                   \
+        static_if(is_property_value(val))               \
+        {                                               \
+            return _value op val._value;                \
+        }                                               \
+        else                                            \
+        {                                               \
+            return _value op val;                       \
+        }                                               \
     }
+
 template <typename T>
 struct property_value {
     static constexpr bool is_property_value(auto&& val)
     {
         return std::is_base_of<property_value<T>, typename std::decay<decltype(val)>::type>::value;
     }
-    // clang-format off
 
     inline constexpr property_value()
     {
-        if constexpr(std::is_pointer<T>::value)
+        static_if(std::is_pointer<T>::value)
         {
             _value = nullptr;
         }
@@ -119,40 +121,46 @@ struct property_value {
 
     inline constexpr property_value(auto&& val)
     {
-        if constexpr(is_property_value(val))
+        static_if(is_property_value(val))
         {
-            if (std::is_rvalue_reference<decltype(val)>::value)
-            {
-                _value =std::move(val._value);
+            if (std::is_rvalue_reference<decltype(val)>::value) {
+                _value = std::move(val._value);
             }
-            else
-            {
+            else {
                 _value = val._value;
             }
         }
-        else {
+        else
+        {
             _value = std::forward<decltype(val)>(val);
         }
     }
 
     inline ~property_value()
     {
-        if constexpr(std::is_pointer<T>::value)
+        static_if(std::is_pointer<T>::value)
         {
             delete _value;
         }
     }
 
-
-    T* operator ->()
+    inline constexpr T* operator->()
     {
         return &_value;
     }
-    const T* operator ->() const
+    inline constexpr const T* operator->() const
     {
         return &_value;
     }
 
+    inline constexpr T& operator*()
+    {
+        return _value;
+    }
+    inline constexpr const T& operator*() const
+    {
+        return _value;
+    }
 
     __EV_PROPERTY_FORWARD_OPERATOR(==)
     __EV_PROPERTY_FORWARD_OPERATOR(!=)
@@ -160,8 +168,6 @@ struct property_value {
     __EV_PROPERTY_FORWARD_OPERATOR(<)
     __EV_PROPERTY_FORWARD_OPERATOR(>=)
     __EV_PROPERTY_FORWARD_OPERATOR(>)
-
-    // clang-format on
 
 protected:
     T _value;
@@ -172,24 +178,27 @@ template <typename T,
           typename traits = property_trait<T>>
 struct property : property_value<T>, notifier<property<T, notifier, traits>> {
     using notifier_type = notifier<property<T, notifier, traits>>;
+    using type = T;
+    using access_type = typename traits::access_type;
+    using value_holder_type = property_value<T>;
 
-    inline constexpr property() : property_value<T>()
+    inline constexpr property() : value_holder_type()
     {
     }
-    inline constexpr property(auto&& val) : property_value<T>(std::forward<decltype(val)>(val))
+    inline constexpr property(auto&& val) : value_holder_type(std::forward<decltype(val)>(val))
     {
     }
 
     constexpr property(const property&) = delete;
 
-    inline constexpr typename traits::access_type read() const
+    inline constexpr access_type read() const
     {
-        return property_value<T>::_value;
+        return value_holder_type::_value;
     }
 
     inline constexpr void write(auto&& val)
     {
-        property_value<T>::_value = std::forward<decltype(val)>(val);
+        value_holder_type::_value = std::forward<decltype(val)>(val);
         notify_changed();
     }
 
@@ -199,12 +208,12 @@ struct property : property_value<T>, notifier<property<T, notifier, traits>> {
         return *this;
     }
 
-    inline constexpr operator typename traits::access_type() const
+    inline constexpr operator access_type() const
     {
-        return property_value<T>::_value;
+        return value_holder_type::_value;
     }
 
-    void notify_changed()
+    inline void notify_changed()
     {
         notifier_type::on_changed(*this);
     }
@@ -216,14 +225,22 @@ struct property : property_value<T>, notifier<property<T, notifier, traits>> {
     using property_value<T>::operator>=;
     using property_value<T>::operator>;
     using property_value<T>::operator->;
+    using property_value<T>::operator*;
 };
 
 template <typename P>
-struct scoped_observer : non_copyable {
+struct scoped_observer {
     inline constexpr scoped_observer(P& property, auto&& action) : _property(property)
     {
         _index = property.add_observer(std::forward<decltype(action)>(action));
     }
+
+    scoped_observer(const scoped_observer&) = delete;
+    scoped_observer(scoped_observer&&) = delete;
+
+    scoped_observer& operator=(const scoped_observer&) = delete;
+    scoped_observer& operator=(scoped_observer&&) = delete;
+
     inline ~scoped_observer()
     {
         _property.remove_observer(_index);
@@ -237,5 +254,38 @@ private:
 inline constexpr auto make_scoped_observer(auto&& p, auto&& action)
 {
     return scoped_observer<decltype(p)>(p, action);
+}
+
+template <typename... Fs>
+struct observer_pack {
+    constexpr observer_pack(Fs&&... fs) : _observers{std::forward<Fs>(fs)...}
+    {
+    }
+
+    template <typename P>
+    constexpr void operator()(P& p)
+    {
+        static_if(std::tuple_size<std::tuple<Fs...>>::value)
+        {
+            notify_observer<P, 0, std::tuple_size<std::tuple<Fs...>>::value>(p);
+        }
+    }
+
+private:
+    template <typename P, size_t index, size_t max>
+    constexpr void notify_observer(P& p)
+    {
+        std::get<index>(_observers)(p);
+        static_if(index + 1 < max) notify_observer<P, index + 1, max>(p);
+    }
+
+private:
+    std::tuple<Fs...> _observers;
+};
+
+template <typename... Fs>
+inline constexpr observer_pack<Fs...> make_observer_pack(Fs&&... fs)
+{
+    return observer_pack<Fs...>(std::forward<Fs>(fs)...);
 }
 }
