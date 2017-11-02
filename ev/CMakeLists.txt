@@ -1,5 +1,5 @@
 add_subdirectory( core )
-add_subdirectory( meta )
+add_subdirectory( ml )
 add_subdirectory( vm )
 add_subdirectory( ocl )
 add_subdirectory( atk )

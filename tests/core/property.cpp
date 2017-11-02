@@ -4,33 +4,6 @@
 #include <ev/core/property.hpp>
 #include <ev/core/logging.hpp>
 
-TEST_CASE("property_observer")
-{
-    ev::property<int> p;
-    int change_count = 0;
-    auto observer = p.add_observer([&](auto& p) { ++change_count; });
-    p = 3;
-    p = 4;
-
-    REQUIRE(change_count == 2);
-
-    p.remove_observer(observer);
-
-    p = 44;
-
-    REQUIRE(change_count == 2);
-
-    {
-        auto observer = ev::make_scoped_observer(p, [&](auto&) { ++change_count; });
-        p = 45;
-
-        REQUIRE(change_count == 3);
-    }
-
-    p = 86;
-    REQUIRE(change_count == 3);
-}
-
 TEST_CASE("property")
 {
     ev::property<int> p;
@@ -64,7 +37,7 @@ TEST_CASE("property")
     REQUIRE(vp2->data() == data);
 }
 
-TEST_CASE("ptr_property")
+TEST_CASE("pointer")
 {
     struct guard {
         bool& alive;
@@ -87,7 +60,7 @@ TEST_CASE("ptr_property")
     REQUIRE(alive == false);
 }
 
-TEST_CASE("property_comparison")
+TEST_CASE("comparison")
 {
     ev::property<int> i1 = 3;
     ev::property<int> i2 = 4;
@@ -129,22 +102,83 @@ TEST_CASE("property_comparison")
 
 TEST_CASE("state_machine")
 {
-    ev::property<int> s0, s1, s2, s3;
+    enum class state { active, inactive };
+    ev::property<state> s0{state::inactive}, s1{state::inactive}, s2{state::inactive},
+        s3{state::inactive};
 
     s0.add_observer([&](auto& p) {
-        if (p < 0)
-            s1 = 1;
+        if (p == state::active)
+            s1 = state::active;
         else
-            s2 = 1;
+            s2 = state::active;
     });
 
-    s1.add_observer([&](auto&) { s3 = -1; });
-    s2.add_observer([&](auto&) { s3 = 1; });
+    s1.add_observer([&](auto&) { s3 = state::active; });
+    s2.add_observer([&](auto&) { s3 = state::inactive; });
 
-    s0 = -1;
+    s0 = state::active;
+    REQUIRE(*s3 == state::active);
 
-    REQUIRE(*s3 == -1);
+    s0 = state::inactive;
+    REQUIRE(*s3 == state::inactive);
+}
 
-    s0 = 1;
-    REQUIRE(*s3 == 1);
+TEST_CASE("move")
+{
+    std::vector<int> v = {1, 2, 3};
+    auto data = v.data();
+    ev::property<std::vector<int>> vp1, vp2;
+    vp1 = std::move(v);
+
+    REQUIRE(vp1->data() == data);
+
+    vp2 = std::move(vp1);
+    REQUIRE(vp2->data() == data);
+}
+
+TEST_CASE("observer")
+{
+    ev::property<int> p;
+    int change_count = 0;
+    auto observer = p.add_observer([&](auto& p) { ++change_count; });
+    p = 3;
+    p = 4;
+
+    REQUIRE(change_count == 2);
+
+    p.remove_observer(observer);
+
+    p = 44;
+    REQUIRE(change_count == 2);
+
+
+}
+
+TEST_CASE("scoped_observer")
+{
+    ev::property<int> p;
+    int change_count = 0;
+    {
+        auto observer = ev::make_scoped_observer(p, [&](auto&) { ++change_count; });
+        p = 45;
+
+        REQUIRE(change_count == 1);
+    }
+
+    p = 86;
+    REQUIRE(change_count == 1);
+}
+
+TEST_CASE("pack")
+{
+    ev::property<int, ev::single_property_notifier> p;
+    int change_count = 0;
+
+    p.set_observer(ev::make_observer_pack([&](auto&&) { ++change_count; },
+                                          [&](auto&&) { ++change_count; },
+                                          [&](auto&&) { ++change_count; }));
+
+    p = 99;
+
+    REQUIRE(change_count == 3);
 }

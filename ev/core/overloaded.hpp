@@ -5,23 +5,24 @@ namespace ev {
 template <class... T>
 struct overloaded;
 
-template <class F0, class... Fs>
-struct overloaded<F0, Fs...> : F0, overloaded<Fs...> {
-    overloaded(F0 f0, Fs&&... fs) : F0(f0), overloaded<Fs...>(std::forward<Fs>(fs)...)
+template <class F, class... Fs>
+struct overloaded<F, Fs...> : F, overloaded<Fs...> {
+    overloaded(F&& f, Fs&&... fs) : F(std::forward<F>(f)),
+        overloaded<Fs...>(std::forward<Fs>(fs)...)
     {
     }
 
-    using F0::operator();
+    using F::operator();
     using overloaded<Fs...>::operator();
 };
 
-template <class F0>
-struct overloaded<F0> : F0 {
-    overloaded(F0 f0) : F0(f0)
+template <class F>
+struct overloaded<F> : F {
+    overloaded(F&& f) : F(std::forward<F>(f))
     {
     }
 
-    using F0::operator();
+    using F::operator();
 };
 
 template <class... Fs>

@@ -23,6 +23,28 @@ template <class P>
 struct property_notifier {
     using observer = std::function<property_observer_signature<P>>;
 
+    property_notifier()=default;
+    inline constexpr property_notifier(const property_notifier& another){
+        if(another._observers)
+            _observers = new std::vector<observer>(*another._observers);
+    }
+    inline constexpr property_notifier(property_notifier&& another){
+        std::swap(_observers,another._observers);
+    }
+    inline constexpr property_notifier& operator=(const property_notifier& another){
+        if(another._observers)
+        {
+            if(_observers) delete _observers;
+            _observers = new std::vector<observer>(*another._observers);
+        }
+        return *this;
+    }
+
+    inline constexpr property_notifier& operator=(property_notifier&& another){
+        std::swap(_observers,another._observers);
+        return *this;
+    }
+
     inline ~property_notifier()
     {
         if (_observers) {
@@ -69,6 +91,14 @@ template <typename P>
 struct single_property_notifier {
     using observer = std::function<property_observer_signature<P>>;
 
+    single_property_notifier() = default;
+    single_property_notifier(const single_property_notifier&) = default;
+    single_property_notifier(single_property_notifier&&) = default;
+
+    single_property_notifier& operator=(const single_property_notifier&) = default;
+    single_property_notifier& operator=(single_property_notifier&&) = default;
+
+
     inline constexpr void set_observer(auto&& obs)
     {
         _observer = std::forward<decltype(obs)>(obs);
@@ -108,6 +138,11 @@ struct property_value {
     {
         return std::is_base_of<property_value<T>, typename std::decay<decltype(val)>::type>::value;
     }
+
+    property_value(const property_value&) = default;
+    property_value(property_value&&) = default;
+    property_value& operator=(const property_value&) = default;
+    property_value& operator=(property_value&&) = default;
 
     inline constexpr property_value()
     {
@@ -187,7 +222,10 @@ struct property : property_value<T>, notifier<property<T, notifier, traits>> {
     {
     }
 
-    constexpr property(const property&) = delete;
+    property(const property&) = default;
+    property& operator=(const property&) = default;
+    property(property&&) = default;
+    property& operator=(property&&) = default;
 
     inline constexpr access_type read() const
     {
