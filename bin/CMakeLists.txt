@@ -25,6 +25,9 @@ add_executable (test_bin test.cpp)
 target_link_libraries(test_bin pthread ${Boost_LIBRARIES})
 ######################################################################################
 
+
+add_executable (ml ml.cpp)
+
 ######################################################################################
 
 #add_executable (mem_c mem_c.cpp)
