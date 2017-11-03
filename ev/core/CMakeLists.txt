@@ -16,6 +16,7 @@ set(HEADER_FILES
     overloaded.hpp
     string_utils.hpp
     thread.hpp
+    traits.hpp
 )
 
 add_library(ev_core STATIC ${HEADER_FILES})
