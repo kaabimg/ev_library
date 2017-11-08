@@ -30,7 +30,10 @@ SET(BOOST_LIB_DIR     ${BOOST_DIR}/lib)
 
 SET(BOOST_ROOT ${BOOST_DIR})
 
-
+## dlib
+SET(DLIB_DIR          /media/ghaith/data/development/installs/dlib/install)
+SET(DLIB_INCLUDE_DIR  ${DLIB_DIR}/include)
+SET(DLIB_LIB_DIR      ${DLIB_DIR}/lib) #optionnal
 
 #########
 

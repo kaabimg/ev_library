@@ -1,6 +1,7 @@
 #pragma once
 
 #include "algorithm.hpp"
+#include "traits.hpp"
 #include <functional>
 #include <vector>
 #include <type_traits>
@@ -9,6 +10,43 @@
 namespace ev {
 template <typename P>
 using property_observer_signature = void(const P&);
+
+template <typename P>
+using property_argless_observer_signature = void();
+
+template <typename P>
+using observer_type = std::function<property_observer_signature<P>>;
+
+template <typename P>
+using argless_observer_type = std::function<property_argless_observer_signature<P>>;
+
+
+template <typename P>
+inline constexpr observer_type<P> make_observer(const observer_type<P>& o)
+{
+    return o;
+}
+
+template <typename P>
+inline constexpr observer_type<P> make_observer(observer_type<P>&& o)
+{
+    return std::move(o);
+}
+
+template <typename P>
+inline constexpr observer_type<P> make_observer(const argless_observer_type<P>& o)
+{
+    argless_observer_type<P> copy = o;
+    return [obs = std::move(copy)](const P&){obs();};
+}
+
+template <typename P>
+inline constexpr observer_type<P> make_observer(argless_observer_type<P>&& o)
+{
+    argless_observer_type<P> copy = std::move(o);
+    return [obs = std::move(copy)](const P&){obs();};
+}
+
 
 template <typename T>
 struct property_trait {
@@ -21,7 +59,7 @@ struct property_trait {
 
 template <class P>
 struct property_notifier {
-    using observer = std::function<property_observer_signature<P>>;
+    using observer = observer_type<P>;
 
     property_notifier()=default;
     inline constexpr property_notifier(const property_notifier& another){
@@ -55,7 +93,7 @@ struct property_notifier {
     inline constexpr size_t add_observer(auto&& obs)
     {
         if (!_observers) _observers = new std::vector<observer>(1);
-        _observers->emplace_back(std::forward<decltype(obs)>(obs));
+        _observers->emplace_back(make_observer<P>(std::forward<decltype(obs)>(obs)));
         return _observers->size() - 1;
     }
     inline constexpr void remove_observer(size_t index)
@@ -89,7 +127,7 @@ protected:
 
 template <typename P>
 struct single_property_notifier {
-    using observer = std::function<property_observer_signature<P>>;
+    using observer = observer_type<P>;
 
     single_property_notifier() = default;
     single_property_notifier(const single_property_notifier&) = default;
@@ -101,7 +139,7 @@ struct single_property_notifier {
 
     inline constexpr void set_observer(auto&& obs)
     {
-        _observer = std::forward<decltype(obs)>(obs);
+        _observer = make_observer<P>(std::forward<decltype(obs)>(obs));
     }
 
     inline constexpr void clear_observer()

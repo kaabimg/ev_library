@@ -3,7 +3,6 @@
 #include "preprocessor.hpp"
 #include <shared_mutex>
 
-
 namespace ev {
 template <typename Mutex>
 struct lock_helper {
@@ -198,13 +197,9 @@ public:
     EV_CONCAT(__ev_synchronized_, EV_ARG_COUNT(__VA_ARGS__)) \
     (__VA_ARGS__)
 #define __ev_synchronized_1(var) __ev_synchronized_2(var, var)
-#define __ev_synchronized_2(var, expression)                                             \
-    if (bool __ev_synchronized_2_stop = false) {                                         \
-    }                                                                                    \
-    else                                                                                 \
-        for (auto _ev_sync_lock = (expression).operator->(); !__ev_synchronized_2_stop;) \
-            for (auto& var = *_ev_sync_lock.operator->(); !__ev_synchronized_2_stop;     \
-                 __ev_synchronized_2_stop = true)
+#define __ev_synchronized_2(var, expression)                  \
+    if (auto _ev_sync_lock = (expression).operator->(); true) \
+        if (auto& var = *_ev_sync_lock.operator->(); true)
 
 #ifndef synchronized
 #define synchronized ev_synchronized

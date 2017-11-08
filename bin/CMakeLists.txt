@@ -25,8 +25,9 @@ add_executable (test_bin test.cpp)
 target_link_libraries(test_bin pthread ${Boost_LIBRARIES})
 ######################################################################################
 
-
+include_directories(${DLIB_INCLUDE_DIR})
 add_executable (ml ml.cpp)
+
 
 ######################################################################################
 
