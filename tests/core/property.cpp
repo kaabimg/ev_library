@@ -151,7 +151,10 @@ TEST_CASE("observer")
     p = 44;
     REQUIRE(change_count == 2);
 
+    p.add_observer([&]() { ++change_count; });
 
+    p = 44;
+    REQUIRE(change_count == 3);
 }
 
 TEST_CASE("scoped_observer")

@@ -22,29 +22,16 @@ using argless_observer_type = std::function<property_argless_observer_signature<
 
 
 template <typename P>
-inline constexpr observer_type<P> make_observer(const observer_type<P>& o)
+inline constexpr observer_type<P> make_observer(observer_type<P> o)
 {
     return o;
 }
 
-template <typename P>
-inline constexpr observer_type<P> make_observer(observer_type<P>&& o)
-{
-    return std::move(o);
-}
 
 template <typename P>
-inline constexpr observer_type<P> make_observer(const argless_observer_type<P>& o)
+inline constexpr observer_type<P> make_observer(argless_observer_type<P> o)
 {
-    argless_observer_type<P> copy = o;
-    return [obs = std::move(copy)](const P&){obs();};
-}
-
-template <typename P>
-inline constexpr observer_type<P> make_observer(argless_observer_type<P>&& o)
-{
-    argless_observer_type<P> copy = std::move(o);
-    return [obs = std::move(copy)](const P&){obs();};
+    return [obs = std::move(o)](const P&){obs();};
 }
 
 
