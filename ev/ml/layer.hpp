@@ -1,6 +1,7 @@
 #pragma once
 
-#include "transfer_function.hpp"
+#include "transfert_function.hpp"
+
 #include <vector>
 #include <algorithm>
 
@@ -44,9 +45,9 @@ protected:
     std::vector<double> _values;
 };
 
-template <typename ActivationFunction>
+template <typename TransferFunction>
 struct layer : basic_layer {
-    using activation_function = ActivationFunction;
+    using transfert_function = TransferFunction;
 
     layer(size_t count) : basic_layer(count), _neurons_data(count)
     {
@@ -60,7 +61,7 @@ struct layer : basic_layer {
     void apply(auto&& f)
     {
         for (size_t i = 0; i < size(); ++i) {
-            f(_values[i],_neurons_data[i]);
+            f(_values[i], _neurons_data[i]);
         }
     }
 
@@ -68,7 +69,7 @@ struct layer : basic_layer {
     {
         const size_t size = l1.size();
 
-        apply([size, &l1, &transfert_fn](auto& value,auto& neuron_data) {
+        apply([size, &l1, &transfert_fn](auto& value, auto& neuron_data) {
             double wx = 0.0;
             for (size_t i = 0; i < size; ++i) {
                 wx += neuron_data.weights[i] * l1(i);
@@ -92,6 +93,7 @@ struct layer : basic_layer {
 
 private:
     std::vector<neuron_data> _neurons_data;
+    transfert_function _tf;
 };
 
 template <typename Neuron>
@@ -104,7 +106,7 @@ inline constexpr void connect(const auto& l1, auto& l2)
 {
     const size_t size = l1.size();
 
-    l2.apply([size](auto&,auto& neuron_data) { neuron_data.weights.resize(size); });
+    l2.apply([size](auto&, auto& neuron_data) { neuron_data.weights.resize(size); });
 }
 
 template <typename F, typename L0, typename L1, typename... Ls>

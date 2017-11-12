@@ -11,9 +11,6 @@ static const construct_inplace_t construct_inplace;
 struct empty_t {
 };
 
-template <typename T>
-struct type_debugger;
-
 struct non_copyable {
     non_copyable() = default;
     ~non_copyable() = default;

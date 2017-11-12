@@ -1,7 +1,7 @@
 set(HEADER_FILES
     neural_network.hpp
     layer.hpp
-    transfer_function.hpp
+    transfert_function.hpp
     algorithm.hpp
 )
 

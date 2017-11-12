@@ -1,5 +1,6 @@
 set(HEADER_FILES
     algorithm.hpp
+    allocator.hpp
     utils.hpp
     file_utils.hpp
     executor.hpp
@@ -17,6 +18,7 @@ set(HEADER_FILES
     string_utils.hpp
     thread.hpp
     traits.hpp
+    meta.hpp
 )
 
 add_library(ev_core STATIC ${HEADER_FILES})
