@@ -6,7 +6,7 @@ namespace ev {
 namespace detail {
 // clang-format off
 static const char* g_debug_prefix    = "[debug]";
-static const char* g_info_prefix     = "[info ]";
+static const char* g_info_prefix     = "[info]";
 static const char* g_warning_prefix  = "[warning]";
 static const char* g_error_prefix    = "[error]";
 static const char* g_critical_prefix = "[critical]";
