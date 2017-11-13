@@ -2,29 +2,33 @@
 
 #include <iostream>
 
-namespace ev
-{
-namespace detail
-{
-static const char* g_debug_prefix    = "[debug...]";
-static const char* g_info_prefix     = "[info....]";
-static const char* g_warning_prefix  = "[warning.]";
-static const char* g_error_prefix    = "[error...]";
+namespace ev {
+namespace detail {
+// clang-format off
+static const char* g_debug_prefix    = "[debug]";
+static const char* g_info_prefix     = "[info ]";
+static const char* g_warning_prefix  = "[warning]";
+static const char* g_error_prefix    = "[error]";
 static const char* g_critical_prefix = "[critical]";
+// clang-format on
 }
 template <typename T>
-struct print_impl
-{
-    static inline void print(std::ostream& out, const T& t) { out << t; }
+struct print_impl {
+    static inline void print(std::ostream& out, const T& t)
+    {
+        out << t;
+    }
 };
 
-struct printer
-{
+struct printer {
     printer(std::ostream& out, const char* prefix = nullptr) : stream(out)
     {
         if (prefix) stream << prefix;
     }
-    ~printer() { stream << std::endl; }
+    ~printer()
+    {
+        stream << std::endl;
+    }
     template <typename T>
     printer& operator[](const T& d)
     {
@@ -42,9 +46,9 @@ struct printer
         return *this;
     }
 
-    printer& write(const char* data,size_t size)
+    printer& write(const char* data, size_t size)
     {
-        stream.write(data,size);
+        stream.write(data, size);
         return *this;
     }
 
@@ -77,3 +81,38 @@ inline printer info(std::ostream& out = std::cout)
 }
 
 }  // ev
+
+#define EV_CUSTOM_PRINTER(type, out, val)                             \
+    namespace ev {                                                    \
+    template <>                                                       \
+    struct print_impl<type> {                                         \
+        static inline void print(std::ostream& out, const type& val); \
+    };                                                                \
+    }                                                                 \
+    inline void ev::print_impl<type>::print(std::ostream& out, const type& val)
+
+#define EV_CUSTOM_TEMPLATE_PRINTER(type, out, val)                        \
+    namespace ev {                                                        \
+    template <typename T>                                                 \
+    struct print_impl<type<T>> {                                          \
+        static inline void print(std::ostream& out, const type<T>& data); \
+    };                                                                    \
+    }                                                                     \
+    template <typename T>                                                 \
+    inline void ev::print_impl<type<T>>::print(std::ostream& out, const type<T>& val)
+
+///////////////////////////////////////////////
+///
+EV_CUSTOM_PRINTER(bool, ostream, data)
+{
+    ostream << (data ? "true" : "false");
+}
+
+///////////////////////////////////////////////
+///
+EV_CUSTOM_PRINTER(std::string, ostream, data)
+{
+    ostream << '\'';
+    ostream << data.c_str();
+    ostream << "'";
+}
