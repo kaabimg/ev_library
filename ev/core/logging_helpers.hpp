@@ -29,9 +29,11 @@ struct print_impl<std::tuple<Args...>> {
     static inline void print(std::ostream& out, const std::tuple<Args...>& t)
     {
         out << "(";
-        ev::for_each2(
-            t, [&out](size_t index, auto&& elem) { out << (index == 0 ? " " : ", ") << elem; });
-        out << ")";
+        ev::for_each2(t, [&out](size_t index, auto&& elem) {
+            out << (index == 0 ? " " : ", ");
+            ev::print_impl<std::decay_t<decltype(elem)>>::print(out, elem);
+        });
+        out << " )";
     }
 };
 }
