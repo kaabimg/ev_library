@@ -29,14 +29,6 @@ struct printer {
     {
         stream << std::endl;
     }
-    template <typename T>
-    printer& operator[](const T& d)
-    {
-        stream << '[';
-        print_impl<T>::print(stream, d);
-        stream << ']';
-        return *this;
-    }
 
     template <typename T>
     printer& operator<<(const T& d)

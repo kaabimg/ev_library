@@ -1,5 +1,6 @@
 #pragma once
 #include "logging.hpp"
+#include "algorithm.hpp"
 #include <vector>
 #include <ostream>
 #include <string>
@@ -19,4 +20,18 @@ EV_CUSTOM_TEMPLATE_PRINTER(std::vector, ostream, data)
         ostream << ' ';
     }
     ostream << ']';
+}
+
+namespace ev {
+
+template <typename... Args>
+struct print_impl<std::tuple<Args...>> {
+    static inline void print(std::ostream& out, const std::tuple<Args...>& t)
+    {
+        out << "(";
+        ev::for_each2(
+            t, [&out](size_t index, auto&& elem) { out << (index == 0 ? " " : ", ") << elem; });
+        out << ")";
+    }
+};
 }
