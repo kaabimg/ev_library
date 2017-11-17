@@ -83,15 +83,6 @@ inline printer info(std::ostream& out = std::cout)
     }                                                                 \
     inline void ev::print_impl<type>::print(std::ostream& out, const type& val)
 
-#define EV_CUSTOM_TEMPLATE_PRINTER(type, out, val)                        \
-    namespace ev {                                                        \
-    template <typename T>                                                 \
-    struct print_impl<type<T>> {                                          \
-        static inline void print(std::ostream& out, const type<T>& data); \
-    };                                                                    \
-    }                                                                     \
-    template <typename T>                                                 \
-    inline void ev::print_impl<type<T>>::print(std::ostream& out, const type<T>& val)
 
 ///////////////////////////////////////////////
 ///

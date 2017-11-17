@@ -117,5 +117,6 @@ auto inline constexpr type_of(auto&& val)
 {
     return type<decltype(val)>();
 }
-
 }
+
+#define ev_type(T) ev::type<T>()
