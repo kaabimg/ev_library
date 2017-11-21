@@ -190,7 +190,7 @@ struct object_member_count_type {
 };
 
 template <typename T>
-inline constexpr auto members(T& obj)
+inline constexpr auto members_of(T& obj)
 {
     return object_member_count_type<T, arity<T>()>(obj);
 }
