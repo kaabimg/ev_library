@@ -1,10 +1,9 @@
-#define CATCH_CONFIG_MAIN
-
+#define BOOST_TEST_MODULE synchronized_data
+#include <boost/test/included/unit_test.hpp>
 #include <ev/core/synchronized_data.hpp>
 #include <thread>
-#include <catch.hpp>
 
-TEST_CASE("synchronized_data_tc")
+BOOST_AUTO_TEST_CASE(synchronized_data)
 {
     ev::synchronized_data<std::vector<int>> sv;
     const int size     = 100;
@@ -33,5 +32,5 @@ TEST_CASE("synchronized_data_tc")
     producer.join();
     consumer.join();
 
-    REQUIRE(sv->empty());
+    BOOST_REQUIRE(sv->empty());
 }

@@ -1,8 +1,9 @@
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#define BOOST_TEST_MODULE scope_guard
+#include <boost/test/included/unit_test.hpp>
+
 #include <ev/core/scope_guard.hpp>
 
-TEST_CASE("scope_guard_tc")
+BOOST_AUTO_TEST_CASE(scope_guard)
 {
     int i = 0;
     {
@@ -11,7 +12,7 @@ TEST_CASE("scope_guard_tc")
             i = 4;
         };
     }
-    REQUIRE(i == 4);
+    BOOST_REQUIRE(i == 4);
 
     int j = 0;
     try {
@@ -23,7 +24,7 @@ TEST_CASE("scope_guard_tc")
     }
     catch (...) {
     }
-    REQUIRE(j == 4);
+    BOOST_REQUIRE(j == 4);
 
     int k = 0;
     try {
@@ -34,7 +35,7 @@ TEST_CASE("scope_guard_tc")
     }
     catch (...) {
     }
-    REQUIRE(k == 4);
+    BOOST_REQUIRE(k == 4);
 
     int l = 0;
     try {
@@ -47,5 +48,5 @@ TEST_CASE("scope_guard_tc")
     }
     catch (...) {
     }
-    REQUIRE(l == 4);
+    BOOST_REQUIRE(l == 4);
 }

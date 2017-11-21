@@ -1,9 +1,10 @@
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#define BOOST_TEST_MODULE executor
+#include <boost/test/included/unit_test.hpp>
+
 #include <ev/core/executor.hpp>
 #include <atomic>
 
-TEST_CASE("executor_tc")
+BOOST_AUTO_TEST_CASE( executor )
 {
     std::atomic_uint counter(0);
     {
@@ -13,5 +14,5 @@ TEST_CASE("executor_tc")
         }
     }
 
-    REQUIRE(counter == 100);
+    BOOST_REQUIRE(counter == 100);
 }

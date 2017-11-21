@@ -1,5 +1,5 @@
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#define BOOST_TEST_MODULE parser
+#include <boost/test/included/unit_test.hpp>
 
 #include <ev/vm/parser/parser.hpp>
 #include <ev/vm/parser/ast.hpp>
@@ -9,7 +9,7 @@
 using namespace ev::vm;
 namespace x3 = boost::spirit::x3;
 
-TEST_CASE("parser::integer")
+BOOST_AUTO_TEST_CASE(integer)
 {
     parser p;
 
@@ -18,27 +18,27 @@ TEST_CASE("parser::integer")
         parser_result ast = p.parse(std::to_string(value));
 
         ast::statement& statement = *ast.statement.get();
-        REQUIRE(statement.type() == ast::statement_type::expression);
+        BOOST_REQUIRE(statement.type() == ast::statement_type::expression);
 
         ast::expression& expression = statement.as<ast::expression>();
         ast::operand& operand = expression.first;
-        REQUIRE(operand.type() == ast::operand_type::expression);
+        BOOST_REQUIRE(operand.type() == ast::operand_type::expression);
 
         expression = operand.as<x3::forward_ast<ast::expression>>();
         operand = expression.first;
-        REQUIRE(operand.type() == ast::operand_type::number);
+        BOOST_REQUIRE(operand.type() == ast::operand_type::number);
 
         ast::number& number = operand.as<ast::number>();
-        REQUIRE(number.type() == ast::number_type::i32);
+        BOOST_REQUIRE(number.type() == ast::number_type::i32);
 
-        REQUIRE(number.get<int32_t>() == value);
+        BOOST_REQUIRE(number.get<int32_t>() == value);
     }
     catch (const std::exception& e) {
-        FAIL(e.what());
+        BOOST_FAIL(e.what());
     }
 }
 
-TEST_CASE("parser::long")
+BOOST_AUTO_TEST_CASE(long_)
 {
     parser p;
 
@@ -47,27 +47,27 @@ TEST_CASE("parser::long")
         parser_result ast = p.parse(std::to_string(value));
 
         ast::statement& statement = *ast.statement.get();
-        REQUIRE(statement.type() == ast::statement_type::expression);
+        BOOST_REQUIRE(statement.type() == ast::statement_type::expression);
 
         ast::expression& expression = statement.as<ast::expression>();
         ast::operand& operand = expression.first;
-        REQUIRE(operand.type() == ast::operand_type::expression);
+        BOOST_REQUIRE(operand.type() == ast::operand_type::expression);
 
         expression = operand.as<x3::forward_ast<ast::expression>>();
         operand = expression.first;
-        REQUIRE(operand.type() == ast::operand_type::number);
+        BOOST_REQUIRE(operand.type() == ast::operand_type::number);
 
         ast::number& number = operand.as<ast::number>();
-        REQUIRE(number.type() == ast::number_type::i64);
+        BOOST_REQUIRE(number.type() == ast::number_type::i64);
 
-        REQUIRE(number.get<int64_t>() == value);
+        BOOST_REQUIRE(number.get<int64_t>() == value);
     }
     catch (const std::exception& e) {
-        FAIL(e.what());
+        BOOST_FAIL(e.what());
     }
 }
 
-TEST_CASE("parser::float")
+BOOST_AUTO_TEST_CASE(float_)
 {
     parser p;
 
@@ -78,49 +78,49 @@ TEST_CASE("parser::float")
         parser_result ast = p.parse(std::to_string(value));
 
         ast::statement& statement = *ast.statement.get();
-        REQUIRE(statement.type() == ast::statement_type::expression);
+        BOOST_REQUIRE(statement.type() == ast::statement_type::expression);
 
         ast::expression& expression = statement.as<ast::expression>();
         ast::operand& operand = expression.first;
-        REQUIRE(operand.type() == ast::operand_type::expression);
+        BOOST_REQUIRE(operand.type() == ast::operand_type::expression);
 
         expression = operand.as<x3::forward_ast<ast::expression>>();
         operand = expression.first;
-        REQUIRE(operand.type() == ast::operand_type::number);
+        BOOST_REQUIRE(operand.type() == ast::operand_type::number);
 
         ast::number& number = operand.as<ast::number>();
-        REQUIRE(number.type() == ast::number_type::r32);
+        BOOST_REQUIRE(number.type() == ast::number_type::r32);
 
-        REQUIRE(number.get<float>() == value);
+        BOOST_REQUIRE(number.get<float>() == value);
     }
     catch (const std::exception& e) {
-        FAIL(e.what());
+        BOOST_FAIL(e.what());
     }
 }
 
-TEST_CASE("parser::double")
+BOOST_AUTO_TEST_CASE(double_)
 {
     parser p;
 
     try {
         parser_result ast = p.parse(std::to_string(DBL_MAX));
         ast::statement& statement = *ast.statement.get();
-        REQUIRE(statement.type() == ast::statement_type::expression);
+        BOOST_REQUIRE(statement.type() == ast::statement_type::expression);
 
         ast::expression& expression = statement.as<ast::expression>();
         ast::operand& operand = expression.first;
-        REQUIRE(operand.type() == ast::operand_type::expression);
+        BOOST_REQUIRE(operand.type() == ast::operand_type::expression);
 
         expression = operand.as<x3::forward_ast<ast::expression>>();
         operand = expression.first;
-        REQUIRE(operand.type() == ast::operand_type::number);
+        BOOST_REQUIRE(operand.type() == ast::operand_type::number);
 
         ast::number& number = operand.as<ast::number>();
-        REQUIRE(number.type() == ast::number_type::r64);
+        BOOST_REQUIRE(number.type() == ast::number_type::r64);
 
-        REQUIRE(number.get<double>() == DBL_MAX);
+        BOOST_REQUIRE(number.get<double>() == DBL_MAX);
     }
     catch (const std::exception& e) {
-        FAIL(e.what());
+        BOOST_FAIL(e.what());
     }
 }

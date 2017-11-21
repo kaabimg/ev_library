@@ -1,20 +1,20 @@
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#define BOOST_TEST_MODULE string_utils
+#include <boost/test/included/unit_test.hpp>
 #include <ev/core/string_utils.hpp>
 
-TEST_CASE("string_utils")
+BOOST_AUTO_TEST_CASE(string_utils)
 {
     auto list = ev::split_str("1,2,3", ',');
 
-    REQUIRE(list.size() == 3);
-    REQUIRE(list[0] == "1");
-    REQUIRE(list[1] == "2");
-    REQUIRE(list[2] == "3");
+    BOOST_REQUIRE(list.size() == 3);
+    BOOST_REQUIRE(list[0] == "1");
+    BOOST_REQUIRE(list[1] == "2");
+    BOOST_REQUIRE(list[2] == "3");
 
     list = ev::split_str("1,2;3", [](char c) { return c == ',' || c == ';' ; });
 
-    REQUIRE(list.size() == 3);
-    REQUIRE(list[0] == "1");
-    REQUIRE(list[1] == "2");
-    REQUIRE(list[2] == "3");
+    BOOST_REQUIRE(list.size() == 3);
+    BOOST_REQUIRE(list[0] == "1");
+    BOOST_REQUIRE(list[1] == "2");
+    BOOST_REQUIRE(list[2] == "3");
 }
