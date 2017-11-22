@@ -9,13 +9,13 @@ BOOST_AUTO_TEST_CASE(property)
     ev::property<int> p;
     p = 32;
 
-    BOOST_REQUIRE(p == 32);
-    BOOST_REQUIRE(p.read() == 32);
+    BOOST_CHECK_EQUAL(p, 32);
+    BOOST_CHECK_EQUAL(p.read(), 32);
 
     p.write(43);
 
-    BOOST_REQUIRE(p == 43);
-    BOOST_REQUIRE(p.read() == 43);
+    BOOST_CHECK_EQUAL(p, 43);
+    BOOST_CHECK_EQUAL(p.read(), 43);
 
     std::vector<int> vec = {1, 2, 3};
 
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(property)
 
     vp = std::move(vec);
 
-    BOOST_REQUIRE(vp->data() == data);
+    BOOST_CHECK_EQUAL(vp->data(), data);
 
     ev::property<std::vector<int>> vp1;
     vp1->push_back(1);
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(property)
     data = vp1->data();
 
     ev::property<std::vector<int>> vp2 = std::move(vp1);
-    BOOST_REQUIRE(vp2->data() == data);
+    BOOST_CHECK_EQUAL(vp2->data(), data);
 }
 
 BOOST_AUTO_TEST_CASE(pointer)
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(pointer)
         p = new guard(alive);
     }
 
-    BOOST_REQUIRE(alive == false);
+    BOOST_CHECK_EQUAL(alive, false);
 }
 
 BOOST_AUTO_TEST_CASE(comparison)
@@ -65,25 +65,25 @@ BOOST_AUTO_TEST_CASE(comparison)
     ev::property<int> i1 = 3;
     ev::property<int> i2 = 4;
 
-    BOOST_REQUIRE(i1 < i2);
-    BOOST_REQUIRE(i1 < 4);
-    BOOST_REQUIRE(i1 < 4.58);
+    BOOST_CHECK_LT(i1, i2);
+    BOOST_CHECK_LT(i1, 4);
+    BOOST_CHECK_LT(i1, 4.58);
 
     i2 = i1;
 
-    BOOST_REQUIRE(i1 == i2);
+    BOOST_CHECK_EQUAL(i1, i2);
 
     std::string a, b;
-    BOOST_REQUIRE(a == b);
+    BOOST_CHECK_EQUAL(a, b);
 
     ev::property<std::string> s1 = "hello";
     ev::property<std::string> s2 = "hello";
 
-    BOOST_REQUIRE(s1 == s2);
+    BOOST_CHECK(s1 == s2);
 
     s2 = "gd";
 
-    BOOST_REQUIRE(s1 != s2);
+    BOOST_CHECK(s1 != s2);
 
     struct foo {
         mutable bool entred = false;
@@ -96,8 +96,8 @@ BOOST_AUTO_TEST_CASE(comparison)
 
     ev::property<foo> f1, f2;
 
-    BOOST_REQUIRE(!(f1 == f2));
-    BOOST_REQUIRE(f1->entred);
+    BOOST_CHECK(!(f1 == f2));
+    BOOST_CHECK(f1->entred);
 }
 
 BOOST_AUTO_TEST_CASE(state_machine)
@@ -117,10 +117,10 @@ BOOST_AUTO_TEST_CASE(state_machine)
     s2.add_observer([&](auto&) { s3 = state::inactive; });
 
     s0 = state::active;
-    BOOST_REQUIRE(*s3 == state::active);
+    BOOST_CHECK(*s3 == state::active);
 
     s0 = state::inactive;
-    BOOST_REQUIRE(*s3 == state::inactive);
+    BOOST_CHECK(*s3 == state::inactive);
 }
 
 BOOST_AUTO_TEST_CASE(move)
@@ -130,10 +130,10 @@ BOOST_AUTO_TEST_CASE(move)
     ev::property<std::vector<int>> vp1, vp2;
     vp1 = std::move(v);
 
-    BOOST_REQUIRE(vp1->data() == data);
+    BOOST_CHECK_EQUAL(vp1->data(), data);
 
     vp2 = std::move(vp1);
-    BOOST_REQUIRE(vp2->data() == data);
+    BOOST_CHECK_EQUAL(vp2->data(), data);
 }
 
 BOOST_AUTO_TEST_CASE(observer)
@@ -144,17 +144,17 @@ BOOST_AUTO_TEST_CASE(observer)
     p = 3;
     p = 4;
 
-    BOOST_REQUIRE(change_count == 2);
+    BOOST_CHECK_EQUAL(change_count, 2);
 
     p.remove_observer(observer);
 
     p = 44;
-    BOOST_REQUIRE(change_count == 2);
+    BOOST_CHECK_EQUAL(change_count, 2);
 
     p.add_observer([&]() { ++change_count; });
 
     p = 44;
-    BOOST_REQUIRE(change_count == 3);
+    BOOST_CHECK_EQUAL(change_count, 3);
 }
 
 BOOST_AUTO_TEST_CASE(scoped_observer)
@@ -165,11 +165,11 @@ BOOST_AUTO_TEST_CASE(scoped_observer)
         auto observer = ev::make_scoped_observer(p, [&](auto&) { ++change_count; });
         p = 45;
 
-        BOOST_REQUIRE(change_count == 1);
+        BOOST_CHECK_EQUAL(change_count, 1);
     }
 
     p = 86;
-    BOOST_REQUIRE(change_count == 1);
+    BOOST_CHECK_EQUAL(change_count, 1);
 }
 
 BOOST_AUTO_TEST_CASE(pack)
@@ -183,5 +183,5 @@ BOOST_AUTO_TEST_CASE(pack)
 
     p = 99;
 
-    BOOST_REQUIRE(change_count == 3);
+    BOOST_CHECK_EQUAL(change_count, 3);
 }

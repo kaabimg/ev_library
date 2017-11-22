@@ -9,7 +9,6 @@ set(HEADER_FILES
     synchronized_data.hpp
     preprocessor.hpp
     scope_guard.hpp
-    object.hpp
     flags.hpp
     basic_types.hpp
     property.hpp
