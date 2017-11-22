@@ -120,3 +120,4 @@ auto inline constexpr type_of(auto&& val)
 }
 
 #define ev_type(T) ev::type<T>()
+#define ev_inner_type(type_instance) decltype(type_instance)::inner_type

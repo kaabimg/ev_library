@@ -113,6 +113,8 @@ inline constexpr auto members_of(T&& obj)
 template <typename T, size_t Arity>
 inline void for_each(object_arity_type<T, Arity>& obj, auto&& f)
 {
+    static_assert(Arity <= 10, "Extend me");
+
     if constexpr (Arity == 1) {
         auto & [m0] = obj.object;
         f(m0);
@@ -202,6 +204,8 @@ inline void for_each(object_arity_type<T, Arity>& obj, auto&& f)
 template <typename T, size_t Arity>
 inline void for_each(object_arity_type<T, Arity>&& obj, auto&& f)
 {
+    static_assert(Arity <= 10, "Extend me");
+
     if constexpr (Arity == 1) {
         auto & [m0] = obj.object;
         f(m0);
@@ -291,6 +295,8 @@ inline void for_each(object_arity_type<T, Arity>&& obj, auto&& f)
 template <typename T, size_t Arity>
 inline void for_each2(object_arity_type<T, Arity>& obj, auto&& f)
 {
+    static_assert(Arity <= 10, "Extend me");
+
     if constexpr (Arity == 1) {
         auto & [m0] = obj.object;
         f(0,m0);
@@ -380,6 +386,8 @@ inline void for_each2(object_arity_type<T, Arity>& obj, auto&& f)
 template <typename T, size_t Arity>
 inline void for_each2(object_arity_type<T, Arity>&& obj, auto&& f)
 {
+    static_assert(Arity <= 10, "Extend me");
+
     if constexpr (Arity == 1) {
         auto & [m0] = obj.object;
         f(0,m0);
