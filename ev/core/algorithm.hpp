@@ -2,6 +2,8 @@
 
 #include "traits.hpp"
 
+#include <algorithm>
+
 namespace ev {
 
 // clang-format off
