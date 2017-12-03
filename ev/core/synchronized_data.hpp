@@ -46,8 +46,8 @@ struct lock_helper<std::mutex> {
 
 template <typename T, typename Mutex = std::shared_mutex>
 class synchronized_data {
-    T m_data;
-    mutable Mutex m_mutex;
+    T _data;
+    mutable Mutex _mutex;
 
 public:
     using data_type = T;
@@ -55,19 +55,19 @@ public:
 
     template <typename TA, void(lock_function)(Mutex&), void(unlock_function)(Mutex&)>
     class locker {
-        synchronized_data* m_data = nullptr;
+        synchronized_data* _data = nullptr;
 
     public:
-        inline locker(synchronized_data* d) : m_data(d)
+        inline locker(synchronized_data* d) : _data(d)
         {
             lock();
         }
-        inline locker(const locker& rhs) : locker(rhs.m_data)
+        inline locker(const locker& rhs) : locker(rhs._data)
         {
         }
         inline locker(locker&& rhs)
         {
-            std::swap(m_data, rhs.m_data);
+            std::swap(_data, rhs._data);
         }
         inline ~locker()
         {
@@ -76,30 +76,30 @@ public:
         inline locker& operator=(const locker& rhs)
         {
             unlock();
-            m_data = rhs.m_data;
+            _data = rhs._data;
             lock();
             return *this;
         }
 
         inline locker& operator=(locker&& rhs)
         {
-            std::swap(m_data, rhs.m_data);
+            std::swap(_data, rhs._data);
             return *this;
         }
 
         inline TA* operator->()
         {
-            return &m_data->m_data;
+            return &_data->_data;
         }
 
     private:
         void lock()
         {
-            if (m_data) lock_function(m_data->m_mutex);
+            if (_data) lock_function(_data->_mutex);
         }
         void unlock()
         {
-            if (m_data) unlock_function(m_data->m_mutex);
+            if (_data) unlock_function(_data->_mutex);
         }
     };
 
@@ -117,19 +117,19 @@ public:
     {
         auto read_lock = rhs.acquire_shared_lock();
         ev_unused(read_lock);
-        m_data = rhs.m_data;
+        _data = rhs._data;
     }
 
     synchronized_data(synchronized_data&& rhs) noexcept(
         std::is_nothrow_move_constructible<T>::value)
-        : m_data(std::move(rhs.m_data))
+        : _data(std::move(rhs._data))
     {
     }
 
-    synchronized_data(const T& d) noexcept(std::is_nothrow_copy_constructible<T>::value) : m_data(d)
+    synchronized_data(const T& d) noexcept(std::is_nothrow_copy_constructible<T>::value) : _data(d)
     {
     }
-    synchronized_data(T&& d) : m_data(std::move(d))
+    synchronized_data(T&& d) : _data(std::move(d))
     {
     }
     synchronized_data& operator=(const synchronized_data& rhs) noexcept(
@@ -140,14 +140,14 @@ public:
             auto rl = rhs.acquire_shared_lock();
             ev_unused(wl);
             ev_unused(rl);
-            m_data = rhs.m_data;
+            _data = rhs._data;
         }
         else if (this > &rhs) {
             auto rl = rhs.acquire_shared_lock();
             auto wl = acquire_exclusive_lock();
             ev_unused(wl);
             ev_unused(rl);
-            m_data = rhs.m_data;
+            _data = rhs._data;
         }
         return *this;
     }
@@ -157,7 +157,7 @@ public:
     {
         auto lock = acquire_exclusive_lock();
         ev_unused(lock);
-        m_data = std::move(rhs);
+        _data = std::move(rhs);
         return *this;
     }
 
@@ -187,7 +187,7 @@ public:
     {
         auto lock = acquire_shared_lock();
         ev_unused(lock);
-        return m_data;
+        return _data;
     }
 };
 
