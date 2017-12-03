@@ -1,6 +1,7 @@
 
 set(EXECUTABLE_OUTPUT_PATH ${BIN_DIR})
 
+find_package(Boost REQUIRED system thread)
 include_directories(${BOOST_INCLUDE_DIR})
 
 add_executable (virtual_machine "vm.cpp")
@@ -20,14 +21,12 @@ if (OpenCL_FOUND)
 endif()
 ######################################################################################
 
-find_package(Boost REQUIRED system thread)
 add_executable (test_bin test.cpp)
 target_link_libraries(test_bin pthread ${Boost_LIBRARIES})
 ######################################################################################
 
-include_directories(${DLIB_INCLUDE_DIR})
 add_executable (ml ml.cpp)
-
+target_link_libraries(ml pthread ${Boost_LIBRARIES})
 
 ######################################################################################
 

@@ -125,13 +125,14 @@ constexpr auto is_paren_constructible()
 template <size_t N>
 using arity_type = std::integral_constant<size_t, N>;
 
-#define EV_MAKE_ARITY_FUNCTION(count)                                                            \
-    template <typename T, typename = std::enable_if_t<is_brace_constructible<T, count>() &&      \
-                                                      !is_brace_constructible<T, count + 1>() && \
-                                                      !is_paren_constructible<T, count>()>>      \
-    constexpr arity_type<count> arity()                                                          \
-    {                                                                                            \
-        return {};                                                                               \
+#define EV_MAKE_ARITY_FUNCTION(count)                                                \
+    template <typename T,                                                            \
+              typename = std::enable_if_t<is_brace_constructible<T, count>() &&      \
+                                          !is_brace_constructible<T, count + 1>() && \
+                                          !is_paren_constructible<T, count>()>>      \
+    constexpr arity_type<count> arity()                                              \
+    {                                                                                \
+        return {};                                                                   \
     }
 
 template <typename T, typename = std::enable_if_t<std::is_class<T>{} && std::is_empty<T>{}>>
@@ -179,4 +180,47 @@ struct object_arity_type {
         return Arity;
     }
 };
+
+namespace detail {
+template <typename F,
+          typename... Args,
+          typename = decltype(std::declval<F&&>()(std::declval<Args&&>()...))>
+constexpr auto is_valid(int)
+{
+    return true;
 }
+
+template <typename F, typename... Args>
+constexpr auto is_valid(...)
+{
+    return false;
+}
+
+template <typename F>
+struct is_valid_function {
+    template <typename... Args>
+    constexpr auto operator()(Args&&...) const
+    {
+        return is_valid<F, Args&&...>(int{});
+    }
+};
+}
+
+struct is_valid_type {
+    template <typename F>
+    constexpr auto operator()(F&&) const
+    {
+        return detail::is_valid_function<F&&>{};
+    }
+
+    template <typename F, typename... Args>
+    constexpr auto operator()(F&&, Args&&...) const
+    {
+        return detail::is_valid<F&&, Args&&...>(int{});
+    }
+};
+
+constexpr is_valid_type is_valid{};
+}
+
+#define EV_HAS_MEMBER(member) [](auto&& x) -> decltype((void)x.member) {}

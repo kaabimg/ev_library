@@ -1,6 +1,5 @@
 #include <ev/core/logging_helpers.hpp>
 #include <ev/core/preprocessor.hpp>
-#include <ev/core/executor.hpp>
 
 #include <vector>
 #include <future>
