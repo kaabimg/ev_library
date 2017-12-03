@@ -13,39 +13,39 @@ public:
     }
     flags(Enum val)
     {
-        m_data = static_cast<data_type>(val);
+        _data = static_cast<data_type>(val);
     }
     data_type data() const
     {
-        return m_data;
+        return _data;
     }
     static flags from_value(data_type val)
     {
         flags f;
-        f.m_data = static_cast<data_type>(val);
+        f._data = static_cast<data_type>(val);
         return f;
     }
 
     flags operator|(Enum val)
     {
-        return from_value(m_data | static_cast<data_type>(val));
+        return from_value(_data | static_cast<data_type>(val));
     }
 
     bool test(Enum val)
     {
-        return (m_data & static_cast<data_type>(val)) != 0;
+        return (_data & static_cast<data_type>(val)) != 0;
     }
     void clear(Enum val)
     {
-        m_data &= ~static_cast<data_type>(val);
+        _data &= ~static_cast<data_type>(val);
     }
     void enable(Enum val)
     {
-        m_data |= static_cast<data_type>(val);
+        _data |= static_cast<data_type>(val);
     }
 
 private:
-    data_type m_data = 0;
+    data_type _data = 0;
 };
 
 template <typename Enum>

@@ -43,14 +43,14 @@ private:
 
     using map_type = typename std::unordered_map<key_type, node_t>;
 
-    map_type m_data_map;
-    mutable list_type m_data_list;
-    std::size_t m_capacity;
+    map_type _data_map;
+    mutable list_type _data_list;
+    std::size_t _capacity;
 };
 
 template <typename Key, typename T>
 inline lru_cache<Key, T>::lru_cache(std::size_t capacity)
-    : m_capacity(std::max<size_t>(capacity, 1))
+    : _capacity(std::max<size_t>(capacity, 1))
 {
 }
 
@@ -75,19 +75,19 @@ inline std::shared_ptr<T> lru_cache<Key, T>::insert(const Key& key, T&& d)
 template <typename Key, typename T>
 inline std::shared_ptr<T> lru_cache<Key, T>::insert(const Key& key, std::shared_ptr<T> dptr)
 {
-    typename map_type::iterator i = m_data_map.find(key);
+    typename map_type::iterator i = _data_map.find(key);
 
-    if (i == m_data_map.end()) {
+    if (i == _data_map.end()) {
         // insert the new item
-        auto ret = m_data_map.insert({key, {dptr, m_data_list.end()}});
+        auto ret = _data_map.insert({key, {dptr, _data_list.end()}});
         if (!ret.second) return nullptr;
-        m_data_list.push_front(key);
-        m_data_map[key].pos = m_data_list.begin();
+        _data_list.push_front(key);
+        _data_map[key].pos = _data_list.begin();
     }
     else {
-        m_data_list.erase(i->second.pos);
-        m_data_list.push_front(key);
-        m_data_map[key] = {dptr, m_data_list.begin()};
+        _data_list.erase(i->second.pos);
+        _data_list.push_front(key);
+        _data_map[key] = {dptr, _data_list.begin()};
     }
     evict_if_full();
 
@@ -97,12 +97,12 @@ inline std::shared_ptr<T> lru_cache<Key, T>::insert(const Key& key, std::shared_
 template <typename Key, typename T>
 inline std::shared_ptr<T> lru_cache<Key, T>::get(const Key& key) const
 {
-    auto iter = m_data_map.find(key);
-    if (iter != m_data_map.end()) {
+    auto iter = _data_map.find(key);
+    if (iter != _data_map.end()) {
         // make this value hot
-        m_data_list.erase(iter->second.pos);
-        m_data_list.push_front(key);
-        iter->second.pos = m_data_list.begin();
+        _data_list.erase(iter->second.pos);
+        _data_list.push_front(key);
+        iter->second.pos = _data_list.begin();
         return iter->second.data;
     }
     return nullptr;
@@ -111,10 +111,10 @@ inline std::shared_ptr<T> lru_cache<Key, T>::get(const Key& key) const
 template <typename Key, typename T>
 inline bool lru_cache<Key, T>::remove(const Key& key)
 {
-    auto pos = m_data_map.find(key);
+    auto pos = _data_map.find(key);
     if (pos) {
-        m_data_list.erase(pos->second);
-        m_data_map.erase(key);
+        _data_list.erase(pos->second);
+        _data_map.erase(key);
         return true;
     }
     return false;
@@ -123,32 +123,32 @@ inline bool lru_cache<Key, T>::remove(const Key& key)
 template <typename Key, typename T>
 inline size_t lru_cache<Key, T>::size() const
 {
-    return m_data_list.size();
+    return _data_list.size();
 }
 
 template <typename Key, typename T>
 inline size_t lru_cache<Key, T>::capacity() const
 {
-    return m_capacity;
+    return _capacity;
 }
 
 template <typename Key, typename T>
 inline bool lru_cache<Key, T>::empty() const
 {
-    return m_data_list.empty();
+    return _data_list.empty();
 }
 
 template <typename Key, typename T>
 inline bool lru_cache<Key, T>::contains(const Key& key) const
 {
-    return m_data_map.find(key) != m_data_map.end();
+    return _data_map.find(key) != _data_map.end();
 }
 
 template <typename Key, typename T>
 inline void lru_cache<Key, T>::set_capacity(std::size_t capacity)
 {
-    m_capacity = capacity;
-    while (size() > m_capacity) {
+    _capacity = capacity;
+    while (size() > _capacity) {
         evict_if_full();
     }
 }
@@ -156,9 +156,9 @@ inline void lru_cache<Key, T>::set_capacity(std::size_t capacity)
 template <typename Key, typename T>
 inline void lru_cache<Key, T>::evict_if_full()
 {
-    if (size() > m_capacity) {
-        m_data_map.erase(m_data_list.back());
-        m_data_list.pop_back();
+    if (size() > _capacity) {
+        _data_map.erase(_data_list.back());
+        _data_list.pop_back();
     }
 }
 }

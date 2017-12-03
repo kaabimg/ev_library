@@ -17,6 +17,7 @@ class executor {
 
 public:
     executor(size_t thread_count = std::max(1u, boost::thread::hardware_concurrency()));
+    ~executor();
 
     size_t thread_count() const;
 
@@ -31,10 +32,7 @@ public:
     template <class F>
     inline executor& operator<<(F&& f);
 
-    ~executor();
-
-protected:
-    void join_all();
+private:
     template <typename F>
     void dispatch(F&& f);
 
@@ -115,7 +113,7 @@ inline size_t executor::thread_count() const
 }
 
 template <typename F>
-void executor::dispatch(F&& f)
+inline void executor::dispatch(F&& f)
 {
     std::min_element(_execution_queues.begin(), _execution_queues.end(), [](auto&& l, auto&& r) {
         return l.job_count < r.job_count;
@@ -148,11 +146,6 @@ inline executor& executor::operator<<(F&& f)
     return *this;
 }
 
-inline void executor::join_all()
-{
-    for (auto& q : _execution_queues) q.thread.join();
-}
-
 inline void executor::wait()
 {
     latch sync_latch{uint(thread_count())};
@@ -164,7 +157,7 @@ inline void executor::wait()
 inline executor::~executor()
 {
     for (auto& q : _execution_queues) q.stop();
-    join_all();
+    for (auto& q : _execution_queues) q.thread.join();
 }
 
 }  // ev
