@@ -43,9 +43,9 @@ private:
         std::queue<task_type> tasks;
         std::mutex queue_mutex;
         std::condition_variable wait_condition;
+        std::thread thread;
         std::atomic_uint job_count{0};
         bool done = false;
-        std::thread thread;
 
         execution_queue();
         void push(task_type&& task);
@@ -60,6 +60,7 @@ private:
 executor::execution_queue::execution_queue() : thread([this] { work(); })
 {
 }
+
 
 inline void executor::execution_queue::push(executor::task_type&& task)
 {

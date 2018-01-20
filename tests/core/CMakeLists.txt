@@ -18,3 +18,6 @@ add_simple_test(flags)
 add_simple_test(lru_cache)
 add_simple_test(algorithm)
 add_simple_test(overloaded)
+
+add_executable (pimpl_tst pimpl.cpp pimpl_class.hpp pimpl_class.cpp)
+

@@ -18,6 +18,7 @@ set(HEADER_FILES
     thread.hpp
     traits.hpp
     meta.hpp
+    pimpl.hpp
 )
 
 add_library(ev_core STATIC ${HEADER_FILES})

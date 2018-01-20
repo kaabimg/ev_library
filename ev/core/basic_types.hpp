@@ -3,11 +3,6 @@
 
 namespace ev {
 
-struct construct_inplace_t {
-};
-
-static const construct_inplace_t construct_inplace;
-
 struct empty_t {
 };
 

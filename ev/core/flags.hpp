@@ -31,6 +31,11 @@ public:
         return from_value(_data | static_cast<data_type>(val));
     }
 
+    flags& operator|=(Enum val)
+    {
+        return *this =  *this | val;
+    }
+
     bool test(Enum val)
     {
         return (_data & static_cast<data_type>(val)) != 0;

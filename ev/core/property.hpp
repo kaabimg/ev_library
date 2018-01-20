@@ -47,7 +47,6 @@ struct property_trait {
 template <class P>
 struct property_notifier {
     using observer = observer_type<P>;
-
     property_notifier()=default;
     inline constexpr property_notifier(const property_notifier& another){
         if(another._observers)
