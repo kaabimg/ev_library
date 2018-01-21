@@ -1,6 +1,6 @@
 #pragma once
 
-#include "thread.hpp"
+#include <ev/core/thread.hpp>
 
 #include <condition_variable>
 #include <functional>

@@ -1,10 +1,11 @@
 #pragma once
 
+#include <ev/core/logging.hpp>
+
 #include <unordered_map>
 #include <list>
 #include <memory>
 
-#include <ev/core/logging.hpp>
 namespace ev {
 
 template <typename Key, typename T>
@@ -49,8 +50,7 @@ private:
 };
 
 template <typename Key, typename T>
-inline lru_cache<Key, T>::lru_cache(std::size_t capacity)
-    : _capacity(std::max<size_t>(capacity, 1))
+inline lru_cache<Key, T>::lru_cache(std::size_t capacity) : _capacity(std::max<size_t>(capacity, 1))
 {
 }
 

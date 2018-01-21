@@ -1,5 +1,4 @@
 add_subdirectory( core )
-add_subdirectory( execution_flow )
 add_subdirectory( ml )
 add_subdirectory( vm )
 add_subdirectory( ocl )

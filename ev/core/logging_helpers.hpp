@@ -1,6 +1,7 @@
 #pragma once
-#include "logging.hpp"
-#include "algorithm.hpp"
+#include <ev/core/logging.hpp>
+#include <ev/core/algorithm.hpp>
+
 #include <vector>
 #include <ostream>
 #include <string>

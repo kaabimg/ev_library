@@ -19,7 +19,8 @@ set(HEADER_FILES
     traits.hpp
     meta.hpp
     pimpl.hpp
-)
+    execution_flow.hpp
+    )
 
 add_library(ev_core STATIC ${HEADER_FILES})
 set_target_properties(ev_core PROPERTIES LINKER_LANGUAGE CXX)

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "algorithm.hpp"
-#include "traits.hpp"
+#include <ev/core/algorithm.hpp>
+#include <ev/core/traits.hpp>
 #include <functional>
 #include <vector>
 #include <type_traits>
