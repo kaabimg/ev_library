@@ -116,3 +116,13 @@ function_type_ptr bimpl_type::ftype()
 {
     return _impl->ftype;
 }
+
+
+struct trivially_destructible_bimpl::impl {
+    int32_t a,b;
+};
+
+trivially_destructible_bimpl::trivially_destructible_bimpl()
+{
+
+}

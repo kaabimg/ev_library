@@ -52,26 +52,37 @@ inline void check_storage_size()
 {
     static_assert(StogateSize == ClassSize, "Invalid storage size");
 }
+
+template <size_t StogateAlignment, size_t ClassAlignment>
+inline void check_storage_alignment()
+{
+    static_assert(StogateAlignment == ClassAlignment, "Invalid storage alignment");
 }
-template <typename T, size_t Size>
+
+}
+template <typename T, size_t Size,size_t Alignment, bool IsTriviallyDestructible = false>
 class bimpl {
 public:
     /////////////
     static void check_size_validity()
     {
+        static_assert(!IsTriviallyDestructible ||
+                          IsTriviallyDestructible == std::is_trivially_destructible<T>::value,
+                      "Invalid IsTriviallyDestructible parameter");
         detail::check_storage_size<Size, sizeof(T)>();
+        detail::check_storage_alignment<Alignment, alignof(T)>();
     }
 
     T* operator->()
     {
         check_size_validity();
-        return reinterpret_cast<T*>(this);
+        return reinterpret_cast<T*>(&_storage);
     }
 
     const T* operator->() const
     {
         check_size_validity();
-        return reinterpret_cast<const T*>(this);
+        return reinterpret_cast<const T*>(&_storage);
     }
 
     /////////////
@@ -85,8 +96,10 @@ public:
 
     ~bimpl()
     {
-        check_size_validity();
-        self().~T();
+        if constexpr (!IsTriviallyDestructible) {
+            check_size_validity();
+            self().~T();
+        }
     }
 
     bimpl(const bimpl& rhs)
@@ -118,12 +131,12 @@ public:
 private:
     T& self()
     {
-        return reinterpret_cast<T&>(*this);
+        return reinterpret_cast<T&>(_storage);
     }
 
     const T& self() const
     {
-        return reinterpret_cast<const T&>(*this);
+        return reinterpret_cast<const T&>(_storage);
     }
 
     template <typename... Args>
@@ -133,6 +146,6 @@ private:
     }
 
 private:
-    char _storage[Size];
+    typename std::aligned_storage<Size,Alignment>::type _storage;
 };
 }

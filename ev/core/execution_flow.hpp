@@ -35,7 +35,7 @@ struct execution_graph_connection {
     using condition = std::function<bool(R&)>;
 
     action act;
-    condition cond = [](R&){return true;};
+    condition cond = [](R&) { return true; };
 };
 
 template <>
@@ -43,12 +43,11 @@ struct execution_graph_connection<void> {
     using action = std::function<void()>;
     using condition = std::function<bool()>;
     action act;
-    condition cond = [](){return true;};
+    condition cond = []() { return true; };
 };
 
 template <typename R, typename... Args>
 struct execution_node<R(Args...)> : protected execution_node_base {
-
     execution_node(execution_graph& graph, size_t thread_count = 1);
 
     template <typename F>
@@ -107,22 +106,21 @@ template <typename R, typename... Args>
 inline void execution_node<R(Args...)>::operator()(Args... args)
 {
     auto task = [this, args...] {
-        // clang-format off
-        if constexpr(ev_type(R) == ev_type(void))
-        {
+        if constexpr (ev_type(R) == ev_type(void)) {
             _f(args...);
-            for(auto& c: _connections)
-                c();
+            for (auto& c : _connections)
+                if (c.cond()) c.act();
         }
-        else
-        {
+        else {
             auto ret = _f(args...);
-            for(auto& c: _connections)
-                if(c.cond(ret))
-                    c.act(ret);
+            for (auto& c : _connections)
+                if (c.cond(ret)) c.act(ret);
         }
-        // clang-format on
     };
     _executor << task;
 }
+
+struct dipatch_node;
+struct split_node;
+struct join_node;
 }

@@ -61,3 +61,9 @@ BOOST_AUTO_TEST_CASE(bimpl)
     }
     BOOST_REQUIRE(access_flags->test(function_type::default_constructor));
 }
+
+BOOST_AUTO_TEST_CASE(pod_bimpl)
+{
+    trivially_destructible_bimpl toto;
+    // Should compile
+}

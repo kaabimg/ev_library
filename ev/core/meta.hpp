@@ -1,6 +1,7 @@
 #pragma once
 
 #include <type_traits>
+#include <tuple>
 
 namespace ev {
 
@@ -117,9 +118,40 @@ auto inline constexpr type_of(auto&& val)
 {
     return type<decltype(val)>();
 }
+
+template <typename... Ts>
+struct type_list {
+    inline constexpr size_t size() const
+    {
+        return sizeof...(Ts);
+    }
+
+    template <typename T>
+    inline constexpr bool contains(type<T>) const;
+};
+
+template <typename T, typename... Ts>
+inline constexpr void for_each(type_list<T, Ts...>, auto&& f)
+{
+    f(ev::type<T>());
+    if constexpr (sizeof...(Ts)) {
+        for_each(ev::type_list<Ts...>(), f);
+    }
+}
+template <typename... Ts>
+template <typename T>
+inline constexpr bool type_list<Ts...>::contains(type<T> type) const
+{
+    bool contains = false;
+    for_each(*this, [&](auto t) {
+        if (type == t) contains = true;
+    });
+    return contains;
+}
 }
 
 #define ev_type(T) ev::type<T>()
+#define ev_type_list(...) ev::type_list<__VA_ARGS__>()
 #define ev_print_type(T) ev::type<T>().debug()
 #define ev_print_type_of(var) ev::type_of(var).debug()
 #define ev_inner_type(type_instance) decltype(type_instance)::inner_type
