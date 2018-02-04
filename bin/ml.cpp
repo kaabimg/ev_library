@@ -11,37 +11,38 @@ void print(auto... args)
 
 int main()
 {
-    ev::execution_graph graph;
+    using ev::exf::column;
+    using ev::exf::graph;
+    using ev::exf::node;
 
-    ev::execution_node<double(double)> input{graph, 2};
+    graph g;
+    node<double(double)> input{g, 2};
     input.set_task([](double i) {
         print("In input", std::this_thread::get_id());
         return i * 2;
     });
 
-    ev::execution_node<double(double)> processing1{graph, 2}, processing2{graph, 2};
+    ev::exf::node<double(double)> processing1{g, 2}, processing2{g, 2};
 
     auto task = [](double i) {
         print("In processing", std::this_thread::get_id());
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        std::this_thread::sleep_for(std::chrono::microseconds(400));
         return i * i;
     };
 
     processing1.set_task(task);
     processing2.set_task(task);
 
-    ev::execution_node<void(double)> output{graph};
+    node<void(double)> output{g};
     auto grab_result = [](double val) {
         print("In grab_result", val, std::this_thread::get_id());
         std::this_thread::sleep_for(std::chrono::microseconds(100));
     };
     output.set_task(grab_result);
 
-    input >> processing1 >> output;
-    input >> processing2 >> output;
+    input >> column{processing1, processing2} >> output;
 
     input(3);
 
-    graph.wait_all();
-
+    g.wait_all();
 }

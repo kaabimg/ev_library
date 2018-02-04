@@ -47,16 +47,16 @@ private:
 
 namespace detail {
 
-template <size_t StogateSize, size_t ClassSize>
+template <size_t StorageSize, size_t ClassSize>
 inline void check_storage_size()
 {
-    static_assert(StogateSize == ClassSize, "Invalid storage size");
+    static_assert(StorageSize == ClassSize, "Invalid storage size");
 }
 
-template <size_t StogateAlignment, size_t ClassAlignment>
+template <size_t StorageAlignment, size_t ClassAlignment>
 inline void check_storage_alignment()
 {
-    static_assert(StogateAlignment == ClassAlignment, "Invalid storage alignment");
+    static_assert(StorageAlignment == ClassAlignment, "Invalid storage alignment");
 }
 
 }
@@ -142,7 +142,7 @@ private:
     template <typename... Args>
     void construct(Args&&... args)
     {
-        new (this) T(std::forward<Args>(args)...);
+        new (&_storage) T(std::forward<Args>(args)...);
     }
 
 private:
