@@ -1,16 +1,35 @@
 #pragma once
 
+#include <sstream>
 #include <iostream>
 
 namespace ev {
+
+enum class log_category { info, warning, error, debug };
+
+struct log_message {
+    std::string message;
+    log_category category;
+};
+
 namespace detail {
 // clang-format off
 static const char* g_debug_prefix    = "[debug]";
 static const char* g_info_prefix     = "[info]";
 static const char* g_warning_prefix  = "[warning]";
 static const char* g_error_prefix    = "[error]";
-static const char* g_critical_prefix = "[critical]";
 // clang-format on
+
+inline const char* category_to_prefix(log_category category)
+{
+    switch (category) {
+        case log_category::info: return detail::g_info_prefix;
+        case log_category::warning: return detail::g_warning_prefix;
+        case log_category::error: return detail::g_error_prefix;
+        case log_category::debug: return detail::g_debug_prefix;
+        default: nullptr;
+    }
+}
 }
 template <typename T>
 struct print_impl {
@@ -20,56 +39,89 @@ struct print_impl {
     }
 };
 
-struct printer {
-    printer(std::ostream& out, const char* prefix = nullptr) : stream(out)
+template <typename T>
+struct logger {
+    logger(T&)
     {
-        if (prefix) stream << prefix;
+    }
+    void log(const log_message&)
+    {
+        /// Override this template class
+    }
+};
+
+template <>
+struct logger<std::ostream> {
+    logger(std::ostream& os) : _os(os)
+    {
+    }
+    void log(const log_message& msg)
+    {
+        _os << detail::category_to_prefix(msg.category) + msg.message + '\n';
+    }
+
+private:
+    std::ostream& _os;
+};
+
+template <typename Output>
+struct printer {
+    printer(Output& output, log_category c) : _logger{output}, _c(c)
+    {
     }
     ~printer()
     {
-        stream << std::endl;
+        _logger.log({_ss.str(), _c});
     }
 
     template <typename T>
     printer& operator<<(const T& d)
     {
-        stream << ' ';
-        print_impl<T>::print(stream, d);
-        return *this;
-    }
-
-    printer& write(const char* data, size_t size)
-    {
-        stream.write(data, size);
+        _ss << ' ';
+        print_impl<T>::print(_ss, d);
         return *this;
     }
 
 private:
-    std::ostream& stream;
+    std::stringstream _ss;
+    log_category _c;
+    logger<Output> _logger;
 };
 
-inline printer debug(std::ostream& out = std::cout)
+inline auto debug(auto& output)
 {
-    return printer(out, detail::g_debug_prefix);
+    return printer{output, log_category::debug};
+}
+inline auto debug()
+{
+    return printer{std::cout, log_category::debug};
 }
 
-inline printer warning(std::ostream& out = std::cout)
+inline auto info(auto& output)
 {
-    return printer(out, detail::g_warning_prefix);
+    return printer{output, log_category::info};
 }
-inline printer error(std::ostream& out = std::cout)
+inline auto info()
 {
-    return printer(out, detail::g_error_prefix);
-}
-
-inline printer critical(std::ostream& out = std::cout)
-{
-    return printer(out, detail::g_critical_prefix);
+    return printer{std::cout, log_category::info};
 }
 
-inline printer info(std::ostream& out = std::cout)
+inline auto warning(auto& output)
 {
-    return printer(out, detail::g_info_prefix);
+    return printer{output, log_category::warning};
+}
+inline auto warning()
+{
+    return printer{std::cout, log_category::warning};
+}
+
+inline auto error(auto& output)
+{
+    return printer{output, log_category::error};
+}
+inline auto error()
+{
+    return printer{std::cout, log_category::error};
 }
 
 }  // ev
@@ -82,7 +134,6 @@ inline printer info(std::ostream& out = std::cout)
     };                                                                \
     }                                                                 \
     inline void ev::print_impl<type>::print(std::ostream& out, const type& val)
-
 
 ///////////////////////////////////////////////
 ///

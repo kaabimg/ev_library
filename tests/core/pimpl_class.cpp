@@ -14,7 +14,7 @@ struct pimpl_type::impl : impl_base {
     }
 };
 
-pimpl_type::pimpl_type(int v) : _impl(std::in_place, v)
+pimpl_type::pimpl_type(int v) : d(std::in_place, v)
 {
 }
 
@@ -26,34 +26,34 @@ pimpl_type::~pimpl_type()
 {
 }
 
-pimpl_type::pimpl_type(const pimpl_type& rhs) : _impl(rhs._impl)
+pimpl_type::pimpl_type(const pimpl_type& rhs) : d(rhs.d)
 {
 }
 
-pimpl_type::pimpl_type(pimpl_type&& rhs) : _impl(std::move(rhs._impl))
+pimpl_type::pimpl_type(pimpl_type&& rhs) : d(std::move(rhs.d))
 {
 }
 
 pimpl_type& pimpl_type::operator=(const pimpl_type& rhs)
 {
-    _impl = rhs._impl;
+    d = rhs.d;
     return *this;
 }
 
 pimpl_type& pimpl_type::operator=(pimpl_type&& rhs)
 {
-    _impl = std::move(rhs._impl);
+    d = std::move(rhs.d);
     return *this;
 }
 
 function_type_ptr pimpl_type::ftype()
 {
-    return _impl->ftype;
+    return d->ftype;
 }
 
 const void* pimpl_type::impl_ptr() const
 {
-    return _impl.operator->();
+    return d.operator->();
 }
 
 struct bimpl_type::impl : impl_base {
@@ -88,33 +88,33 @@ bimpl_type::~bimpl_type()
 {
 }
 
-bimpl_type::bimpl_type(int v) : _impl{std::in_place, v}
+bimpl_type::bimpl_type(int v) : d{std::in_place, v}
 {
 }
 
-bimpl_type::bimpl_type(const bimpl_type& rhs) : _impl(rhs._impl)
+bimpl_type::bimpl_type(const bimpl_type& rhs) : d(rhs.d)
 {
 }
 
-bimpl_type::bimpl_type(bimpl_type&& rhs) : _impl(std::move(rhs._impl))
+bimpl_type::bimpl_type(bimpl_type&& rhs) : d(std::move(rhs.d))
 {
 }
 
 bimpl_type& bimpl_type::operator=(const bimpl_type& rhs)
 {
-    _impl = rhs._impl;
+    d = rhs.d;
     return *this;
 }
 
 bimpl_type& bimpl_type::operator=(bimpl_type&& rhs)
 {
-    _impl = std::move(rhs._impl);
+    d = std::move(rhs.d);
     return *this;
 }
 
 function_type_ptr bimpl_type::ftype()
 {
-    return _impl->ftype;
+    return d->ftype;
 }
 
 

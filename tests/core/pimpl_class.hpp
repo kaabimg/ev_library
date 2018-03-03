@@ -78,7 +78,7 @@ public:
 
 private:
     class impl;
-    ev::pimpl<impl> _impl;
+    ev::pimpl<impl> d;
 };
 
 class bimpl_type {
@@ -98,7 +98,7 @@ public:
 
 private:
     class impl;
-    ev::bimpl<impl, 48, 8> _impl;
+    ev::bimpl<impl, 48, 8> d;
 };
 
 class trivially_destructible_bimpl {
@@ -107,6 +107,6 @@ public:
 
 private:
     class impl;
-    ev::bimpl<impl, 8, 4,true> _impl;
+    ev::bimpl<impl, 8, 4,true> d;
 };
 

@@ -1,59 +1,40 @@
-#include <ev/core/logging_helpers.hpp>
-#include <ev/core/preprocessor.hpp>
+#include <ev/core/execution_context.hpp>
+#include <ev/core/executor.hpp>
 
-#include <vector>
-#include <future>
-#include <string_view>
-#include <any>
-#include <variant>
-
-#include <boost/asio.hpp>
-#include <boost/asio/ip/tcp.hpp>
-
-
-
-namespace asio = boost::asio;
-
+#define MAX 100
 int main()
 {
+    ev::execution_context context;
 
-    asio::io_service io_servive;
-    asio::ip::tcp::resolver resolver{io_servive};
-    asio::ip::tcp::socket socket{io_servive};
-
-    std::vector<char> byte_array(256);
-
-    asio::ip::tcp::resolver::query query{"theboostcpplibraries.com", "80"};
-
-    std::function<void(const boost::system::error_code&, std::size_t)> read_handler = [&](
-        const boost::system::error_code& ec, std::size_t bytes_transferred) {
-        if (ec)
-            ev::error() << "read_handler" << ec.message();
-        else {
-            ev::debug().write(byte_array.data(), bytes_transferred);
-            socket.async_read_some(asio::buffer(byte_array), read_handler);
+    auto producer = [](ev::execution_context context) {
+        for (int i = 0; i < MAX; ++i) {
+            ev::debug() << "writing" << i;
+            ev::debug(context) << i;
         }
     };
 
-    auto connect_handler = [&](const boost::system::error_code& ec) {
-        if (ec)
-            ev::error() << "connect_handler" << ec.message();
-        else {
-            std::string r = "GET / HTTP/1.1\r\nHost: theboostcpplibraries.com\r\n\r\n";
-            asio::write(socket, asio::buffer(r));
-            socket.async_read_some(asio::buffer(byte_array), read_handler);
+    auto consumer = [](ev::execution_context context) {
+        int size = 0;
+        int read = 0;
+        while (size < MAX) {
+            size = context.subitem_count();
+
+            if (read != size) {
+                for (int j = read; j < size; ++j)
+                    ev::debug() << "reading in" << std::this_thread::get_id() << ':'
+                                << context.subitem_at(j).message().message;
+                read = size;
+            }
         }
     };
 
-    auto resolve_handler = [&](const boost::system::error_code& ec,
-                               asio::ip::tcp::resolver::iterator it) {
-        if (ec)
-            ev::error() << "resolve_handler" << ec.message();
-        else
-            socket.async_connect(*it, connect_handler);
-    };
+    ev::executor executor;
 
-    resolver.async_resolve(query, resolve_handler);
+    auto p = executor.async(producer, context);
+    auto c = executor.async(consumer, context);
+    auto c2 = executor.async(consumer, context);
 
-    io_servive.run();
+    p.wait();
+    c.wait();
+    c2.wait();
 }

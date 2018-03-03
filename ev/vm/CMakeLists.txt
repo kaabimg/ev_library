@@ -1,6 +1,3 @@
-
-include_directories(${BOOST_INCLUDE_DIR})
-
 set (SOURCES parser/parser.cpp
              compiler/compiler.cpp
              jit/module.cpp

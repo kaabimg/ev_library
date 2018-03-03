@@ -1,0 +1,39 @@
+images_source_t images:
+	location = "<path>"
+	filter = "<pattern>"
+	camera_model_t name:
+		image_size = [0, 0]
+		pixel_size = 0.0
+		principle_point_position = [0.0, 0.0]
+		focal_length = 0.0
+		lens_type = "perspective"
+		radial_k1 = 0.0
+		radial_k2 = 0.0
+		radial_k3 = 0.0
+		tangencial_t1 = 0.0
+		tangencial_t2 = 0.0
+	end
+end
+
+
+
+
+
+calibration_t :
+end
+
+
+generate_dense_pc_t pc1:
+end
+
+
+generate_dense_pc_t pc2:
+
+end
+
+generate_mesh_t :
+	source = pc2
+end
+
+export_mesh_t:
+end

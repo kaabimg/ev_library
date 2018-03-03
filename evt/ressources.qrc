@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>style/icons/edit.png</file>
+        <file>style/icons/home.png</file>
+        <file>style/icons/arrow_down.png</file>
+        <file>style/icons/arrow_right.png</file>
+        <file>style/icons/message.png</file>
+        <file>style/icons/sidebar.png</file>
+        <file>style/icons/console_arrow.png</file>
+        <file>style/icons/console_output_arrow.png</file>
+        <file>style/icons/error.png</file>
+        <file>style/icons/warning.png</file>
+    </qresource>
+</RCC>

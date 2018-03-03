@@ -1,0 +1,28 @@
+images_source_t images:
+	location = "/home/image"
+	pattern = "*.jpeg"
+	camera_model_t cm:
+		k1 = 33
+		k2 = 53.355
+	end
+end
+
+calibration_t calib :
+	source  = images
+end
+
+generate_dense_pc_t dense0 :
+	source  = images
+end
+
+generate_dense_pc_t dense1 :
+	source  = [dense0, images]
+end
+
+generate_dense_pc_t dense2 :
+	source  = dense1
+end
+
+generate_dsm_t dsm :
+	source = dense1.source
+end
