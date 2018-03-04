@@ -25,7 +25,7 @@ ProgramTreeModel::~ProgramTreeModel()
 void ProgramTreeModel::setRoot(p4cl::parser::Result result)
 {
     beginResetModel();
-    _impl->parseResult = std::move(result);
+    d->parseResult = std::move(result);
     endResetModel();
 }
 
@@ -59,7 +59,7 @@ QVariant ProgramTreeModel::headerData(int section, Qt::Orientation /*orientation
 
 int ProgramTreeModel::rowCount(const QModelIndex& parent) const
 {
-    if (!_impl->parseResult.rootNode) {
+    if (!d->parseResult.rootNode) {
         return 0;
     }
     if (parent.column() > 0) return 0;
@@ -67,7 +67,7 @@ int ProgramTreeModel::rowCount(const QModelIndex& parent) const
     const p4cl::ast::Node* parentNode;
 
     if (!parent.isValid())
-        parentNode = _impl->parseResult.rootNode.get();
+        parentNode = d->parseResult.rootNode.get();
     else
         parentNode = reinterpret_cast<const p4cl::ast::Node*>(parent.internalPointer());
 
@@ -101,14 +101,14 @@ QModelIndex ProgramTreeModel::index(int row, int column, const QModelIndex& pare
 {
     if (!hasIndex(row, column, parent)) return QModelIndex();
 
-    if (!_impl->parseResult.rootNode) {
+    if (!d->parseResult.rootNode) {
         return QModelIndex();
     }
 
     const p4cl::ast::Node* parentNode;
 
     if (!parent.isValid())
-        parentNode = _impl->parseResult.rootNode.get();
+        parentNode = d->parseResult.rootNode.get();
     else
         parentNode = reinterpret_cast<const p4cl::ast::Node*>(parent.internalPointer());
 
@@ -127,7 +127,7 @@ QModelIndex ProgramTreeModel::parent(const QModelIndex& index) const
 {
     if (!index.isValid()) return QModelIndex();
 
-    if (!_impl->parseResult.rootNode) {
+    if (!d->parseResult.rootNode) {
         return QModelIndex();
     }
 
@@ -135,7 +135,7 @@ QModelIndex ProgramTreeModel::parent(const QModelIndex& index) const
         reinterpret_cast<const p4cl::ast::Node*>(index.internalPointer());
     const p4cl::ast::Node* parentNode = childNode->parent;
 
-    if (parentNode == _impl->parseResult.rootNode.get()) return QModelIndex();
+    if (parentNode == d->parseResult.rootNode.get()) return QModelIndex();
 
     int distance = std::distance(
         parentNode->children.begin(),

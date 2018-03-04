@@ -22,14 +22,14 @@ struct CodeAssistant::Impl {
 
 CodeAssistant::CodeAssistant(evt::FileEditor* editor) : QObject(editor)
 {
-    _impl->editor = editor->textEditor();
+    d->editor = editor->textEditor();
 
-    _impl->editor->monitorSequence(Qt::Key_Enter, [this] { onEnterPressed(); });
-    _impl->editor->monitorSequence(Qt::Key_Return, [this] { onEnterPressed(); });
+    d->editor->monitorSequence(Qt::Key_Enter, [this] { onEnterPressed(); });
+    d->editor->monitorSequence(Qt::Key_Return, [this] { onEnterPressed(); });
 
-    _impl->editor->monitorSequence(QKeySequence(Qt::ControlModifier + Qt::Key_Space),
+    d->editor->monitorSequence(QKeySequence(Qt::ControlModifier + Qt::Key_Space),
                                    [this] { onCompleteRequest(); });
-    _impl->editor->monitorSequence(Qt::Key_Escape, [this] { onEscape(); });
+    d->editor->monitorSequence(Qt::Key_Escape, [this] { onEscape(); });
 
     connect(editor->textEditor(), &evt::FoldedTextEdit::cursorPositionChanged, this,
             &CodeAssistant::onCursorPositionChanged);
@@ -41,7 +41,7 @@ CodeAssistant::~CodeAssistant()
 
 void CodeAssistant::setCompleter(Completer* c)
 {
-    _impl->completer = c;
+    d->completer = c;
 }
 
 void CodeAssistant::onEnterPressed()
@@ -56,22 +56,22 @@ void CodeAssistant::onEnterPressed()
 
 bool CodeAssistant::isInCompletionMode() const
 {
-    return _impl->completer->popup()->isVisible();
+    return d->completer->popup()->isVisible();
 }
 
 void CodeAssistant::setCompilationResult(p4cl::compiler::Result r)
 {
-    _impl->compilationResult = r;
+    d->compilationResult = r;
 }
 
 void CodeAssistant::closeCompleter()
 {
-    _impl->completer->popup()->hide();
+    d->completer->popup()->hide();
 }
 
 QString CodeAssistant::currentLineIndent() const
 {
-    QTextCursor cursor = _impl->editor->textCursor();
+    QTextCursor cursor = d->editor->textCursor();
 
     QString text = cursor.block().text();
 
@@ -100,7 +100,7 @@ QString CodeAssistant::currentLineIndent() const
 
 void CodeAssistant::newLine()
 {
-    QTextCursor cursor = _impl->editor->textCursor();
+    QTextCursor cursor = d->editor->textCursor();
     QString i = currentLineIndent();
     cursor.insertText("\n");
     cursor.insertText(i);
@@ -124,16 +124,16 @@ const p4cl::compiler::Node* findContainer(const p4cl::parser::Result& pr,
 
 void CodeAssistant::generateCompletion()
 {
-    if (!_impl->compilationResult.program) return;
+    if (!d->compilationResult.program) return;
 
-    QTextCursor cursor = _impl->editor->textCursor();
+    QTextCursor cursor = d->editor->textCursor();
     const char* cursorPosition =
-        _impl->compilationResult.parserResult.code->c_str() + cursor.position();
-    auto container = findContainer(_impl->compilationResult.parserResult,
-                                   _impl->compilationResult.program.get(), cursor.position());
+        d->compilationResult.parserResult.code->c_str() + cursor.position();
+    auto container = findContainer(d->compilationResult.parserResult,
+                                   d->compilationResult.program.get(), cursor.position());
 
     std::string_view typeName;
-    if (container == nullptr || container == _impl->compilationResult.program.get()) {
+    if (container == nullptr || container == d->compilationResult.program.get()) {
         typeName = p4cl::lang::programTypeName;
     }
     else {
@@ -189,28 +189,28 @@ void CodeAssistant::generateCompletion()
             }
         };
 
-        _impl->compilationResult.program->applyVisitor(visitor);
+        d->compilationResult.program->applyVisitor(visitor);
 
         for (const auto& var : variables) {
             assitItems.push_back(AssistItem::fromVariable(var));
         }
     }
 
-    _impl->completer->completionModel()->updateAssistItems(std::move(assitItems));
+    d->completer->completionModel()->updateAssistItems(std::move(assitItems));
 }
 
 void CodeAssistant::onCompleteRequest()
 {
     generateCompletion();
-    QRect rect = _impl->editor->cursorRect();
+    QRect rect = d->editor->cursorRect();
     rect.setWidth(300);
 
-    rect.translate(_impl->editor->linesNumbersAreaWidth() + _impl->editor->foldingAreaWidth(),
-                   _impl->editor->statusWidgetHeight() + 5);
+    rect.translate(d->editor->linesNumbersAreaWidth() + d->editor->foldingAreaWidth(),
+                   d->editor->statusWidgetHeight() + 5);
 
-    _impl->completer->setCompletionPrefix(textUnderCursor());
+    d->completer->setCompletionPrefix(textUnderCursor());
 
-    _impl->completer->complete(rect);
+    d->completer->complete(rect);
 }
 
 void CodeAssistant::onCursorPositionChanged()
@@ -229,7 +229,7 @@ void CodeAssistant::insertCompletion()
 {
     QString prefix = textUnderCursor();
 
-    QTextCursor cursor = _impl->editor->textCursor();
+    QTextCursor cursor = d->editor->textCursor();
 
     closeCompleter();
 
@@ -240,9 +240,9 @@ void CodeAssistant::insertCompletion()
     int position = cursor.position();
 
     int completionIndex =
-        _impl->completer->popup()->selectionModel()->currentIndex().data(Qt::EditRole).toInt();
+        d->completer->popup()->selectionModel()->currentIndex().data(Qt::EditRole).toInt();
 
-    const auto& item = _impl->completer->completionModel()->assistItems[completionIndex];
+    const auto& item = d->completer->completionModel()->assistItems[completionIndex];
 
     auto completion = item.generate(currentLineIndent());
 
@@ -256,12 +256,12 @@ void CodeAssistant::insertCompletion()
                             completion.substitution.size());
     }
 
-    _impl->editor->setTextCursor(cursor);
+    d->editor->setTextCursor(cursor);
 }
 
 QString CodeAssistant::textUnderCursor() const
 {
-    QTextCursor cursor = _impl->editor->textCursor();
+    QTextCursor cursor = d->editor->textCursor();
 
     QString text;
 

@@ -1,3 +1,4 @@
 CMakeLists.txt.user*
 bin/proto.ll
 install/
+.vscode/

@@ -40,6 +40,6 @@ private:
 
 private:
     class Impl;
-    ev::pimpl<Impl> _impl;
+    ev::pimpl<Impl> d;
 };
 }

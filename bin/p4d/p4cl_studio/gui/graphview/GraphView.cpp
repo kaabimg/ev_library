@@ -24,14 +24,14 @@ struct GraphView::Impl {
 
 GraphView::GraphView(QWidget* parent) : QGraphicsView(parent)
 {
-    setScene(&_impl->scene);
+    setScene(&d->scene);
     applyStyle(evt::appStyle());
     setRenderHint(QPainter::HighQualityAntialiasing);
 
-    _impl->centerAnimation.setTargetObject(this);
-    _impl->centerAnimation.setPropertyName("center");
-    _impl->centerAnimation.setDuration(1000);
-    _impl->centerAnimation.setEasingCurve(QEasingCurve::InOutCubic);
+    d->centerAnimation.setTargetObject(this);
+    d->centerAnimation.setPropertyName("center");
+    d->centerAnimation.setDuration(1000);
+    d->centerAnimation.setEasingCurve(QEasingCurve::InOutCubic);
 }
 
 GraphView::~GraphView()
@@ -43,31 +43,31 @@ void GraphView::build(p4cl::compiler::Result r)
     const size_t nodeCount = r.pipelineGraph->nodes().size();
     if (nodeCount == 0) return;
 
-    for (auto node : _impl->nodes) {
+    for (auto node : d->nodes) {
         node->inConnections.clear();
         node->outConnections.clear();
     }
 
-    SceneItemAnimatedDeleter::hideAndDelete(_impl->edges);
-    _impl->edges.clear();
+    SceneItemAnimatedDeleter::hideAndDelete(d->edges);
+    d->edges.clear();
 
-    const size_t currentNodeCount = _impl->nodes.size();
-    if (nodeCount > _impl->nodes.size()) {
+    const size_t currentNodeCount = d->nodes.size();
+    if (nodeCount > d->nodes.size()) {
         for (size_t i = 0; i < (nodeCount - currentNodeCount); ++i) {
             auto node = new GraphNode(this);
-            node->setSize({_impl->nodeWidth, _impl->nodeHeight});
-            _impl->nodes.push_back(node);
-            _impl->scene.addItem(node);
+            node->setSize({d->nodeWidth, d->nodeHeight});
+            d->nodes.push_back(node);
+            d->scene.addItem(node);
         }
     }
-    else if (nodeCount < _impl->nodes.size()) {
+    else if (nodeCount < d->nodes.size()) {
         std::vector<GraphNode*> nodesToDelete;
         for (size_t i = 0; i < (currentNodeCount - nodeCount); ++i) {
-            auto node = _impl->nodes.rbegin();
+            auto node = d->nodes.rbegin();
             nodesToDelete.push_back(*node);
             (*node)->inConnections.clear();
             (*node)->outConnections.clear();
-            _impl->nodes.pop_back();
+            d->nodes.pop_back();
         }
         SceneItemAnimatedDeleter::hideAndDelete(nodesToDelete);
     }
@@ -92,9 +92,9 @@ void GraphView::build(p4cl::compiler::Result r)
         maxPerColumn = std::max(maxPerColumn, rowCounts[i]);
     }
 
-    const qreal horizontalSpacing = _impl->nodeWidth * 1.5;
+    const qreal horizontalSpacing = d->nodeWidth * 1.5;
     const qreal sceneWidth = columnCount * horizontalSpacing;
-    const qreal sceneHeight = maxPerColumn * _impl->nodeHeight * 2;
+    const qreal sceneHeight = maxPerColumn * d->nodeHeight * 2;
 
     QRectF sceneRecangle{-sceneWidth / 2, -sceneHeight / 2, sceneWidth, sceneHeight};
 
@@ -111,12 +111,12 @@ void GraphView::build(p4cl::compiler::Result r)
 
         int j = 0;
         for (auto nodeData : vec) {
-            auto node = _impl->nodes[index++];
+            auto node = d->nodes[index++];
             nodes[nodeData] = node;
             node->setCompilerNode(nodeData);
             const qreal centerY = verticalSpacing + j * verticalSpacing;
-            const QPointF position = {centerX - _impl->nodeWidth / 2,
-                                      centerY - _impl->nodeHeight / 2};
+            const QPointF position = {centerX - d->nodeWidth / 2,
+                                      centerY - d->nodeHeight / 2};
 
             node->animatePositionTo(posToGlobal(position));
 
@@ -132,14 +132,14 @@ void GraphView::build(p4cl::compiler::Result r)
         from->outConnections.push_back(con);
         to->inConnections.push_back(con);
 
-        _impl->scene.addItem(con);
-        _impl->edges.push_back(con);
+        d->scene.addItem(con);
+        d->edges.push_back(con);
     }
 
     //setSceneRect(sceneRecangle);
     fitInView(sceneRecangle, Qt::KeepAspectRatio);
 
-    _impl->cr = r;
+    d->cr = r;
 }
 
 void GraphView::applyStyle(const evt::Style& s)
@@ -154,9 +154,9 @@ QPointF GraphView::center() const
 
 void GraphView::animateCenter(QPointF from, QPointF to)
 {
-    _impl->centerAnimation.setStartValue(from);
-    _impl->centerAnimation.setEndValue(to);
-    _impl->centerAnimation.start();
+    d->centerAnimation.setStartValue(from);
+    d->centerAnimation.setEndValue(to);
+    d->centerAnimation.start();
 }
 
 void GraphView::wheelEvent(QWheelEvent* event)

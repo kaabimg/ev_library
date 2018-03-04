@@ -48,6 +48,11 @@ struct logger {
     {
         /// Override this template class
     }
+
+    void flush()
+    {
+        /// Override this template class
+    }
 };
 
 template <>
@@ -58,6 +63,7 @@ struct logger<std::ostream> {
     void log(const log_message& msg)
     {
         _os << detail::category_to_prefix(msg.category) + msg.message + '\n';
+        _os.flush();
     }
 
 private:
@@ -69,6 +75,7 @@ struct printer {
     printer(Output& output, log_category c) : _logger{output}, _c(c)
     {
     }
+
     ~printer()
     {
         _logger.log({_ss.str(), _c});

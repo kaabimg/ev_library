@@ -108,7 +108,7 @@ SyntaxHighlighter::~SyntaxHighlighter()
 
 void SyntaxHighlighter::highlightBlock(const QString& text)
 {
-    for (const HighlightingRule& rule : _impl->rules) {
+    for (const HighlightingRule& rule : d->rules) {
         QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
         while (matchIterator.hasNext()) {
             QRegularExpressionMatch match = matchIterator.next();
@@ -120,12 +120,12 @@ void SyntaxHighlighter::highlightBlock(const QString& text)
 
 void SyntaxHighlighter::applyStyle(const evt::Style& style)
 {
-    _impl->setStyle(style);
+    d->setStyle(style);
     rehighlight();
 }
 
 void SyntaxHighlighter::setFontPointSize(int size)
 {
-    for (auto& rule : _impl->rules) rule.format.setFontPointSize(size);
+    for (auto& rule : d->rules) rule.format.setFontPointSize(size);
     rehighlight();
 }

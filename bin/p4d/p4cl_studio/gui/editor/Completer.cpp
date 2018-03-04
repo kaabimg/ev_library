@@ -14,7 +14,7 @@ struct Completer::Impl {
 
 Completer::Completer(evt::FileEditor* editor) : QCompleter(editor)
 {
-    _impl->editor = editor->textEditor();
+    d->editor = editor->textEditor();
 
     setCompletionMode(PopupCompletion);
     setCaseSensitivity(Qt::CaseInsensitive);

@@ -1,40 +1,47 @@
 #include <ev/core/execution_context.hpp>
 #include <ev/core/executor.hpp>
 
+#include <evt/gui/ExecutionContextModel.hpp>
+
+#include <QTreeView>
+#include <QApplication>
+
 #define MAX 100
-int main()
+int main(int argc, char** argv)
 {
+    QApplication app(argc, argv);
+
     ev::execution_context context;
+
+    evt::ExecutionContextModel model;
+    model.setExecutionContext(context);
+
+    QTreeView view;
+    view.setModel(&model);
+    view.show();
+
+    context.set_observer([&](auto&&, auto&&) {
+        ev::debug() << __PRETTY_FUNCTION__;
+        model.setExecutionContext(context);
+    });
 
     auto producer = [](ev::execution_context context) {
         for (int i = 0; i < MAX; ++i) {
-            ev::debug() << "writing" << i;
+            std::this_thread::sleep_for(std::chrono::seconds(1));
             ev::debug(context) << i;
-        }
-    };
-
-    auto consumer = [](ev::execution_context context) {
-        int size = 0;
-        int read = 0;
-        while (size < MAX) {
-            size = context.subitem_count();
-
-            if (read != size) {
-                for (int j = read; j < size; ++j)
-                    ev::debug() << "reading in" << std::this_thread::get_id() << ':'
-                                << context.subitem_at(j).message().message;
-                read = size;
-            }
         }
     };
 
     ev::executor executor;
 
-    auto p = executor.async(producer, context);
-    auto c = executor.async(consumer, context);
-    auto c2 = executor.async(consumer, context);
+    auto c1 = context.create_sub_ctx();
+    c1.set_name("C1");
 
-    p.wait();
-    c.wait();
-    c2.wait();
+    auto c2 = context.create_sub_ctx();
+    c2.set_name("C2");
+
+    auto p1 = executor.async(producer, c1);
+    auto p2 = executor.async(producer, c2);
+
+    return app.exec();
 }

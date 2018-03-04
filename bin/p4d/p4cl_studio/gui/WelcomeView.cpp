@@ -43,13 +43,13 @@ struct p4s::WelcomeView::Impl {
 };
 p4s::WelcomeView::WelcomeView(QObject* parent) : QObject(parent)
 {
-    _impl->label = new QLabel();
+    d->label = new QLabel();
 
-    QPalette palette = _impl->label->palette();
-    palette.setColor(_impl->label->backgroundRole(), evt::appStyle().theme.background.dark);
-    _impl->label->setAutoFillBackground(true);
-    _impl->label->setPalette(palette);
-    _impl->label->setText(createWelcomeText().arg(evt::appStyle().theme.foregroundColor.name()));
+    QPalette palette = d->label->palette();
+    palette.setColor(d->label->backgroundRole(), evt::appStyle().theme.background.dark);
+    d->label->setAutoFillBackground(true);
+    d->label->setPalette(palette);
+    d->label->setText(createWelcomeText().arg(evt::appStyle().theme.foregroundColor.name()));
 }
 
 p4s::WelcomeView::~WelcomeView()
@@ -62,5 +62,5 @@ void p4s::WelcomeView::applyStyle(const evt::Style&)
 
 evt::MainWindowView p4s::WelcomeView::view()
 {
-    return {evt::appStyle().icon(evt::IconType::Home), "Home", nullptr, _impl->label};
+    return {evt::appStyle().icon(evt::IconType::Home), "Home", nullptr, d->label};
 }

@@ -12,10 +12,10 @@ namespace ev {
 
 enum class execution_status { pending, running, stopped, finished, error };
 
-enum class execution_event { status_changed, progress_changed, log_changed, new_sub_context };
+enum class execution_event { status_changed, progress_changed, subitems_changed };
 
 class execution_context;
-using execution_observer = std::function<void(execution_context&, execution_event)>;
+using execution_observer = std::function<void(const execution_context&, execution_event)>;
 
 namespace detail {
 template <typename T>
@@ -38,20 +38,54 @@ struct stable_vector  /// one writer, multiple readers
 };
 }
 
+struct execution_cxt_data : std::enable_shared_from_this<execution_cxt_data> {
+    struct subitem {
+        const execution_cxt_data* parent = nullptr;
+        std::variant<const log_message*, const execution_cxt_data*> payload;
+
+        bool is_message() const;
+        bool is_exection_context() const;
+        const log_message& message() const;
+        execution_context context() const;
+    };
+
+    execution_cxt_data* parent{nullptr};
+
+    detail::stable_vector<subitem> subitems;
+    detail::stable_vector<log_message> messages;
+    detail::stable_vector<execution_context> sub_ctxs;
+
+    execution_observer observer;
+    std::string name;
+    execution_status status = execution_status::pending;
+    uint8_t progress = 0;
+    bool stop_request = false;
+
+    execution_observer* find_observer();
+    bool has_stop_request();
+    execution_context to_context() const;
+};
+
 class execution_context {
 public:
-    struct subitem;
+    using subitem = execution_cxt_data::subitem;
 
+    execution_context(std::nullptr_t);
     execution_context();
-    execution_context(execution_observer obs);
+    execution_context(std::shared_ptr<execution_cxt_data> d);
 
+    const execution_cxt_data* data_ptr() const;
+
+    //// API
     operator bool() const;
 
-    void set_name(std::string& n);
+    void set_name(const std::string& n);
     const std::string& name() const;
 
+    void set_observer(execution_observer);
+
     //// Write API: task side Thread safety condition: Max 1 writer, multiple readers
-    execution_context push_sub_context();
+    execution_context create_sub_ctx();
     void log(const std::string& msg, log_category categroy);
     void set_status(execution_status s);
     void set_progress(uint8_t p);
@@ -71,94 +105,133 @@ private:
     void notify(execution_event event);
 
 private:
-    struct data;
-    std::shared_ptr<data> d;
-
-private:
-    execution_context(std::nullptr_t);
-    execution_context(std::shared_ptr<data> d_);
+    std::shared_ptr<execution_cxt_data> d;
 };
 
-struct execution_context::subitem {
-    execution_context parent;
-    std::variant<execution_context, log_message> payload;
+//////////////////////////////////
 
-    template <typename T>
-    bool is() const;
-
-    const execution_context& context() const;
-    const log_message& message() const;
-};
-
-inline const execution_context &execution_context::subitem::context() const
+inline bool execution_cxt_data::subitem::is_message() const
 {
-    return std::get<execution_context>(payload);
+    return std::holds_alternative<const log_message*>(payload);
 }
 
-inline const log_message &execution_context::subitem::message() const
+inline bool execution_cxt_data::subitem::is_exection_context() const
 {
-    return std::get<log_message>(payload);
+    return std::holds_alternative<const execution_cxt_data*>(payload);
 }
 
-template <typename T>
-inline bool execution_context::subitem::is() const
+inline const log_message& execution_cxt_data::subitem::message() const
 {
-    return std::holds_alternative<T>(payload);
+    return *std::get<const log_message*>(payload);
 }
 
-struct execution_context::data {
-    std::shared_ptr<data> parent_data{nullptr};
-    detail::stable_vector<subitem> subitems;
-    execution_observer observer;
-    std::string name;
-    execution_status status = execution_status::pending;
-    uint8_t progress = 0;
-    bool stop_request = false;
+inline execution_context execution_cxt_data::subitem::context() const
+{
+    return std::get<const execution_cxt_data*>(payload)->to_context();
+}
 
-    execution_observer* find_observer();
-    bool has_stop_request();
-};
+inline execution_observer* execution_cxt_data::find_observer()
+{
+    if (observer) return &observer;
+    if (parent) return parent->find_observer();
+    return nullptr;
+}
 
-using execution_context_subitem = execution_context::subitem;
+inline bool execution_cxt_data::has_stop_request()
+{
+    return stop_request || (parent && parent->has_stop_request());
+}
+
+inline execution_context execution_cxt_data::to_context() const
+{
+    return execution_context(const_cast<execution_cxt_data*>(this)->shared_from_this());
+}
+
+//////////////////////////////////
+
+inline execution_context::execution_context(std::nullptr_t)
+{
+}
 
 inline execution_context::execution_context()
 {
-    d = std::make_shared<data>();
+    d = std::make_shared<execution_cxt_data>();
 }
 
-inline execution_context::execution_context(execution_observer obs) : execution_context()
+inline execution_context::execution_context(std::shared_ptr<execution_cxt_data> d_)
 {
-    d->observer = std::move(obs);
+    d = std::move(d_);
 }
 
-inline void execution_context::set_name(std::string& n)
+inline const execution_cxt_data* execution_context::data_ptr() const
 {
-    d->name = n;
+    return d.get();
 }
 
-inline const std::string& execution_context::name() const
-{
-    return d->name;
-}
-
+//// API
 inline execution_context::operator bool() const
 {
     return d.get() != nullptr;
 }
 
-inline execution_context execution_context::parent() const
+inline void execution_context::set_name(const std::string& n)
 {
-    if (d->parent_data) return execution_context{d->parent_data};
-    return execution_context{nullptr};
+    d->name = n;
+}
+inline const std::string& execution_context::name() const
+{
+    return d->name;
 }
 
-inline execution_context execution_context::push_sub_context()
+inline void execution_context::set_observer(execution_observer obs)
 {
-    execution_context ec;
-    ec.d->parent_data = d;
-    d->subitems.push_back({*this, ec});
-    notify(execution_event::new_sub_context);
-    return ec;
+    d->observer = std::move(obs);
+}
+
+//// Write API: task side Thread safety condition: Max 1 writer, multiple readers
+inline execution_context execution_context::create_sub_ctx()
+{
+    execution_context env;
+    env.d->parent = d.get();
+    d->sub_ctxs.push_back(env);
+    subitem i;
+    i.parent = d.get();
+    i.payload = env.d.get();
+    d->subitems.push_back(i);
+    notify(execution_event::subitems_changed);
+    return env;
+}
+inline void execution_context::log(const std::string& msg, log_category categroy)
+{
+    d->messages.push_back({msg, categroy});
+    subitem i;
+    i.parent = d.get();
+    i.payload = &(*d->messages.data.rbegin());
+    d->subitems.push_back(i);
+    notify(execution_event::subitems_changed);
+}
+inline void execution_context::set_status(execution_status s)
+{
+    d->status = s;
+    notify(execution_event::status_changed);
+}
+inline void execution_context::set_progress(uint8_t p)
+{
+    d->progress = p;
+    notify(execution_event::progress_changed);
+}
+inline void execution_context::stop()
+{
+    d->stop_request = true;
+}
+
+//// Read API: client side. Thread safety condition: Max 1 writer, multiple readers
+inline execution_context execution_context::parent() const
+{
+    if (d->parent) {
+        return d->parent->to_context();
+    }
+    return execution_context{nullptr};
 }
 
 inline size_t execution_context::subitem_count() const
@@ -166,21 +239,9 @@ inline size_t execution_context::subitem_count() const
     return d->subitems.size;
 }
 
-inline const execution_context_subitem& execution_context::subitem_at(size_t i) const
+inline const execution_context::subitem& execution_context::subitem_at(size_t i) const
 {
     return d->subitems.data[i];
-}
-
-inline void execution_context::log(const std::string& msg, log_category categroy)
-{
-    d->subitems.push_back({*this, log_message{msg, categroy}});
-    notify(execution_event::log_changed);
-}
-
-inline void execution_context::set_status(execution_status s)
-{
-    d->status = s;
-    notify(execution_event::status_changed);
 }
 
 inline execution_status execution_context::status() const
@@ -188,20 +249,9 @@ inline execution_status execution_context::status() const
     return d->status;
 }
 
-inline void execution_context::set_progress(uint8_t p)
-{
-    d->progress = p;
-    notify(execution_event::progress_changed);
-}
-
 inline uint8_t execution_context::progress() const
 {
     return d->progress;
-}
-
-inline void execution_context::stop()
-{
-    d->stop_request = true;
 }
 
 inline bool execution_context::has_stop_request()
@@ -215,26 +265,6 @@ inline void execution_context::notify(execution_event event)
     if (observer) (*observer)(*this, event);
 }
 
-inline execution_context::execution_context(std::nullptr_t)
-{
-}
-
-inline execution_context::execution_context(std::shared_ptr<execution_context::data> d_) : d(d_)
-{
-}
-
-inline execution_observer* execution_context::data::find_observer()
-{
-    if (observer) return &observer;
-    if (parent_data) return parent_data->find_observer();
-    return nullptr;
-}
-
-inline bool execution_context::data::has_stop_request()
-{
-    return stop_request || (parent_data && parent_data->has_stop_request());
-}
-
 /////////////////////////////////////////////////////////////////
 
 template <>
@@ -245,6 +275,9 @@ struct logger<execution_context> {
     void log(const log_message& msg)
     {
         _ec.log(msg.message, msg.category);
+    }
+    void flush()
+    {
     }
 
 private:
@@ -269,8 +302,7 @@ inline std::string to_string(ev::execution_event e)
     switch (e) {
         case ev::execution_event::status_changed: return "Status changed";
         case ev::execution_event::progress_changed: return "Progress changed";
-        case ev::execution_event::log_changed: return "Log changed";
-        case ev::execution_event::new_sub_context: return "New sub context";
+        case ev::execution_event::subitems_changed: return "Hierarchy changed";
     }
 }
 }

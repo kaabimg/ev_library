@@ -5,15 +5,6 @@
 
 #include <QAbstractItemModel>
 
-namespace p4cl {
-namespace parser {
-class Result;
-}
-namespace ast {
-class Node;
-}
-}
-
 namespace evt {
 
 class ExecutionContextModel : public QAbstractItemModel {
@@ -22,7 +13,7 @@ public:
     ExecutionContextModel(QObject* parent = 0);
     ~ExecutionContextModel();
 
-    void setRoot(ev::execution_context);
+    void setExecutionContext(ev::execution_context);
 
     // model api
     QVariant data(const QModelIndex& index, int role) const;

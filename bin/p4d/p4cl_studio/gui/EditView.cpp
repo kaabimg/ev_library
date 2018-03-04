@@ -102,39 +102,39 @@ public:
 
 EditView::EditView(QObject* parent) : QObject(parent)
 {
-    _impl->tab->setTabsClosable(true);
-    _impl->tab->setCornerWidget(_impl->cornerActions);
+    d->tab->setTabsClosable(true);
+    d->tab->setCornerWidget(d->cornerActions);
 
-    _impl->compilationLogView->setModel(_impl->compilationLogModel);
-    _impl->compilationLogView->setVisible(false);
+    d->compilationLogView->setModel(d->compilationLogModel);
+    d->compilationLogView->setVisible(false);
 
-    _impl->programTreeView->setModel(_impl->programModel);
-    _impl->programTreeView->setAlternatingRowColors(true);
+    d->programTreeView->setModel(d->programModel);
+    d->programTreeView->setAlternatingRowColors(true);
 
-    _impl->fsTree->openFolder(QDir::homePath());
-    _impl->fsTree->fsModel()->setIconProvider(new IconProvier);
+    d->fsTree->openFolder(QDir::homePath());
+    d->fsTree->fsModel()->setIconProvider(new IconProvier);
 
-    _impl->leftWidget->addItem(_impl->fileSystemConainer, "Navigate");
+    d->leftWidget->addItem(d->fileSystemConainer, "Navigate");
 
-    _impl->fileSystemConainer->toolbar()->addAction(
-        _impl->mainWidget->style()->standardIcon(QStyle::SP_DirIcon), "Open directory", this,
+    d->fileSystemConainer->toolbar()->addAction(
+        d->mainWidget->style()->standardIcon(QStyle::SP_DirIcon), "Open directory", this,
         [this]() {
             QString dir = QFileDialog::getExistingDirectory(
-                _impl->mainWidget, "Open working direcory", _impl->fsTree->rootDir(), 0);
+                d->mainWidget, "Open working direcory", d->fsTree->rootDir(), 0);
 
             if (!dir.isEmpty()) {
-                _impl->fsTree->openFolder(dir);
+                d->fsTree->openFolder(dir);
             }
         });
 
-    _impl->recompileTimer.setInterval(700);
-    _impl->recompileTimer.setSingleShot(true);
+    d->recompileTimer.setInterval(700);
+    d->recompileTimer.setSingleShot(true);
 
-    connect(&_impl->recompileTimer, &QTimer::timeout, this, &EditView::recompile);
+    connect(&d->recompileTimer, &QTimer::timeout, this, &EditView::recompile);
 
     createConnections();
 
-    _impl->mainWidget->setSizes(QList<int>() << 1000 << 200 << 200);
+    d->mainWidget->setSizes(QList<int>() << 1000 << 200 << 200);
 
     applyStyle(evt::appStyle());
 }
@@ -145,28 +145,28 @@ EditView::~EditView()
 
 void EditView::applyStyle(const evt::Style& style)
 {
-    _impl->cornerActions->setStyleSheet(style.adaptStyleSheet(evt::toolBarStyleSheet));
-    _impl->leftWidget->setStyleSheet(style.adaptStyleSheet(evt::toolboxStyleSheet));
-    _impl->programTreeView->setStyleSheet(style.adaptStyleSheet(evt::treeViewStyleSheet));
-    _impl->compilationLogView->setStyleSheet(style.adaptStyleSheet(evt::listViewStyleSheet));
+    d->cornerActions->setStyleSheet(style.adaptStyleSheet(evt::toolBarStyleSheet));
+    d->leftWidget->setStyleSheet(style.adaptStyleSheet(evt::toolboxStyleSheet));
+    d->programTreeView->setStyleSheet(style.adaptStyleSheet(evt::treeViewStyleSheet));
+    d->compilationLogView->setStyleSheet(style.adaptStyleSheet(evt::listViewStyleSheet));
 }
 
 evt::MainWindowView EditView::view()
 {
-    return {evt::appStyle().icon(evt::IconType::Edit), "Edit", _impl->leftWidget,
-                _impl->mainWidget};
+    return {evt::appStyle().icon(evt::IconType::Edit), "Edit", d->leftWidget,
+                d->mainWidget};
 }
 
 void EditView::setWorkingDir(const QString &path)
 {
-    _impl->fsTree->openFolder(path);
+    d->fsTree->openFolder(path);
 }
 
 void EditView::openFile(const QString& path)
 {
     evt::File* file = new evt::File(path);
 
-    evt::SplitWidget* splitWidget = new evt::SplitWidget(Qt::Vertical, _impl->tab);
+    evt::SplitWidget* splitWidget = new evt::SplitWidget(Qt::Vertical, d->tab);
 
     evt::FileEditor* editor = new evt::FileEditor(file, splitWidget);
     SyntaxHighlighter* syntaxHighlighter = new SyntaxHighlighter(editor->textEditor()->document());
@@ -196,17 +196,17 @@ void EditView::openFile(const QString& path)
 
     ed.completer->popup()->setStyleSheet(ui::completerStyleSheet());
 
-    _impl->editors[splitWidget] = std::move(ed);
+    d->editors[splitWidget] = std::move(ed);
 
     splitWidget->setSizes(QList<int>() << 500 << 500);
 
-    connect(file, &evt::File::modifiedChanged, _impl->tab,
+    connect(file, &evt::File::modifiedChanged, d->tab,
             [this, file, splitWidget](bool modified) {
-                auto index = _impl->tab->indexOf(splitWidget);
-                _impl->tab->setTabText(index, file->fileName() + (modified ? "*" : ""));
+                auto index = d->tab->indexOf(splitWidget);
+                d->tab->setTabText(index, file->fileName() + (modified ? "*" : ""));
             });
 
-    connect(editor->textEditor(), &evt::FoldedTextEdit::textChanged, &_impl->recompileTimer,
+    connect(editor->textEditor(), &evt::FoldedTextEdit::textChanged, &d->recompileTimer,
             qOverload<>(&QTimer::start));
 
     connect(editor->textEditor(), &evt::FoldedTextEdit::fontPointSizeChanged, syntaxHighlighter,
@@ -219,9 +219,9 @@ void EditView::openFile(const QString& path)
                 completer->completionModel()->rowHeight = fm.height() * 1.5;
             });
 
-    auto index = _impl->tab->addTab(splitWidget, file->fileName());
-    _impl->tab->setTabToolTip(index, file->path());
-    _impl->tab->setCurrentWidget(splitWidget);
+    auto index = d->tab->addTab(splitWidget, file->fileName());
+    d->tab->setTabToolTip(index, file->path());
+    d->tab->setCurrentWidget(splitWidget);
 
     recompile();
 }
@@ -238,7 +238,7 @@ inline void addFoldingAreas(evt::FoldedTextEdit* te, auto node, auto& pr)
 
 void EditView::recompile()
 {
-    auto& currentEditor = _impl->currentEditor();
+    auto& currentEditor = d->currentEditor();
     if (currentEditor.codeAssistant->isInCompletionMode()) return;
 
     auto editor = currentEditor.fileEditor;
@@ -254,10 +254,10 @@ void EditView::recompile()
         currentEditor.graphView->build(currentEditor.compilationResult);
     }
 
-    _impl->programModel->setRoot(currentEditor.compilationResult.parserResult);
-    _impl->programTreeView->expandAll();
+    d->programModel->setRoot(currentEditor.compilationResult.parserResult);
+    d->programTreeView->expandAll();
 
-    _impl->compilationLogModel->setLog(currentEditor.compilationResult.log);
+    d->compilationLogModel->setLog(currentEditor.compilationResult.log);
 
     DynamicSyntaxHighlighter h;
     h.highlight(editor->textEditor(), currentEditor.compilationResult.parserResult,
@@ -311,13 +311,13 @@ void EditView::onCurrentTabChanged()
 
 void EditView::createConnections()
 {
-    connect(_impl->tab, &evt::TabWidget::tabCloseRequested, this, &EditView::onTabCloseRequest);
+    connect(d->tab, &evt::TabWidget::tabCloseRequested, this, &EditView::onTabCloseRequest);
 
-    connect(_impl->fsTree, &evt::FileSystemTree::openFileRequest, this, &EditView::openFile);
+    connect(d->fsTree, &evt::FileSystemTree::openFileRequest, this, &EditView::openFile);
 
-    connect(_impl->tab, &evt::TabWidget::currentChanged, this, &EditView::onCurrentTabChanged);
-    _impl->cornerActions->addAction(QIcon(":/icons/graph.png"), "Show/Hide Graph", this, [this] {
-        auto& editor = _impl->editors[_impl->tab->currentWidget()];
+    connect(d->tab, &evt::TabWidget::currentChanged, this, &EditView::onCurrentTabChanged);
+    d->cornerActions->addAction(QIcon(":/icons/graph.png"), "Show/Hide Graph", this, [this] {
+        auto& editor = d->editors[d->tab->currentWidget()];
         auto graphView = editor.graphView;
         if (!graphView->isVisible()) {
             graphView->setVisible(true);
@@ -328,39 +328,39 @@ void EditView::createConnections()
         }
     });
 
-    _impl->cornerActions->addAction(
+    d->cornerActions->addAction(
         evt::appStyle().icon(evt::IconType::Message), "Show/Hide compilation log", this,
-        [this] { _impl->compilationLogView->setVisible(!_impl->compilationLogView->isVisible()); });
+        [this] { d->compilationLogView->setVisible(!d->compilationLogView->isVisible()); });
 
-    connect(_impl->programTreeView, &QTreeView::doubleClicked, this,
-            [this](const QModelIndex& index) { gotoNode(_impl->programModel->nodeAt(index)); });
+    connect(d->programTreeView, &QTreeView::doubleClicked, this,
+            [this](const QModelIndex& index) { gotoNode(d->programModel->nodeAt(index)); });
 
-    connect(_impl->compilationLogView, &QListView::doubleClicked, this,
+    connect(d->compilationLogView, &QListView::doubleClicked, this,
             [this](const QModelIndex& index) {
-                gotoPosition(_impl->compilationLogModel->postionOf(index));
+                gotoPosition(d->compilationLogModel->postionOf(index));
             });
 }
 
 void EditView::gotoNode(const p4cl::ast::Node* node)
 {
-    auto& currentEditor = _impl->currentEditor();
+    auto& currentEditor = d->currentEditor();
     auto position = currentEditor.compilationResult.parserResult.positionOf(node);
     currentEditor.fileEditor->textEditor()->gotoAbsolutePosition(position.begin);
 }
 
 void EditView::gotoPosition(const p4cl::TaggedPosition& p)
 {
-    auto& currentEditor = _impl->currentEditor();
+    auto& currentEditor = d->currentEditor();
     auto position = currentEditor.compilationResult.parserResult.positionOf(p);
     currentEditor.fileEditor->textEditor()->gotoAbsolutePosition(position.begin);
 }
 
 void EditView::onTabCloseRequest(int index)
 {
-    auto& editor = _impl->editorAt(index);
+    auto& editor = d->editorAt(index);
 
     if (!editor.fileEditor->close()) {
-        _impl->tab->removeTab(index);
-        if (_impl->tab->count()) _impl->tab->setCurrentIndex(0);
+        d->tab->removeTab(index);
+        if (d->tab->count()) d->tab->setCurrentIndex(0);
     }
 }
