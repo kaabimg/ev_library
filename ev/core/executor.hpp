@@ -40,6 +40,7 @@ private:
     using task_type = std::function<void()>;
 
     struct execution_queue {
+        executor* root = nullptr;
         std::queue<task_type> tasks;
         std::mutex queue_mutex;
         std::condition_variable wait_condition;
@@ -50,7 +51,7 @@ private:
         execution_queue();
         void push(task_type&& task);
         void work();
-        void try_work_on(execution_queue& q);
+        bool work_on(execution_queue& q);
         void sync(latch& l);
         void stop();
     };
@@ -75,24 +76,31 @@ inline void executor::execution_queue::push(executor::task_type&& task)
 inline void executor::execution_queue::work()
 {
     while (!done) {
-        try_work_on(*this);
+        if (!work_on(*this) && root) {
+            for (auto& q : root->_execution_queues)
+                if (&q != this) {
+                    work_on(q);
+                }
+        }
     }
 }
 
-inline void executor::execution_queue::try_work_on(execution_queue& q)
+inline bool executor::execution_queue::work_on(execution_queue& q)
 {
-    if (!q.done) {
-        task_type task;
-        {
-            std::unique_lock lock(q.queue_mutex);
-            q.wait_condition.wait(lock, [&q] { return q.done || !q.tasks.empty(); });
-            if (q.done) return;
-            task = std::move(q.tasks.front());
-            q.tasks.pop();
-        }
-        task();
-        --q.job_count;
+    task_type task;
+    {
+        std::unique_lock lock(q.queue_mutex);
+        bool ok = q.wait_condition.wait_for(lock, std::chrono::milliseconds(100),
+                                            [&q] { return q.done || !q.tasks.empty(); });
+
+        if (!ok) return false;
+        if (q.done) return true;
+        task = std::move(q.tasks.front());
+        q.tasks.pop();
     }
+    task();
+    --q.job_count;
+    return true;
 }
 
 inline void executor::execution_queue::sync(latch& l)
@@ -113,6 +121,7 @@ inline void executor::execution_queue::stop()
 
 inline executor::executor(size_t thread_count) : _execution_queues(thread_count)
 {
+    for (auto& q : _execution_queues) q.root = this;
 }
 
 inline size_t executor::thread_count() const

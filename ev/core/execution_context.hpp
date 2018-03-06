@@ -339,10 +339,6 @@ struct logger<execution_context> {
     {
         _ec.log(msg.message, msg.category);
     }
-    void flush()
-    {
-    }
-
 private:
     execution_context& _ec;
 };
@@ -364,6 +360,7 @@ inline std::string to_string(ev::execution_event e)
         case ev::execution_event::status_changed: return "Status changed";
         case ev::execution_event::progress_changed: return "Progress changed";
         case ev::execution_event::subitems_changed: return "Hierarchy changed";
+        default: return "Unknown";
     }
 }
 }
