@@ -50,6 +50,7 @@ private:
         execution_queue();
         void push(task_type&& task);
         void work();
+        void try_work_on(execution_queue& q);
         void sync(latch& l);
         void stop();
     };
@@ -60,7 +61,6 @@ private:
 executor::execution_queue::execution_queue() : thread([this] { work(); })
 {
 }
-
 
 inline void executor::execution_queue::push(executor::task_type&& task)
 {
@@ -75,16 +75,23 @@ inline void executor::execution_queue::push(executor::task_type&& task)
 inline void executor::execution_queue::work()
 {
     while (!done) {
+        try_work_on(*this);
+    }
+}
+
+inline void executor::execution_queue::try_work_on(execution_queue& q)
+{
+    if (!q.done) {
         task_type task;
         {
-            std::unique_lock lock(queue_mutex);
-            wait_condition.wait(lock, [this] { return done || !tasks.empty(); });
-            if (done) return;
-            task = std::move(tasks.front());
-            tasks.pop();
+            std::unique_lock lock(q.queue_mutex);
+            q.wait_condition.wait(lock, [&q] { return q.done || !q.tasks.empty(); });
+            if (q.done) return;
+            task = std::move(q.tasks.front());
+            q.tasks.pop();
         }
         task();
-        --job_count;
+        --q.job_count;
     }
 }
 

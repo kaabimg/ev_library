@@ -6,7 +6,51 @@
 #include <QTreeView>
 #include <QApplication>
 
-#define MAX 100
+#define MAX 5
+
+ev::executor executor{4};
+
+auto sub_producer = [&](ev::execution_context context) {
+
+    context.set_status(ev::execution_status::running);
+    for (int i = 0; i < MAX; ++i) {
+        context.set_progress(100 * i / MAX);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    context.set_progress(100);
+    context.set_status(ev::execution_status::finished);
+};
+
+auto producer = [&](ev::execution_context context) {
+
+    context.set_status(ev::execution_status::running);
+    for (int i = 0; i < MAX; ++i) {
+        ev::info(context) << "producer message" << i;
+        context.set_progress(100 * i / MAX);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    ev::info(context) << "Starting new tasks";
+    auto c1 = context.create_sub_ctx();
+    c1.set_name("sub c1");
+    auto c2 = context.create_sub_ctx();
+    c2.set_name("sub c2");
+
+    auto f1 = executor.async(sub_producer, c1);
+    auto f2 = executor.async(sub_producer, c2);
+
+    ev::debug(context) << "waiting for f1";
+    f1.wait();
+
+    ev::debug(context) << "waiting for f2";
+    f2.wait();
+
+    ev::info(context) << "Finished";
+
+    context.set_progress(100);
+    context.set_status(ev::execution_status::finished);
+};
+
 int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
@@ -21,18 +65,9 @@ int main(int argc, char** argv)
     view.show();
 
     context.set_observer([&](auto&&, auto&&) {
-        ev::debug() << __PRETTY_FUNCTION__;
-        model.setExecutionContext(context);
+        QMetaObject::invokeMethod(&model, &evt::ExecutionContextModel::reset);
+        QMetaObject::invokeMethod(&view, &QTreeView::expandAll);
     });
-
-    auto producer = [](ev::execution_context context) {
-        for (int i = 0; i < MAX; ++i) {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            ev::debug(context) << i;
-        }
-    };
-
-    ev::executor executor;
 
     auto c1 = context.create_sub_ctx();
     c1.set_name("C1");

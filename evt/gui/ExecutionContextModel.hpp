@@ -14,6 +14,7 @@ public:
     ~ExecutionContextModel();
 
     void setExecutionContext(ev::execution_context);
+    void reset();
 
     // model api
     QVariant data(const QModelIndex& index, int role) const;

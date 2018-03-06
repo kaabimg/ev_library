@@ -7,6 +7,7 @@
 #include <string>
 #include <functional>
 #include <variant>
+#include <any>
 
 namespace ev {
 
@@ -39,19 +40,21 @@ struct stable_vector  /// one writer, multiple readers
 }
 
 struct execution_cxt_data : std::enable_shared_from_this<execution_cxt_data> {
-    struct subitem {
+    struct item {
         const execution_cxt_data* parent = nullptr;
         std::variant<const log_message*, const execution_cxt_data*> payload;
 
         bool is_message() const;
-        bool is_exection_context() const;
+        bool is_execution_context() const;
         const log_message& message() const;
+        const execution_cxt_data& context_data() const;
+
         execution_context context() const;
     };
 
     execution_cxt_data* parent{nullptr};
 
-    detail::stable_vector<subitem> subitems;
+    detail::stable_vector<item> subitems;
     detail::stable_vector<log_message> messages;
     detail::stable_vector<execution_context> sub_ctxs;
 
@@ -60,6 +63,7 @@ struct execution_cxt_data : std::enable_shared_from_this<execution_cxt_data> {
     execution_status status = execution_status::pending;
     uint8_t progress = 0;
     bool stop_request = false;
+    std::any user_data;
 
     execution_observer* find_observer();
     bool has_stop_request();
@@ -68,13 +72,26 @@ struct execution_cxt_data : std::enable_shared_from_this<execution_cxt_data> {
 
 class execution_context {
 public:
-    using subitem = execution_cxt_data::subitem;
+    using subitem = execution_cxt_data::item;
 
     execution_context(std::nullptr_t);
     execution_context();
     execution_context(std::shared_ptr<execution_cxt_data> d);
 
     const execution_cxt_data* data_ptr() const;
+    bool is_root() const;
+    execution_context parent() const;
+
+    template <typename T>
+    void set_user_data(T&&);
+
+    template <typename T>
+    const T& user_data() const;
+
+    template <typename T>
+    T& user_data();
+
+    bool has_user_data() const;
 
     //// API
     operator bool() const;
@@ -92,7 +109,6 @@ public:
     void stop();
 
     //// Read API: client side. Thread safety condition: Max 1 writer, multiple readers
-    execution_context parent() const;
 
     size_t subitem_count() const;
     const subitem& subitem_at(size_t i) const;
@@ -110,22 +126,27 @@ private:
 
 //////////////////////////////////
 
-inline bool execution_cxt_data::subitem::is_message() const
+inline bool execution_cxt_data::item::is_message() const
 {
     return std::holds_alternative<const log_message*>(payload);
 }
 
-inline bool execution_cxt_data::subitem::is_exection_context() const
+inline bool execution_cxt_data::item::is_execution_context() const
 {
     return std::holds_alternative<const execution_cxt_data*>(payload);
 }
 
-inline const log_message& execution_cxt_data::subitem::message() const
+inline const log_message& execution_cxt_data::item::message() const
 {
     return *std::get<const log_message*>(payload);
 }
 
-inline execution_context execution_cxt_data::subitem::context() const
+inline const execution_cxt_data& execution_cxt_data::item::context_data() const
+{
+    return *std::get<const execution_cxt_data*>(payload);
+}
+
+inline execution_context execution_cxt_data::item::context() const
 {
     return std::get<const execution_cxt_data*>(payload)->to_context();
 }
@@ -166,6 +187,43 @@ inline execution_context::execution_context(std::shared_ptr<execution_cxt_data> 
 inline const execution_cxt_data* execution_context::data_ptr() const
 {
     return d.get();
+}
+
+inline bool execution_context::is_root() const
+{
+    return d->parent == nullptr;
+}
+
+template <typename T>
+inline void execution_context::set_user_data(T&& t)
+{
+    d->user_data = std::make_any<T>(std::forward<T>(t));
+}
+
+template <typename T>
+inline const T& execution_context::user_data() const
+{
+    if (d->user_data) {
+        return std::any_cast<const T&>(d->user_data);
+    }
+    else if (!is_root()) {
+        const auto p = parent();
+        return p.user_data<T>();
+    }
+    throw std::bad_any_cast();
+}
+
+template <typename T>
+inline T& execution_context::user_data()
+{
+    if (d->user_data) {
+        return std::any_cast<T&>(d->user_data);
+    }
+    else if (!is_root()) {
+        auto p = parent();
+        return p.user_data<T>();
+    }
+    throw std::bad_any_cast();
 }
 
 //// API
@@ -234,6 +292,11 @@ inline execution_context execution_context::parent() const
     return execution_context{nullptr};
 }
 
+inline bool execution_context::has_user_data() const
+{
+    return d->user_data.has_value() || (!is_root() && parent().has_user_data());
+}
+
 inline size_t execution_context::subitem_count() const
 {
     return d->subitems.size;
@@ -283,9 +346,7 @@ struct logger<execution_context> {
 private:
     execution_context& _ec;
 };
-}
 
-namespace std {
 inline std::string to_string(ev::execution_status s)
 {
     switch (s) {
