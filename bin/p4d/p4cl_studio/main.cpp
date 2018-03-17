@@ -2,6 +2,8 @@
 #include <evt/gui/Application.hpp>
 #include <evt/gui/Style.hpp>
 
+#include <ev/core/logging.hpp>
+
 #include "gui/WelcomeView.hpp"
 #include "gui/EditView.hpp"
 #include "gui/Theme.hpp"
@@ -27,6 +29,15 @@ int main(int argc, char** argv)
     mw.addView(ev.view());
     mw.setCurrentView(0);
     mw.showMaximized();
+
+
+    auto f = std::async([&]{
+        ev::debug() << "In thread" << std::this_thread::get_id();
+        auto f = app.async([]{
+            ev::debug() << "In thread" << std::this_thread::get_id();
+        });
+        f.wait();
+    });
 
     return app.exec();
 }

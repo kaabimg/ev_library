@@ -145,7 +145,7 @@ inline future<executor::result_of<F, Args...>> executor::async(F&& f, Args&&... 
     auto task = std::make_shared<packaged_task<return_type()>>(
         std::bind(std::forward<F>(f), std::forward<Args>(args)...));
 
-    dispatch([task]() mutable { (*task)(); });
+    dispatch([task]() { (*task)(); });
 
     return task->get_future();
 }

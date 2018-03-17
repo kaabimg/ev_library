@@ -5,6 +5,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Core)
 find_package(Qt5Widgets)
 find_package(Qt5Qml)
+find_package(Threads)
+
 
 file (GLOB STUDIO_FILES
     ./*.cpp
@@ -29,4 +31,4 @@ file (GLOB STUDIO_FILES
 INCLUDE_DIRECTORIES(..)
 
 add_executable (p4dcl_studio ${STUDIO_FILES})
-target_link_libraries(p4dcl_studio Qt5::Core Qt5::Widgets Qt5::Qml p4d_cl evt)
+target_link_libraries(p4dcl_studio Qt5::Core Qt5::Widgets Qt5::Qml p4d_cl evt Threads::Threads)
